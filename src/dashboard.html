@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rentmatic Dashboard</title>
+    <style>
+        :root {
+            --primary-color: #2A9D8F;
+            --background-color: #f5f5f5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--background-color);
+        }
+
+        .sidebar {
+            width: 200px;
+            height: 100vh;
+            background-color: white;
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding: 20px;
+            border-right: 1px solid #eee;
+        }
+
+        .logo {
+            color: var(--primary-color);
+            font-size: 24px;
+            margin-bottom: 30px;
+        }
+
+        .nav-item {
+            padding: 10px;
+            margin: 5px 0;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .nav-item.active {
+            background-color: #e8f4f3;
+            border-radius: 5px;
+        }
+
+        .main-content {
+            margin-left: 200px;
+            padding: 20px;
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .dashboard-card {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 10px;
+        }
+
+        .card-title {
+            color: #333;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">RentMatic</div>
+        <a href="dashboard.html" class="nav-item active">
+            <span>Dashboard</span>
+        </a>
+        <a href="messages.html" class="nav-item">
+            <span>Messages</span>
+        </a>
+        <a href="settings.html" class="nav-item">
+            <span>Settings</span>
+        </a>
+    </div>
+
+    <div class="main-content">
+        <input type="text" class="search-bar" placeholder="Search...">
+        
+        <div class="dashboard-grid">
+            <a href="tenants.html" class="dashboard-card">
+                <img src="tenants-icon.png" alt="Tenants" class="card-icon">
+                <div class="card-title">Tenants</div>
+            </a>
+            <a href="payments.html" class="dashboard-card">
+                <img src="payments-icon.png" alt="Payments" class="card-icon">
+                <div class="card-title">Payments</div>
+            </a>
+            <a href="units.html" class="dashboard-card">
+                <img src="units-icon.png" alt="Unit Management" class="card-icon">
+                <div class="card-title">Unit Management</div>
+            </a>
+            <a href="reports.html" class="dashboard-card">
+				<img src="reports-icon.png" alt="Basic Reports" class="card-icon">
+                <div class="card-title">Basic Reports</div>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

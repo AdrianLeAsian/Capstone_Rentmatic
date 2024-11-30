@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rentmatic Tenants</title>
+    <style>
+        :root {
+            --primary-color: #2A9D8F;
+            --background-color: #f5f5f5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--background-color);
+        }
+
+        .sidebar {
+            width: 200px;
+            height: 100vh;
+            background-color: white;
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding: 20px;
+            border-right: 1px solid #eee;
+        }
+
+        .logo {
+            color: var(--primary-color);
+            font-size: 24px;
+            margin-bottom: 30px;
+        }
+
+        .nav-item {
+            padding: 10px;
+            margin: 5px 0;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .nav-item.active {
+            background-color: #e8f4f3;
+            border-radius: 5px;
+        }
+
+        .main-content {
+            margin-left: 200px;
+            padding: 20px;
+        }
+
+        .tenants-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .tenants-table th,
+        .tenants-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .tenants-table th {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .tenants-table tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .action-buttons {
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+            color: white;
+            transition: opacity 0.2s;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn-add {
+            background-color: #2A9D8F;
+        }
+
+        .btn-update {
+            background-color: #E9C46A;
+        }
+
+        .btn-delete {
+            background-color: #E76F51;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            min-width: 300px;
+        }
+
+        .modal-content input,
+        .modal-content select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">RentMatic</div>
+        <a href="dashboard.html" class="nav-item">
+            <span>Dashboard</span>
+        </a>
+        <a href="messages.html" class="nav-item">
+            <span>Messages</span>
+        </a>
+        <a href="settings.html" class="nav-item">
+            <span>Settings</span>
+        </a>
+    </div>
+
+    <div class="main-content">
+        <input type="text" class="search-bar" placeholder="Search tenants..." onkeyup="searchTenants()">
+        <div class="action-buttons">
+            <button class="btn btn-add" onclick="openAddModal()">Add Tenant</button>
+            <button class="btn btn-update" onclick="openUpdateModal()">Update Tenant</button>
+            <button class="btn btn-delete" onclick="deleteTenant()">Delete Tenant</button>
+        </div>
+
+        <table class="tenants-table">
+            <thead>
+                <tr>
+                    <th>Tenant Name</th>
+                    <th>Unit Number</th>
+                    <th>Rent Status</th>
+                </tr>
+            </thead>
+            <tbody id="tenantsTableBody">
+                <!-- Table rows will be populated dynamically -->
+            </tbody>
+        </table>
+    </div>
