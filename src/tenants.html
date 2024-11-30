@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rentmatic Tenants</title>
+    <title>Rentmatic Dashboard</title>
     <style>
+        /* Keeping all existing styles */
         :root {
             --primary-color: #2A9D8F;
             --background-color: #f5f5f5;
@@ -18,27 +19,63 @@
 
         body {
             font-family: Arial, sans-serif;
-            background-color: var(--background-color);
+            background-image: url('Dash-Background.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .header {
+            background-color: #478778;
+            height: 60px;
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            justify-content: space-between;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .logo {
+            height: 55px;
+            width: auto;
+        }
+
+        .dashboard-label {
+            color: white;
+            font-size: 20px;
+        }
+
+        .search-bar {
+            width: 300px;
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.9);
         }
 
         .sidebar {
             width: 200px;
             height: 100vh;
-            background-color: white;
+            background-color: rgba(240, 255, 235, 0.9);
             position: fixed;
             left: 0;
-            top: 0;
+            top: 60px;
             padding: 20px;
             border-right: 1px solid #eee;
         }
 
-        .logo {
-            color: var(--primary-color);
-            font-size: 24px;
-            margin-bottom: 30px;
-        }
-
         .nav-item {
+            width: 160px;
             padding: 10px;
             margin: 5px 0;
             display: flex;
@@ -49,69 +86,115 @@
         }
 
         .nav-item.active {
+            width: 160px;
             background-color: #e8f4f3;
             border-radius: 5px;
         }
 
         .main-content {
             margin-left: 200px;
+            margin-top: 60px;
             padding: 20px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        .action-button {
+            width: 200px;
+            height: 200px;
+            background-color: rgba(237, 237, 237, 0.8);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: transform 0.2s;
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+        }
+
+        .action-button:hover {
+            transform: translateY(-5px);
+        }
+
+        .button-icon {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 15px;
+        }
+
+        .add-icon {
+            filter: invert(73%) sepia(41%) saturate(402%) hue-rotate(93deg) brightness(92%) contrast(87%);
+        }
+
+        .remove-icon {
+            filter: invert(71%) sepia(51%) saturate(1291%) hue-rotate(314deg) brightness(101%) contrast(101%);
+        }
+
+        .update-icon {
+            filter: invert(93%) sepia(100%) saturate(1352%) hue-rotate(360deg) brightness(109%) contrast(109%);
+        }
+
+        .export-icon {
+            filter: invert(80%) sepia(11%) saturate(2000%) hue-rotate(177deg) brightness(99%) contrast(96%);
+        }
+
+        .button-title {
+            color: #666973;
+            font-size: 18px;
         }
 
         .tenants-table {
             width: 100%;
-            border-collapse: collapse;
-            background-color: white;
+            background-color: rgba(255, 255, 255, 0.9);
             border-radius: 10px;
-            overflow: hidden;
+            border-collapse: collapse;
             margin-top: 20px;
-        }
-
-        .tenants-table th,
-        .tenants-table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
+            backdrop-filter: blur(10px);
         }
 
         .tenants-table th {
-            background-color: var(--primary-color);
+            background-color: #478778;
             color: white;
+            padding: 15px;
+            text-align: left;
         }
 
-        .tenants-table tr:hover {
-            background-color: #f9f9f9;
+        .tenants-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
         }
 
-        .action-buttons {
-            margin-bottom: 20px;
+        .tenants-table tr:last-child td {
+            border-bottom: none;
         }
 
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
+        .rent-status {
+            padding: 5px 10px;
+            border-radius: 15px;
             font-size: 14px;
-            margin-right: 10px;
-            color: white;
-            transition: opacity 0.2s;
+            font-weight: bold;
         }
 
-        .btn:hover {
-            opacity: 0.9;
+        .status-paid {
+            background-color: #90EE90;
+            color: #006400;
         }
 
-        .btn-add {
-            background-color: #2A9D8F;
+        .status-pending {
+            background-color: #FFE4B5;
+            color: #8B4513;
         }
 
-        .btn-update {
-            background-color: #E9C46A;
-        }
-
-        .btn-delete {
-            background-color: #E76F51;
+        .status-overdue {
+            background-color: #FFB6C1;
+            color: #8B0000;
         }
 
         .modal {
@@ -121,39 +204,75 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
         }
 
         .modal-content {
             background-color: white;
             padding: 20px;
             border-radius: 10px;
+            width: 400px;
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            min-width: 300px;
         }
 
-        .modal-content input,
-        .modal-content select {
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input, .form-group select {
             width: 100%;
-            padding: 10px;
-            margin: 10px 0;
+            padding: 8px;
             border: 1px solid #ddd;
             border-radius: 5px;
         }
 
-        .modal-content h2 {
-            margin-bottom: 20px;
-            color: var(--primary-color);
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .save-button {
+            background-color: #478778;
+            color: white;
+        }
+
+        .cancel-button {
+            background-color: #ddd;
+        }
+
+        .selected {
+            background-color: #e8f4f3;
         }
     </style>
 </head>
 <body>
+    <div class="header">
+        <div class="header-left">
+            <img src="Rentmatic-Logo.png" alt="Rentmatic" class="logo">
+            <div class="dashboard-label">Tenants</div>
+            <input type="text" class="search-bar" placeholder="Search...">
+        </div>
+    </div>
     <div class="sidebar">
-        <div class="logo">RentMatic</div>
-        <a href="dashboard.html" class="nav-item">
+        <a href="dashboard.html" class="nav-item active">
             <span>Dashboard</span>
         </a>
         <a href="messages.html" class="nav-item">
@@ -165,14 +284,26 @@
     </div>
 
     <div class="main-content">
-        <input type="text" class="search-bar" placeholder="Search tenants..." onkeyup="searchTenants()">
         <div class="action-buttons">
-            <button class="btn btn-add" onclick="openAddModal()">Add Tenant</button>
-            <button class="btn btn-update" onclick="openUpdateModal()">Update Tenant</button>
-            <button class="btn btn-delete" onclick="deleteTenant()">Delete Tenant</button>
+            <a onclick="showAddModal()" class="action-button">
+                <img src="add-icon.png" alt="Add" class="button-icon add-icon">
+                <div class="button-title">Add</div>
+            </a>
+            <a onclick="removeTenant()" class="action-button">
+                <img src="remove-icon.png" alt="Remove" class="button-icon remove-icon">
+                <div class="button-title">Remove</div>
+            </a>
+            <a onclick="showUpdateModal()" class="action-button">
+                <img src="update-icon.png" alt="Update" class="button-icon update-icon">
+                <div class="button-title">Update</div>
+            </a>
+            <a onclick="exportToExcel()" class="action-button">
+                <img src="export-icon.png" alt="Export" class="button-icon export-icon">
+                <div class="button-title">Export to Excel</div>
+            </a>
         </div>
 
-        <table class="tenants-table">
+        <table class="tenants-table" id="tenantsTable">
             <thead>
                 <tr>
                     <th>Tenant Name</th>
@@ -180,8 +311,213 @@
                     <th>Rent Status</th>
                 </tr>
             </thead>
-            <tbody id="tenantsTableBody">
-                <!-- Table rows will be populated dynamically -->
+            <tbody>
             </tbody>
         </table>
     </div>
+
+    <!-- Add Modal -->
+    <div id="addModal" class="modal">
+        <div class="modal-content">
+            <h2>Add New Tenant</h2>
+            <div class="form-group">
+                <label>Tenant Name:</label>
+                <input type="text" id="newTenantName">
+            </div>
+            <div class="form-group">
+                <label>Unit Number:</label>
+                <input type="text" id="newUnitNumber">
+            </div>
+            <div class="form-group">
+                <label>Rent Status:</label>
+                <select id="newRentStatus">
+                    <option value="paid">Paid</option>
+                    <option value="pending">Pending</option>
+                    <option value="overdue">Overdue</option>
+                </select>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-button cancel-button" onclick="closeModal('addModal')">Cancel</button>
+                <button class="modal-button save-button" onclick="addTenant()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Modal -->
+    <div id="updateModal" class="modal">
+        <div class="modal-content">
+            <h2>Update Tenant</h2>
+            <div class="form-group">
+                <label>Tenant Name:</label>
+                <input type="text" id="updateTenantName">
+            </div>
+            <div class="form-group">
+                <label>Unit Number:</label>
+                <input type="text" id="updateUnitNumber">
+            </div>
+            <div class="form-group">
+                <label>Rent Status:</label>
+                <select id="updateRentStatus">
+                    <option value="paid">Paid</option>
+                    <option value="pending">Pending</option>
+                    <option value="overdue">Overdue</option>
+                </select>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-button cancel-button" onclick="closeModal('updateModal')">Cancel</button>
+                <button class="modal-button save-button" onclick="updateTenant()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+    <script>
+        let selectedRow = null;
+        let tenantDatabase = [];
+
+        // Load tenants from localStorage on page load
+        window.onload = function() {
+            const savedTenants = localStorage.getItem('tenants');
+            if (savedTenants) {
+                tenantDatabase = JSON.parse(savedTenants);
+                loadTenantsToTable();
+            }
+        }
+
+        function loadTenantsToTable() {
+            const tbody = document.getElementById('tenantsTable').getElementsByTagName('tbody')[0];
+            tbody.innerHTML = '';
+            
+            tenantDatabase.forEach(tenant => {
+                const newRow = tbody.insertRow();
+                newRow.onclick = function() { selectRow(this); };
+                newRow.innerHTML = `
+                    <td>${tenant.name}</td>
+                    <td>${tenant.unit}</td>
+                    <td><span class="rent-status status-${tenant.status}">${tenant.status.charAt(0).toUpperCase() + tenant.status.slice(1)}</span></td>
+                `;
+            });
+        }
+
+        function selectRow(row) {
+            if (selectedRow) {
+                selectedRow.classList.remove('selected');
+            }
+            row.classList.add('selected');
+            selectedRow = row;
+        }
+
+        function showAddModal() {
+            document.getElementById('addModal').style.display = 'block';
+        }
+
+        function showUpdateModal() {
+            if (!selectedRow) {
+                alert('Please select a tenant to update');
+                return;
+            }
+            const cells = selectedRow.cells;
+            document.getElementById('updateTenantName').value = cells[0].textContent;
+            document.getElementById('updateUnitNumber').value = cells[1].textContent;
+            document.getElementById('updateRentStatus').value = cells[2].querySelector('.rent-status').textContent.toLowerCase();
+            document.getElementById('updateModal').style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function addTenant() {
+            const name = document.getElementById('newTenantName').value;
+            const unit = document.getElementById('newUnitNumber').value;
+            const status = document.getElementById('newRentStatus').value;
+
+            if (!name || !unit) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            // Add to database
+            tenantDatabase.push({
+                name: name,
+                unit: unit,
+                status: status
+            });
+            
+            // Save to localStorage
+            localStorage.setItem('tenants', JSON.stringify(tenantDatabase));
+
+            // Update table
+            loadTenantsToTable();
+
+            closeModal('addModal');
+            document.getElementById('newTenantName').value = '';
+            document.getElementById('newUnitNumber').value = '';
+            document.getElementById('newRentStatus').value = 'paid';
+        }
+
+        function updateTenant() {
+            if (!selectedRow) {
+                alert('Please select a tenant to update');
+                return;
+            }
+
+            const name = document.getElementById('updateTenantName').value;
+            const unit = document.getElementById('updateUnitNumber').value;
+            const status = document.getElementById('updateRentStatus').value;
+
+            if (!name || !unit) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            // Update database
+            const index = Array.from(selectedRow.parentNode.children).indexOf(selectedRow);
+            tenantDatabase[index] = {
+                name: name,
+                unit: unit,
+                status: status
+            };
+
+            // Save to localStorage
+            localStorage.setItem('tenants', JSON.stringify(tenantDatabase));
+
+            // Update table
+            loadTenantsToTable();
+
+            closeModal('updateModal');
+        }
+
+        function removeTenant() {
+            if (!selectedRow) {
+                alert('Please select a tenant to remove');
+                return;
+            }
+
+            if (confirm('Are you sure you want to remove this tenant?')) {
+                const index = Array.from(selectedRow.parentNode.children).indexOf(selectedRow);
+                tenantDatabase.splice(index, 1);
+                
+                // Save to localStorage
+                localStorage.setItem('tenants', JSON.stringify(tenantDatabase));
+
+                // Update table
+                loadTenantsToTable();
+                selectedRow = null;
+            }
+        }
+
+        function exportToExcel() {
+            // Create workbook and worksheet
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(tenantDatabase);
+
+            // Add worksheet to workbook
+            XLSX.utils.book_append_sheet(wb, ws, "Tenants");
+
+            // Save file
+            XLSX.writeFile(wb, "tenants_database.xlsx");
+        }
+    </script>
+</body>
+</html>
