@@ -202,7 +202,7 @@
         .payment-summary {
             margin-top: 30px;
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(6, 1fr);
             gap: 20px;
         }
 
@@ -298,6 +298,7 @@
                     <th>Unit Number</th>
                     <th>Email</th>
                     <th>Mobile</th>
+                    <th>Payment Period</th>
                     <th>Payment Status</th>
                 </tr>
             </thead>
@@ -350,6 +351,10 @@
                     <div class="summary-value" id="rentDueDate"></div>
                 </div>
                 <div class="summary-item">
+                    <div class="summary-label">Payment Period</div>
+                    <div class="summary-value" id="paymentPeriod"></div>
+                </div>
+                <div class="summary-item">
                     <div class="summary-label">Monthly Rent</div>
                     <div class="summary-value" id="monthlyRent"></div>
                 </div>
@@ -381,9 +386,18 @@
                 const tenantDatabase = JSON.parse(e.newValue);
                 loadPaymentsTable(tenantDatabase);
                 initializePaymentHistory(tenantDatabase);
+                
+                // Update payment details if modal is open
+                if (currentTenant && document.getElementById('paymentDetailsModal').style.display === 'block') {
+                    showPaymentDetails(currentTenant);
+                }
             }
             if (e.key === 'units') {
                 unitsData = JSON.parse(e.newValue);
+                // Update payment details if modal is open
+                if (currentTenant && document.getElementById('paymentDetailsModal').style.display === 'block') {
+                    updatePaymentSummary(currentTenant);
+                }
             }
         });
 
@@ -400,6 +414,20 @@
                 loadPaymentsTable(tenantDatabase);
                 initializePaymentHistory(tenantDatabase);
             }
+
+            // Set up interval to check for updates
+            setInterval(() => {
+                const currentUnits = localStorage.getItem('units');
+                if (currentUnits) {
+                    const newUnitsData = JSON.parse(currentUnits);
+                    if (JSON.stringify(newUnitsData) !== JSON.stringify(unitsData)) {
+                        unitsData = newUnitsData;
+                        if (currentTenant && document.getElementById('paymentDetailsModal').style.display === 'block') {
+                            updatePaymentSummary(currentTenant);
+                        }
+                    }
+                }
+            }, 1000); // Check every second
         }
 
         function initializePaymentHistory(tenants) {
@@ -421,11 +449,16 @@
                 // Get payment status from tenant data or default to pending
                 const paymentStatus = tenant.status ? tenant.status.toLowerCase() : 'pending';
                 
+                // Get unit payment period
+                const unit = unitsData.find(u => u.number === tenant.unit);
+                const paymentPeriod = unit?.period || 'Monthly';
+                
                 row.innerHTML = `
                     <td>${tenant.name || 'N/A'}</td>
                     <td>${tenant.unit || 'Not Assigned'}</td>
                     <td>${tenant.email || 'N/A'}</td>
                     <td>${tenant.mobile || 'N/A'}</td>
+                    <td>${paymentPeriod}</td>
                     <td><span class="status-${paymentStatus}">${paymentStatus.charAt(0).toUpperCase() + paymentStatus.slice(1)}</span></td>
                 `;
             });
@@ -440,15 +473,30 @@
             const tenant = savedTenants.find(t => t.name === tenantName);
             const unitNumber = tenant?.unit;
             
-            // Get unit price from units data
+            // Get unit price and period from units data
             const savedUnits = JSON.parse(localStorage.getItem('units'));
             const unit = savedUnits.find(u => u.number === unitNumber);
-            const monthlyRent = unit?.price || 0;
+            const paymentPeriod = unit?.period || 'Monthly';
+            let monthlyRent = unit?.price || 0;
+            
+            // Convert rent to monthly equivalent based on payment period
+            switch(paymentPeriod.toLowerCase()) {
+                case 'daily':
+                    monthlyRent *= 30;
+                    break;
+                case 'weekly':
+                    monthlyRent *= 4;
+                    break;
+                case 'yearly':
+                    monthlyRent /= 12;
+                    break;
+            }
             
             const outstandingBalance = monthlyRent - (payments[0]?.amount || 0);
             const creditBalance = totalPaid - (monthlyRent * payments.length);
 
             document.getElementById('rentDueDate').textContent = '1st of Month';
+            document.getElementById('paymentPeriod').textContent = paymentPeriod;
             document.getElementById('monthlyRent').textContent = `₱${monthlyRent.toFixed(2)}`;
             document.getElementById('totalRentPaid').textContent = `₱${totalPaid.toFixed(2)}`;
             document.getElementById('outstandingBalance').textContent = `₱${Math.max(0, outstandingBalance).toFixed(2)}`;

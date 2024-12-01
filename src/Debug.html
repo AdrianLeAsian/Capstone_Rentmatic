@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rentmatic Dashboard</title>
+    <style>
+        :root {
+            --primary-color: #2A9D8F;
+            --background-color: #f5f5f5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('Dash-Background.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .header {
+            background-color: #478778;
+            height: 60px;
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            justify-content: space-between;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .logo {
+            height: 55px;
+            width: auto;
+        }
+
+        .dashboard-label {
+            color: white;
+            font-size: 20px;
+        }
+
+        .search-bar {
+            width: 300px;
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+
+        .sidebar {
+            width: 200px;
+            height: 100vh;
+            background-color: rgba(240, 255, 235, 0.9);
+            position: fixed;
+            left: 0;
+            top: 60px;
+            padding: 20px;
+            border-right: 1px solid #eee;
+        }
+
+        .nav-item {
+            width: 160px;
+            padding: 10px;
+            margin: 5px 0;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            gap: 10px;
+            position: relative;
+        }
+
+        .nav-item:hover {
+            background-color: #478778;
+            border-radius: 5px;
+            color: white;
+        }
+
+        .nav-item:hover .nav-icon {
+            filter: brightness(0) invert(1);
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            filter: brightness(0);
+        }
+
+        .notification-badge {
+            position: absolute;
+            right: 10px;
+            background-color: #ff4444;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .main-content {
+            margin-left: 200px;
+            margin-top: 60px;
+            padding: 20px;
+        }
+
+        .data-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .data-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #478778;
+        }
+
+        .data-content {
+            margin-bottom: 20px;
+        }
+
+        pre {
+            background-color: rgba(240, 255, 235, 0.9);
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+
+        .log-entry {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            font-family: monospace;
+        }
+
+        .log-entry.added {
+            background-color: rgba(40, 167, 69, 0.1);
+        }
+
+        .log-entry.modified {
+            background-color: rgba(255, 193, 7, 0.1);
+        }
+
+        .log-entry.deleted {
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+
+        .timestamp {
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <img src="Rentmatic-Logo.png" alt="Rentmatic" class="logo">
+            <div class="dashboard-label">Dashboard</div>
+            <input type="text" class="search-bar" placeholder="Search...">
+        </div>
+    </div>
+    <div class="sidebar">
+        <a href="dashboard.html" class="nav-item">
+            <img src="dashboard-icon.png" alt="" class="nav-icon">
+            <span>Dashboard</span>
+        </a>
+        <a href="messages.html" class="nav-item" onclick="handleMessageClick(event)">
+            <img src="messages-icon.png" alt="" class="nav-icon">
+            <span>Messages</span>
+            <span class="notification-badge" id="messageNotification">10</span>
+        </a>
+        <a href="settings.html" class="nav-item">
+            <img src="settings-icon.png" alt="" class="nav-icon">
+            <span>Settings</span>
+        </a>
+    </div>
+
+    <div class="main-content">
+        <div class="data-container">
+            <div class="data-title">Change Logs</div>
+            <div class="data-content" id="logsContainer">
+                <div id="changeLogs"></div>
+            </div>
+            
+            <div class="data-title">Current Data State</div>
+            <div class="data-content">
+                <pre id="currentData">Loading data...</pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const notificationDismissed = localStorage.getItem('messageNotificationDismissed');
+        if (notificationDismissed === 'true') {
+            document.getElementById('messageNotification').style.display = 'none';
+        }
+
+        function handleMessageClick(event) {
+            const notification = document.getElementById('messageNotification');
+            notification.style.display = 'none';
+            localStorage.setItem('messageNotificationDismissed', 'true');
+        }
+
+        let previousState = {
+            tenants: [],
+            units: [],
+            payments: {}
+        };
+
+        function compareObjects(oldObj, newObj) {
+            const changes = [];
+            
+            // Check for additions and modifications
+            for (const key in newObj) {
+                if (!oldObj.hasOwnProperty(key)) {
+                    changes.push({type: 'added', key, value: newObj[key]});
+                } else if (JSON.stringify(oldObj[key]) !== JSON.stringify(newObj[key])) {
+                    changes.push({type: 'modified', key, value: newObj[key], oldValue: oldObj[key]});
+                }
+            }
+            
+            // Check for deletions
+            for (const key in oldObj) {
+                if (!newObj.hasOwnProperty(key)) {
+                    changes.push({type: 'deleted', key, oldValue: oldObj[key]});
+                }
+            }
+            
+            return changes;
+        }
+
+        function addLogEntry(type, message) {
+            const logsContainer = document.getElementById('changeLogs');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            const timestamp = new Date().toLocaleString();
+            entry.innerHTML = `<span class="timestamp">[${timestamp}]</span> ${message}`;
+            logsContainer.insertBefore(entry, logsContainer.firstChild);
+        }
+
+        function loadAndCompareData() {
+            const currentState = {
+                tenants: JSON.parse(localStorage.getItem('tenants') || '[]'),
+                units: JSON.parse(localStorage.getItem('units') || '[]'),
+                payments: JSON.parse(localStorage.getItem('paymentHistory') || '{}')
+            };
+
+            // Compare and log changes
+            for (const dataType in currentState) {
+                const changes = compareObjects(previousState[dataType], currentState[dataType]);
+                changes.forEach(change => {
+                    let message = '';
+                    switch (change.type) {
+                        case 'added':
+                            message = `${dataType}: New entry added - ${JSON.stringify(change.value)}`;
+                            break;
+                        case 'modified':
+                            message = `${dataType}: Entry modified - ${JSON.stringify(change.value)}`;
+                            break;
+                        case 'deleted':
+                            message = `${dataType}: Entry deleted - ${JSON.stringify(change.oldValue)}`;
+                            break;
+                    }
+                    addLogEntry(change.type, message);
+                });
+            }
+
+            // Update previous state
+            previousState = currentState;
+
+            // Display current state
+            document.getElementById('currentData').textContent = 
+                JSON.stringify(currentState, null, 2);
+        }
+
+        // Initial load
+        loadAndCompareData();
+
+        // Check for changes every 2 seconds
+        setInterval(loadAndCompareData, 2000);
+    </script>
+</body>
+</html>

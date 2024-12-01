@@ -262,6 +262,7 @@
                     <th>Status</th>
                     <th>Bedrooms</th>
                     <th>Bathrooms</th>
+                    <th>Payment Period</th>
                     <th>Price (PHP)</th>
                     <th>Tenant</th>
                 </tr>
@@ -336,7 +337,16 @@
                     <input type="number" id="bathrooms" min="1" required>
                 </div>
                 <div class="form-group">
-                    <label for="price">Monthly Price (PHP):</label>
+                    <label for="paymentPeriod">Payment Period:</label>
+                    <select id="paymentPeriod" onchange="updatePrice('add')" required>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly" selected>Monthly</option>
+                        <option value="yearly">Yearly</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="price">Price (PHP):</label>
                     <input type="number" id="price" min="0" required>
                 </div>
                 <div class="form-group">
@@ -371,7 +381,16 @@
                     <input type="number" id="updateBathrooms" min="1" required>
                 </div>
                 <div class="form-group">
-                    <label for="updatePrice">Monthly Price (PHP):</label>
+                    <label for="updatePaymentPeriod">Payment Period:</label>
+                    <select id="updatePaymentPeriod" onchange="updatePrice('update')" required>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly" selected>Monthly</option>
+                        <option value="yearly">Yearly</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="updatePrice">Price (PHP):</label>
                     <input type="number" id="updatePrice" min="0" required>
                 </div>
                 <div class="form-group">
@@ -413,6 +432,44 @@
             unitsData = JSON.parse(localStorage.getItem('units')) || [];
             displayUnits();
         });
+
+        function updatePrice(mode) {
+            const periodSelect = mode === 'add' ? 
+                document.getElementById('paymentPeriod') : 
+                document.getElementById('updatePaymentPeriod');
+            const priceInput = mode === 'add' ? 
+                document.getElementById('price') : 
+                document.getElementById('updatePrice');
+            
+            const currentPrice = parseFloat(priceInput.value) || 0;
+            const period = periodSelect.value;
+            
+            // Convert current price to daily rate first
+            let dailyRate;
+            if(period === 'yearly') {
+                dailyRate = currentPrice / 365;
+            } else if(period === 'monthly') {
+                dailyRate = currentPrice / 30;
+            } else if(period === 'weekly') {
+                dailyRate = currentPrice / 7;
+            } else {
+                dailyRate = currentPrice;
+            }
+            
+            // Convert daily rate to selected period
+            let newPrice;
+            if(periodSelect.value === 'yearly') {
+                newPrice = dailyRate * 365;
+            } else if(periodSelect.value === 'monthly') {
+                newPrice = dailyRate * 30;
+            } else if(periodSelect.value === 'weekly') {
+                newPrice = dailyRate * 7;
+            } else {
+                newPrice = dailyRate;
+            }
+            
+            priceInput.value = Math.round(newPrice);
+        }
 
         // Function to fetch and update tenants data
         async function fetchTenantsData() {
@@ -464,6 +521,7 @@
             if (selectedUnit) {
                 document.getElementById('updateBedrooms').value = selectedUnit.bedrooms;
                 document.getElementById('updateBathrooms').value = selectedUnit.bathrooms;
+                document.getElementById('updatePaymentPeriod').value = selectedUnit.paymentPeriod;
                 document.getElementById('updatePrice').value = selectedUnit.price;
                 
                 const updateTenantSelect = document.getElementById('updateTenant');
@@ -526,6 +584,7 @@
                     </td>
                     <td>${unit.bedrooms}</td>
                     <td>${unit.bathrooms}</td>
+                    <td>${unit.paymentPeriod ? unit.paymentPeriod.charAt(0).toUpperCase() + unit.paymentPeriod.slice(1) : 'Monthly'}</td>
                     <td>₱${Number(unit.price).toLocaleString()}</td>
                     <td>${unit.tenant || 'None'}</td>
                 `;
@@ -539,6 +598,7 @@
             const unitNumber = document.getElementById('unitNumber').value;
             const bedrooms = document.getElementById('bedrooms').value;
             const bathrooms = document.getElementById('bathrooms').value;
+            const paymentPeriod = document.getElementById('paymentPeriod').value;
             const price = document.getElementById('price').value;
             const tenant = document.getElementById('tenant').value;
             
@@ -546,6 +606,7 @@
                 unitNumber,
                 bedrooms,
                 bathrooms,
+                paymentPeriod,
                 price,
                 tenant
             };
@@ -572,6 +633,7 @@
             const unitNumber = document.getElementById('updateUnitNumber').value;
             const bedrooms = document.getElementById('updateBedrooms').value;
             const bathrooms = document.getElementById('updateBathrooms').value;
+            const paymentPeriod = document.getElementById('updatePaymentPeriod').value;
             const price = document.getElementById('updatePrice').value;
             const tenant = document.getElementById('updateTenant').value;
             
@@ -589,6 +651,7 @@
                     unitNumber,
                     bedrooms,
                     bathrooms,
+                    paymentPeriod,
                     price,
                     tenant
                 };
