@@ -335,6 +335,13 @@
 
     <div class="main-content">
         <div class="settings-section">
+            <h2>Data Management</h2>
+            <button onclick="exportData()">Export Data</button>
+            <input type="file" id="importFile" style="display: none" onchange="importData(event)">
+            <button onclick="document.getElementById('importFile').click()">Import Data</button>
+        </div>
+
+        <div class="settings-section">
             <h2>Help & Support</h2>
             <button onclick="openChatWindow()">Help Center</button>
             <button onclick="openContactModal()">Contact Support</button>
@@ -464,6 +471,51 @@
     </div>
 
     <script>
+        function exportData() {
+            // Get all data from localStorage
+            const data = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                data[key] = localStorage.getItem(key);
+            }
+            
+            // Convert to JSON and create blob
+            const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            // Create download link and trigger download
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'rentmatic_data.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        // Clear existing data
+                        localStorage.clear();
+                        // Import new data
+                        for (const key in data) {
+                            localStorage.setItem(key, data[key]);
+                        }
+                        alert('Data imported successfully!');
+                        location.reload();
+                    } catch (error) {
+                        alert('Error importing data. Please make sure the file is valid.');
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+
         function openContactModal() {
             document.getElementById("contactModal").style.display = "block";
         }
