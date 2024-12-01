@@ -82,11 +82,23 @@
             cursor: pointer;
             text-decoration: none;
             color: inherit;
+            gap: 10px;
         }
 
-        .nav-item.active {
-            background-color: #e8f4f3;
+        .nav-item:hover {
+            background-color: #478778;
             border-radius: 5px;
+            color: white;
+        }
+
+        .nav-item:hover .nav-icon {
+            filter: brightness(0) invert(1);
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            filter: brightness(0);
         }
 
         .main-content {
@@ -157,13 +169,16 @@
         </div>
     </div>
     <div class="sidebar">
-        <a href="dashboard.html" class="nav-item active">
+        <a href="dashboard.html" class="nav-item">
+            <img src="dashboard-icon.png" alt="" class="nav-icon">
             <span>Dashboard</span>
         </a>
         <a href="messages.html" class="nav-item">
+            <img src="messages-icon.png" alt="" class="nav-icon">
             <span>Messages</span>
         </a>
         <a href="settings.html" class="nav-item">
+            <img src="settings-icon.png" alt="" class="nav-icon">
             <span>Settings</span>
         </a>
     </div>
@@ -183,7 +198,7 @@
                 <div class="card-title">Unit Management</div>
             </a>
             <a href="reports.html" class="dashboard-card">
-				<img src="reports-icon.png" alt="Basic Reports" class="card-icon reports-icon">
+                <img src="reports-icon.png" alt="Basic Reports" class="card-icon reports-icon">
                 <div class="card-title">Basic Reports</div>
             </a>
         </div>

@@ -45,9 +45,8 @@
         }
 
         .logo {
-            color: white;
-            font-size: 32px;
-            font-weight: bold;
+            height: 55px;
+            width: auto;
         }
 
         .dashboard-label {
@@ -75,6 +74,7 @@
         }
 
         .nav-item {
+            width: 160px; /* Same as sidebar width (200px) minus padding (20px * 2) */
             padding: 10px;
             margin: 5px 0;
             display: flex;
@@ -82,11 +82,23 @@
             cursor: pointer;
             text-decoration: none;
             color: inherit;
+            gap: 10px;
         }
 
-        .nav-item.active {
-            background-color: #e8f4f3;
+        .nav-item:hover {
+            background-color: #478778;
             border-radius: 5px;
+            color: white;
+        }
+
+        .nav-item:hover .nav-icon {
+            filter: brightness(0) invert(1);
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            filter: brightness(0);
         }
 
         .main-content {
@@ -95,98 +107,393 @@
             padding: 20px;
         }
 
-        .dashboard-grid {
+        .payments-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: rgba(255, 255, 255, 0.9);
+            margin-top: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .payments-table th,
+        .payments-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .payments-table th {
+            background-color: #478778;
+            color: white;
+        }
+
+        .payments-table tr {
+            cursor: pointer;
+        }
+
+        .payments-table tr:hover {
+            background-color: rgba(71, 135, 120, 0.1);
+        }
+
+        .status-paid {
+            color: #2ecc71;
+            font-weight: bold;
+        }
+
+        .status-pending {
+            color: #f1c40f;
+            font-weight: bold;
+        }
+
+        .status-overdue {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: relative;
+            background-color: #fff;
+            margin: 5% auto;
+            padding: 20px;
+            width: 70%;
+            max-width: 800px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .close-btn {
+            position: absolute;
+            right: 20px;
+            top: 10px;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .payment-details-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .payment-details-table th,
+        .payment-details-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .payment-details-table th {
+            background-color: #478778;
+            color: white;
+        }
+
+        .payment-summary {
+            margin-top: 30px;
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(5, 1fr);
             gap: 20px;
         }
 
-        .dashboard-card {
-            background-color: rgba(237, 237, 237, 0.8);
-            aspect-ratio: 1;
-            padding: 20px;
-            border-radius: 10px;
+        .summary-item {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
             text-align: center;
-            text-decoration: none;
-            transition: transform 0.2s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(10px);
         }
 
-        .dashboard-card:hover {
-            transform: translateY(-5px);
+        .summary-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
         }
 
-        .card-icon {
-            width: 60px;
-            height: 60px;
-            margin-bottom: 10px;
+        .summary-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #478778;
         }
 
-        .tenants-icon {
-            filter: invert(48%) sepia(79%) saturate(2476%) hue-rotate(190deg) brightness(118%) contrast(119%);
+        .add-payment-btn {
+            background-color: #478778;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
         }
 
-        .payments-icon {
-            filter: invert(42%) sepia(93%) saturate(1352%) hue-rotate(87deg) brightness(119%) contrast(119%);
+        .add-payment-btn:hover {
+            background-color: #3a6e63;
         }
 
-        .units-icon {
-            filter: invert(72%) sepia(32%) saturate(1217%) hue-rotate(6deg) brightness(127%) contrast(119%);
+        .payment-form {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
         }
 
-        .reports-icon {
-            filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(92%) contrast(97%);
+        .payment-form input,
+        .payment-form select {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
 
-        .card-title {
-            color: #666973;
-            font-size: 16px;
+        .payment-form button {
+            background-color: #478778;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
     <div class="header">
         <div class="header-left">
-            <div class="logo">Rentmatic</div>
+            <img src="Rentmatic-Logo.png" alt="Rentmatic" class="logo">
             <div class="dashboard-label">Dashboard</div>
             <input type="text" class="search-bar" placeholder="Search...">
         </div>
     </div>
     <div class="sidebar">
-        <a href="dashboard.html" class="nav-item active">
+        <a href="dashboard.html" class="nav-item">
+            <img src="dashboard-icon.png" alt="" class="nav-icon">
             <span>Dashboard</span>
         </a>
         <a href="messages.html" class="nav-item">
+            <img src="messages-icon.png" alt="" class="nav-icon">
             <span>Messages</span>
         </a>
         <a href="settings.html" class="nav-item">
+            <img src="settings-icon.png" alt="" class="nav-icon">
             <span>Settings</span>
         </a>
     </div>
 
     <div class="main-content">
-        <div class="dashboard-grid">
-            <a href="tenants.html" class="dashboard-card">
-                <img src="tenants-icon.png" alt="Tenants" class="card-icon tenants-icon">
-                <div class="card-title">Tenants</div>
-            </a>
-            <a href="payments.html" class="dashboard-card">
-                <img src="payments-icon.png" alt="Payments" class="card-icon payments-icon">
-                <div class="card-title">Payments</div>
-            </a>
-            <a href="units.html" class="dashboard-card">
-                <img src="units-icon.png" alt="Unit Management" class="card-icon units-icon">
-                <div class="card-title">Unit Management</div>
-            </a>
-            <a href="reports.html" class="dashboard-card">
-				<img src="reports-icon.png" alt="Basic Reports" class="card-icon reports-icon">
-                <div class="card-title">Basic Reports</div>
-            </a>
+        <table class="payments-table">
+            <thead>
+                <tr>
+                    <th>Tenant Name</th>
+                    <th>Unit Number</th>
+                    <th>Email</th>
+                    <th>Mobile</th>
+                    <th>Payment Status</th>
+                </tr>
+            </thead>
+            <tbody id="paymentsTableBody">
+                <!-- Table data will be populated from tenants.html data -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Payment Details Modal -->
+    <div id="paymentDetailsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h2 id="modalTenantName"></h2>
+            <table class="payment-details-table">
+                <thead>
+                    <tr>
+                        <th>Payment Date</th>
+                        <th>Amount Paid</th>
+                        <th>Method of Payment</th>
+                        <th>Payment Status</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody id="paymentDetailsBody">
+                    <!-- Payment details will be populated here -->
+                </tbody>
+            </table>
+            <button class="add-payment-btn" onclick="togglePaymentForm()">Add Payment</button>
+            <div id="paymentForm" class="payment-form">
+                <input type="date" id="paymentDate" placeholder="Payment Date">
+                <input type="number" id="paymentAmount" placeholder="Amount">
+                <select id="paymentMethod">
+                    <option value="Bank Transfer">Bank Transfer</option>
+                    <option value="Credit Card">Credit Card</option>
+                    <option value="Cash">Cash</option>
+                    <option value="Check">Check</option>
+                </select>
+                <select id="paymentStatus">
+                    <option value="Paid">Paid</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Overdue">Overdue</option>
+                </select>
+                <input type="text" id="paymentNotes" placeholder="Notes">
+                <button onclick="addPayment()">Submit Payment</button>
+            </div>
+            <div class="payment-summary">
+                <div class="summary-item">
+                    <div class="summary-label">Rent Due Date</div>
+                    <div class="summary-value" id="rentDueDate"></div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Monthly Rent</div>
+                    <div class="summary-value" id="monthlyRent"></div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Total Rent Paid</div>
+                    <div class="summary-value" id="totalRentPaid"></div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Outstanding Balance</div>
+                    <div class="summary-value" id="outstandingBalance"></div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Credit Balance</div>
+                    <div class="summary-value" id="creditBalance"></div>
+                </div>
+            </div>
         </div>
     </div>
+
+    <script>
+        // Payment history data structure
+        const paymentHistory = {};
+        let currentTenant = '';
+
+        window.onload = function() {
+            const savedTenants = localStorage.getItem('tenants');
+            if (savedTenants) {
+                const tenantDatabase = JSON.parse(savedTenants);
+                loadPaymentsTable(tenantDatabase);
+                initializePaymentHistory(tenantDatabase);
+            }
+        }
+
+        function initializePaymentHistory(tenants) {
+            tenants.forEach(tenant => {
+                paymentHistory[tenant.name] = [];
+            });
+        }
+
+        function loadPaymentsTable(tenants) {
+            const tbody = document.getElementById('paymentsTableBody');
+            tbody.innerHTML = '';
+            
+            tenants.forEach(tenant => {
+                const row = tbody.insertRow();
+                row.onclick = () => showPaymentDetails(tenant.name);
+                row.innerHTML = `
+                    <td>${tenant.name}</td>
+                    <td>${tenant.unit}</td>
+                    <td>${tenant.email}</td>
+                    <td>${tenant.mobile}</td>
+                    <td><span class="status-${tenant.status}">${tenant.status.charAt(0).toUpperCase() + tenant.status.slice(1)}</span></td>
+                `;
+            });
+        }
+
+        function updatePaymentSummary(tenantName) {
+            const payments = paymentHistory[tenantName] || [];
+            const totalPaid = payments.reduce((sum, payment) => sum + parseFloat(payment.amount), 0);
+            const monthlyRent = 1500.00; // This should come from tenant data
+            const outstandingBalance = monthlyRent - (payments[0]?.amount || 0);
+            const creditBalance = totalPaid - (monthlyRent * payments.length);
+
+            document.getElementById('rentDueDate').textContent = '1st of Month';
+            document.getElementById('monthlyRent').textContent = `$${monthlyRent.toFixed(2)}`;
+            document.getElementById('totalRentPaid').textContent = `$${totalPaid.toFixed(2)}`;
+            document.getElementById('outstandingBalance').textContent = `$${Math.max(0, outstandingBalance).toFixed(2)}`;
+            document.getElementById('creditBalance').textContent = `$${Math.max(0, creditBalance).toFixed(2)}`;
+        }
+
+        function showPaymentDetails(tenantName) {
+            currentTenant = tenantName;
+            const modal = document.getElementById('paymentDetailsModal');
+            const modalTitle = document.getElementById('modalTenantName');
+            const detailsBody = document.getElementById('paymentDetailsBody');
+            
+            modalTitle.textContent = `Payment History - ${tenantName}`;
+            detailsBody.innerHTML = '';
+
+            const payments = paymentHistory[tenantName] || [];
+            payments.forEach(payment => {
+                const row = detailsBody.insertRow();
+                row.innerHTML = `
+                    <td>${payment.date}</td>
+                    <td>$${payment.amount}</td>
+                    <td>${payment.method}</td>
+                    <td><span class="status-${payment.status.toLowerCase()}">${payment.status}</span></td>
+                    <td>${payment.notes}</td>
+                `;
+            });
+
+            updatePaymentSummary(tenantName);
+            modal.style.display = 'block';
+        }
+
+        function togglePaymentForm() {
+            const form = document.getElementById('paymentForm');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function addPayment() {
+            const payment = {
+                date: document.getElementById('paymentDate').value,
+                amount: document.getElementById('paymentAmount').value,
+                method: document.getElementById('paymentMethod').value,
+                status: document.getElementById('paymentStatus').value,
+                notes: document.getElementById('paymentNotes').value
+            };
+
+            if (!payment.date || !payment.amount) {
+                alert('Please fill in required fields');
+                return;
+            }
+
+            if (!paymentHistory[currentTenant]) {
+                paymentHistory[currentTenant] = [];
+            }
+
+            paymentHistory[currentTenant].unshift(payment);
+            showPaymentDetails(currentTenant);
+            togglePaymentForm();
+
+            // Reset form
+            document.getElementById('paymentDate').value = '';
+            document.getElementById('paymentAmount').value = '';
+            document.getElementById('paymentNotes').value = '';
+            
+            // Update payment summary
+            updatePaymentSummary(currentTenant);
+        }
+
+        function closeModal() {
+            document.getElementById('paymentDetailsModal').style.display = 'none';
+            document.getElementById('paymentForm').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('paymentDetailsModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+                document.getElementById('paymentForm').style.display = 'none';
+            }
+        }
+    </script>
 </body>
 </html>

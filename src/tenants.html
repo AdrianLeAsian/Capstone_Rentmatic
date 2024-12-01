@@ -9,6 +9,7 @@
         :root {
             --primary-color: #2A9D8F;
             --background-color: #f5f5f5;
+            --header-color: #478778;
         }
 
         * {
@@ -26,7 +27,7 @@
         }
 
         .header {
-            background-color: #478778;
+            background-color: var(--header-color);
             height: 60px;
             position: fixed;
             top: 0;
@@ -83,12 +84,24 @@
             cursor: pointer;
             text-decoration: none;
             color: inherit;
+            transition: background-color 0.2s;
+            gap: 10px;
         }
 
-        .nav-item.active {
-            width: 160px;
-            background-color: #e8f4f3;
+        .nav-item:hover {
+            background-color: var(--header-color);
             border-radius: 5px;
+            color: white;
+        }
+
+        .nav-item:hover .nav-icon {
+            filter: brightness(0) invert(1);
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            filter: brightness(0);
         }
 
         .main-content {
@@ -145,6 +158,10 @@
             filter: invert(80%) sepia(11%) saturate(2000%) hue-rotate(177deg) brightness(99%) contrast(96%);
         }
 
+        .details-icon {
+            filter: invert(60%) sepia(11%) saturate(2000%) hue-rotate(177deg) brightness(99%) contrast(96%);
+        }
+
         .button-title {
             color: #666973;
             font-size: 18px;
@@ -160,7 +177,7 @@
         }
 
         .tenants-table th {
-            background-color: #478778;
+            background-color: var(--header-color);
             color: white;
             padding: 15px;
             text-align: left;
@@ -206,17 +223,37 @@
             height: 100%;
             background-color: rgba(0,0,0,0.5);
             z-index: 1000;
+            overflow-y: auto;
         }
 
         .modal-content {
             background-color: white;
             padding: 20px;
             border-radius: 10px;
-            width: 400px;
+            width: 800px;
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
+        }
+
+        .form-sections {
+            display: flex;
+            gap: 20px;
+        }
+
+        .form-section {
+            flex: 1;
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: var(--header-color);
         }
 
         .form-group {
@@ -226,6 +263,7 @@
         .form-group label {
             display: block;
             margin-bottom: 5px;
+            font-weight: 500;
         }
 
         .form-group input, .form-group select {
@@ -250,7 +288,7 @@
         }
 
         .save-button {
-            background-color: #478778;
+            background-color: var(--header-color);
             color: white;
         }
 
@@ -260,6 +298,44 @@
 
         .selected {
             background-color: #e8f4f3;
+        }
+
+        .details-content {
+            line-height: 1.6;
+        }
+
+        .details-label {
+            font-weight: bold;
+            color: var(--header-color);
+        }
+
+        /* New styles for profile image */
+        .profile-image-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .profile-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--header-color);
+            background-color: var(--header-color);
+        }
+
+        .profile-image-input {
+            display: none;
+        }
+
+        .profile-image-button {
+            background-color: var(--header-color);
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -272,13 +348,16 @@
         </div>
     </div>
     <div class="sidebar">
-        <a href="dashboard.html" class="nav-item active">
+        <a href="dashboard.html" class="nav-item">
+            <img src="dashboard-icon.png" alt="" class="nav-icon">
             <span>Dashboard</span>
         </a>
         <a href="messages.html" class="nav-item">
+            <img src="messages-icon.png" alt="" class="nav-icon">
             <span>Messages</span>
         </a>
         <a href="settings.html" class="nav-item">
+            <img src="settings-icon.png" alt="" class="nav-icon">
             <span>Settings</span>
         </a>
     </div>
@@ -301,12 +380,18 @@
                 <img src="export-icon.png" alt="Export" class="button-icon export-icon">
                 <div class="button-title">Export to Excel</div>
             </a>
+            <a onclick="showDetailsModal()" class="action-button">
+                <img src="details-icon.png" alt="Details" class="button-icon details-icon">
+                <div class="button-title">Details</div>
+            </a>
         </div>
 
         <table class="tenants-table" id="tenantsTable">
             <thead>
                 <tr>
                     <th>Tenant Name</th>
+                    <th>Email</th>
+                    <th>Mobile Number</th>
                     <th>Unit Number</th>
                     <th>Rent Status</th>
                 </tr>
@@ -320,21 +405,83 @@
     <div id="addModal" class="modal">
         <div class="modal-content">
             <h2>Add New Tenant</h2>
-            <div class="form-group">
-                <label>Tenant Name:</label>
-                <input type="text" id="newTenantName">
+            <div class="profile-image-container">
+                <img id="newProfilePreview" src="tenants-icon.png" alt="Profile" class="profile-image">
+                <input type="file" id="newProfileImage" class="profile-image-input" accept="image/*">
+                <button class="profile-image-button" onclick="document.getElementById('newProfileImage').click()">Choose Profile Picture</button>
             </div>
-            <div class="form-group">
-                <label>Unit Number:</label>
-                <input type="text" id="newUnitNumber">
-            </div>
-            <div class="form-group">
-                <label>Rent Status:</label>
-                <select id="newRentStatus">
-                    <option value="paid">Paid</option>
-                    <option value="pending">Pending</option>
-                    <option value="overdue">Overdue</option>
-                </select>
+            <div class="form-sections">
+                <div class="form-section">
+                    <div class="section-title">Personal Information</div>
+                    <div class="form-group">
+                        <label>Full Name:</label>
+                        <input type="text" id="newTenantName">
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address:</label>
+                        <input type="email" id="newEmail">
+                    </div>
+                    <div class="form-group">
+                        <label>Mobile Number:</label>
+                        <input type="tel" id="newMobile">
+                    </div>
+                    <div class="form-group">
+                        <label>Birthday:</label>
+                        <input type="date" id="newBirthday">
+                    </div>
+                    <div class="form-group">
+                        <label>Marital Status:</label>
+                        <select id="newMaritalStatus">
+                            <option value="single">Single</option>
+                            <option value="married">Married</option>
+                            <option value="divorced">Divorced</option>
+                            <option value="widowed">Widowed</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Sex:</label>
+                        <select id="newSex">
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <div class="section-title">Emergency Contact</div>
+                    <div class="form-group">
+                        <label>Contact Name:</label>
+                        <input type="text" id="newEmergencyName">
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address:</label>
+                        <input type="email" id="newEmergencyEmail">
+                    </div>
+                    <div class="form-group">
+                        <label>Mobile Number:</label>
+                        <input type="tel" id="newEmergencyMobile">
+                    </div>
+                    <div class="form-group">
+                        <label>Relationship:</label>
+                        <input type="text" id="newEmergencyRelation">
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="section-title">Unit Information</div>
+                    <div class="form-group">
+                        <label>Unit Number:</label>
+                        <input type="text" id="newUnitNumber">
+                    </div>
+                    <div class="form-group">
+                        <label>Rent Status:</label>
+                        <select id="newRentStatus">
+                            <option value="paid">Paid</option>
+                            <option value="pending">Pending</option>
+                            <option value="overdue">Overdue</option>
+                        </select>
+                    </div>
+                </div>
             </div>
             <div class="modal-buttons">
                 <button class="modal-button cancel-button" onclick="closeModal('addModal')">Cancel</button>
@@ -347,25 +494,127 @@
     <div id="updateModal" class="modal">
         <div class="modal-content">
             <h2>Update Tenant</h2>
-            <div class="form-group">
-                <label>Tenant Name:</label>
-                <input type="text" id="updateTenantName">
+            <div class="profile-image-container">
+                <img id="updateProfilePreview" src="tenants-icon.png" alt="Profile" class="profile-image">
+                <input type="file" id="updateProfileImage" class="profile-image-input" accept="image/*">
+                <button class="profile-image-button" onclick="document.getElementById('updateProfileImage').click()">Update Profile Picture</button>
             </div>
-            <div class="form-group">
-                <label>Unit Number:</label>
-                <input type="text" id="updateUnitNumber">
-            </div>
-            <div class="form-group">
-                <label>Rent Status:</label>
-                <select id="updateRentStatus">
-                    <option value="paid">Paid</option>
-                    <option value="pending">Pending</option>
-                    <option value="overdue">Overdue</option>
-                </select>
+            <div class="form-sections">
+                <div class="form-section">
+                    <div class="section-title">Personal Information</div>
+                    <div class="form-group">
+                        <label>Full Name:</label>
+                        <input type="text" id="updateTenantName">
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address:</label>
+                        <input type="email" id="updateEmail">
+                    </div>
+                    <div class="form-group">
+                        <label>Mobile Number:</label>
+                        <input type="tel" id="updateMobile">
+                    </div>
+                    <div class="form-group">
+                        <label>Birthday:</label>
+                        <input type="date" id="updateBirthday">
+                    </div>
+                    <div class="form-group">
+                        <label>Marital Status:</label>
+                        <select id="updateMaritalStatus">
+                            <option value="single">Single</option>
+                            <option value="married">Married</option>
+                            <option value="divorced">Divorced</option>
+                            <option value="widowed">Widowed</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Sex:</label>
+                        <select id="updateSex">
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <div class="section-title">Emergency Contact</div>
+                    <div class="form-group">
+                        <label>Contact Name:</label>
+                        <input type="text" id="updateEmergencyName">
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address:</label>
+                        <input type="email" id="updateEmergencyEmail">
+                    </div>
+                    <div class="form-group">
+                        <label>Mobile Number:</label>
+                        <input type="tel" id="updateEmergencyMobile">
+                    </div>
+                    <div class="form-group">
+                        <label>Relationship:</label>
+                        <input type="text" id="updateEmergencyRelation">
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="section-title">Unit Information</div>
+                    <div class="form-group">
+                        <label>Unit Number:</label>
+                        <input type="text" id="updateUnitNumber">
+                    </div>
+                    <div class="form-group">
+                        <label>Rent Status:</label>
+                        <select id="updateRentStatus">
+                            <option value="paid">Paid</option>
+                            <option value="pending">Pending</option>
+                            <option value="overdue">Overdue</option>
+                        </select>
+                    </div>
+                </div>
             </div>
             <div class="modal-buttons">
                 <button class="modal-button cancel-button" onclick="closeModal('updateModal')">Cancel</button>
                 <button class="modal-button save-button" onclick="updateTenant()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Details Modal -->
+    <div id="detailsModal" class="modal">
+        <div class="modal-content">
+            <h2>Tenant Details</h2>
+            <div class="profile-image-container">
+                <img id="detailsProfileImage" src="tenants-icon.png" alt="Profile" class="profile-image">
+            </div>
+            <div class="details-content">
+                <div class="form-sections">
+                    <div class="form-section">
+                        <div class="section-title">Personal Information</div>
+                        <p><span class="details-label">Full Name:</span> <span id="detailsName"></span></p>
+                        <p><span class="details-label">Email:</span> <span id="detailsEmail"></span></p>
+                        <p><span class="details-label">Mobile:</span> <span id="detailsMobile"></span></p>
+                        <p><span class="details-label">Birthday:</span> <span id="detailsBirthday"></span></p>
+                        <p><span class="details-label">Marital Status:</span> <span id="detailsMaritalStatus"></span></p>
+                        <p><span class="details-label">Sex:</span> <span id="detailsSex"></span></p>
+                    </div>
+                    
+                    <div class="form-section">
+                        <div class="section-title">Emergency Contact</div>
+                        <p><span class="details-label">Contact Name:</span> <span id="detailsEmergencyName"></span></p>
+                        <p><span class="details-label">Email:</span> <span id="detailsEmergencyEmail"></span></p>
+                        <p><span class="details-label">Mobile:</span> <span id="detailsEmergencyMobile"></span></p>
+                        <p><span class="details-label">Relationship:</span> <span id="detailsEmergencyRelation"></span></p>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="section-title">Unit Information</div>
+                        <p><span class="details-label">Unit Number:</span> <span id="detailsUnitNumber"></span></p>
+                        <p><span class="details-label">Rent Status:</span> <span id="detailsRentStatus"></span></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-button cancel-button" onclick="closeModal('detailsModal')">Close</button>
             </div>
         </div>
     </div>
@@ -382,6 +631,24 @@
                 tenantDatabase = JSON.parse(savedTenants);
                 loadTenantsToTable();
             }
+
+            // Add event listeners for profile image previews
+            document.getElementById('newProfileImage').addEventListener('change', function(e) {
+                previewImage(e.target, 'newProfilePreview');
+            });
+            document.getElementById('updateProfileImage').addEventListener('change', function(e) {
+                previewImage(e.target, 'updateProfilePreview');
+            });
+        }
+
+        function previewImage(input, previewId) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById(previewId).src = e.target.result;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
         }
 
         function loadTenantsToTable() {
@@ -393,6 +660,8 @@
                 newRow.onclick = function() { selectRow(this); };
                 newRow.innerHTML = `
                     <td>${tenant.name}</td>
+                    <td>${tenant.email}</td>
+                    <td>${tenant.mobile}</td>
                     <td>${tenant.unit}</td>
                     <td><span class="rent-status status-${tenant.status}">${tenant.status.charAt(0).toUpperCase() + tenant.status.slice(1)}</span></td>
                 `;
@@ -409,6 +678,7 @@
 
         function showAddModal() {
             document.getElementById('addModal').style.display = 'block';
+            document.getElementById('newProfilePreview').src = 'tenants-icon.png';
         }
 
         function showUpdateModal() {
@@ -416,11 +686,51 @@
                 alert('Please select a tenant to update');
                 return;
             }
-            const cells = selectedRow.cells;
-            document.getElementById('updateTenantName').value = cells[0].textContent;
-            document.getElementById('updateUnitNumber').value = cells[1].textContent;
-            document.getElementById('updateRentStatus').value = cells[2].querySelector('.rent-status').textContent.toLowerCase();
+            const index = Array.from(selectedRow.parentNode.children).indexOf(selectedRow);
+            const tenant = tenantDatabase[index];
+            
+            // Fill in all fields
+            document.getElementById('updateProfilePreview').src = tenant.profileImage || 'tenants-icon.png';
+            document.getElementById('updateTenantName').value = tenant.name;
+            document.getElementById('updateEmail').value = tenant.email;
+            document.getElementById('updateMobile').value = tenant.mobile;
+            document.getElementById('updateBirthday').value = tenant.birthday;
+            document.getElementById('updateMaritalStatus').value = tenant.maritalStatus;
+            document.getElementById('updateSex').value = tenant.sex;
+            document.getElementById('updateEmergencyName').value = tenant.emergencyName;
+            document.getElementById('updateEmergencyEmail').value = tenant.emergencyEmail;
+            document.getElementById('updateEmergencyMobile').value = tenant.emergencyMobile;
+            document.getElementById('updateEmergencyRelation').value = tenant.emergencyRelation;
+            document.getElementById('updateUnitNumber').value = tenant.unit;
+            document.getElementById('updateRentStatus').value = tenant.status;
+            
             document.getElementById('updateModal').style.display = 'block';
+        }
+
+        function showDetailsModal() {
+            if (!selectedRow) {
+                alert('Please select a tenant to view details');
+                return;
+            }
+            const index = Array.from(selectedRow.parentNode.children).indexOf(selectedRow);
+            const tenant = tenantDatabase[index];
+            
+            // Fill in all details including profile image
+            document.getElementById('detailsProfileImage').src = tenant.profileImage || 'tenants-icon.png';
+            document.getElementById('detailsName').textContent = tenant.name;
+            document.getElementById('detailsEmail').textContent = tenant.email;
+            document.getElementById('detailsMobile').textContent = tenant.mobile;
+            document.getElementById('detailsBirthday').textContent = tenant.birthday;
+            document.getElementById('detailsMaritalStatus').textContent = tenant.maritalStatus;
+            document.getElementById('detailsSex').textContent = tenant.sex;
+            document.getElementById('detailsEmergencyName').textContent = tenant.emergencyName;
+            document.getElementById('detailsEmergencyEmail').textContent = tenant.emergencyEmail;
+            document.getElementById('detailsEmergencyMobile').textContent = tenant.emergencyMobile;
+            document.getElementById('detailsEmergencyRelation').textContent = tenant.emergencyRelation;
+            document.getElementById('detailsUnitNumber').textContent = tenant.unit;
+            document.getElementById('detailsRentStatus').textContent = tenant.status;
+            
+            document.getElementById('detailsModal').style.display = 'block';
         }
 
         function closeModal(modalId) {
@@ -428,21 +738,31 @@
         }
 
         function addTenant() {
-            const name = document.getElementById('newTenantName').value;
-            const unit = document.getElementById('newUnitNumber').value;
-            const status = document.getElementById('newRentStatus').value;
+            const profileImage = document.getElementById('newProfilePreview').src;
+            
+            const tenant = {
+                profileImage: profileImage === 'tenants-icon.png' ? null : profileImage,
+                name: document.getElementById('newTenantName').value,
+                email: document.getElementById('newEmail').value,
+                mobile: document.getElementById('newMobile').value,
+                birthday: document.getElementById('newBirthday').value,
+                maritalStatus: document.getElementById('newMaritalStatus').value,
+                sex: document.getElementById('newSex').value,
+                emergencyName: document.getElementById('newEmergencyName').value,
+                emergencyEmail: document.getElementById('newEmergencyEmail').value,
+                emergencyMobile: document.getElementById('newEmergencyMobile').value,
+                emergencyRelation: document.getElementById('newEmergencyRelation').value,
+                unit: document.getElementById('newUnitNumber').value,
+                status: document.getElementById('newRentStatus').value
+            };
 
-            if (!name || !unit) {
-                alert('Please fill in all fields');
+            if (!tenant.name || !tenant.email || !tenant.mobile || !tenant.unit) {
+                alert('Please fill in all required fields');
                 return;
             }
 
             // Add to database
-            tenantDatabase.push({
-                name: name,
-                unit: unit,
-                status: status
-            });
+            tenantDatabase.push(tenant);
             
             // Save to localStorage
             localStorage.setItem('tenants', JSON.stringify(tenantDatabase));
@@ -451,9 +771,9 @@
             loadTenantsToTable();
 
             closeModal('addModal');
-            document.getElementById('newTenantName').value = '';
-            document.getElementById('newUnitNumber').value = '';
-            document.getElementById('newRentStatus').value = 'paid';
+            // Reset form
+            document.getElementById('addModal').reset();
+            document.getElementById('newProfilePreview').src = 'tenants-icon.png';
         }
 
         function updateTenant() {
@@ -462,22 +782,32 @@
                 return;
             }
 
-            const name = document.getElementById('updateTenantName').value;
-            const unit = document.getElementById('updateUnitNumber').value;
-            const status = document.getElementById('updateRentStatus').value;
+            const profileImage = document.getElementById('updateProfilePreview').src;
 
-            if (!name || !unit) {
-                alert('Please fill in all fields');
+            const tenant = {
+                profileImage: profileImage === 'tenants-icon.png' ? null : profileImage,
+                name: document.getElementById('updateTenantName').value,
+                email: document.getElementById('updateEmail').value,
+                mobile: document.getElementById('updateMobile').value,
+                birthday: document.getElementById('updateBirthday').value,
+                maritalStatus: document.getElementById('updateMaritalStatus').value,
+                sex: document.getElementById('updateSex').value,
+                emergencyName: document.getElementById('updateEmergencyName').value,
+                emergencyEmail: document.getElementById('updateEmergencyEmail').value,
+                emergencyMobile: document.getElementById('updateEmergencyMobile').value,
+                emergencyRelation: document.getElementById('updateEmergencyRelation').value,
+                unit: document.getElementById('updateUnitNumber').value,
+                status: document.getElementById('updateRentStatus').value
+            };
+
+            if (!tenant.name || !tenant.email || !tenant.mobile || !tenant.unit) {
+                alert('Please fill in all required fields');
                 return;
             }
 
             // Update database
             const index = Array.from(selectedRow.parentNode.children).indexOf(selectedRow);
-            tenantDatabase[index] = {
-                name: name,
-                unit: unit,
-                status: status
-            };
+            tenantDatabase[index] = tenant;
 
             // Save to localStorage
             localStorage.setItem('tenants', JSON.stringify(tenantDatabase));

@@ -45,9 +45,8 @@
         }
 
         .logo {
-            color: white;
-            font-size: 32px;
-            font-weight: bold;
+            height: 55px;
+            width: auto;
         }
 
         .dashboard-label {
@@ -75,6 +74,7 @@
         }
 
         .nav-item {
+            width: 160px; /* Same as sidebar width (200px) minus padding (20px * 2) */
             padding: 10px;
             margin: 5px 0;
             display: flex;
@@ -82,11 +82,23 @@
             cursor: pointer;
             text-decoration: none;
             color: inherit;
+            gap: 10px;
         }
 
-        .nav-item.active {
-            background-color: #e8f4f3;
+        .nav-item:hover {
+            background-color: #478778;
             border-radius: 5px;
+            color: white;
+        }
+
+        .nav-item:hover .nav-icon {
+            filter: brightness(0) invert(1);
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            filter: brightness(0);
         }
 
         .main-content {
@@ -94,99 +106,32 @@
             margin-top: 60px;
             padding: 20px;
         }
-
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-        }
-
-        .dashboard-card {
-            background-color: rgba(237, 237, 237, 0.8);
-            aspect-ratio: 1;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            text-decoration: none;
-            transition: transform 0.2s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(10px);
-        }
-
-        .dashboard-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .card-icon {
-            width: 60px;
-            height: 60px;
-            margin-bottom: 10px;
-        }
-
-        .tenants-icon {
-            filter: invert(48%) sepia(79%) saturate(2476%) hue-rotate(190deg) brightness(118%) contrast(119%);
-        }
-
-        .payments-icon {
-            filter: invert(42%) sepia(93%) saturate(1352%) hue-rotate(87deg) brightness(119%) contrast(119%);
-        }
-
-        .units-icon {
-            filter: invert(72%) sepia(32%) saturate(1217%) hue-rotate(6deg) brightness(127%) contrast(119%);
-        }
-
-        .reports-icon {
-            filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(92%) contrast(97%);
-        }
-
-        .card-title {
-            color: #666973;
-            font-size: 16px;
-        }
     </style>
 </head>
 <body>
     <div class="header">
         <div class="header-left">
-            <div class="logo">Rentmatic</div>
+            <img src="Rentmatic-Logo.png" alt="Rentmatic" class="logo">
             <div class="dashboard-label">Dashboard</div>
             <input type="text" class="search-bar" placeholder="Search...">
         </div>
     </div>
     <div class="sidebar">
-        <a href="dashboard.html" class="nav-item active">
+        <a href="dashboard.html" class="nav-item">
+            <img src="dashboard-icon.png" alt="" class="nav-icon">
             <span>Dashboard</span>
         </a>
         <a href="messages.html" class="nav-item">
+            <img src="messages-icon.png" alt="" class="nav-icon">
             <span>Messages</span>
         </a>
         <a href="settings.html" class="nav-item">
+            <img src="settings-icon.png" alt="" class="nav-icon">
             <span>Settings</span>
         </a>
     </div>
 
     <div class="main-content">
-        <div class="dashboard-grid">
-            <a href="tenants.html" class="dashboard-card">
-                <img src="tenants-icon.png" alt="Tenants" class="card-icon tenants-icon">
-                <div class="card-title">Tenants</div>
-            </a>
-            <a href="payments.html" class="dashboard-card">
-                <img src="payments-icon.png" alt="Payments" class="card-icon payments-icon">
-                <div class="card-title">Payments</div>
-            </a>
-            <a href="units.html" class="dashboard-card">
-                <img src="units-icon.png" alt="Unit Management" class="card-icon units-icon">
-                <div class="card-title">Unit Management</div>
-            </a>
-            <a href="reports.html" class="dashboard-card">
-				<img src="reports-icon.png" alt="Basic Reports" class="card-icon reports-icon">
-                <div class="card-title">Basic Reports</div>
-            </a>
-        </div>
     </div>
 </body>
 </html>
