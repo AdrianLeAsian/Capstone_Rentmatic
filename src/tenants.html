@@ -629,6 +629,9 @@
                     updateUnitAssignments();
                 }
             });
+
+            // Initial check for unit assignments
+            updateUnitAssignments();
         }
 
         function updateUnitAssignments() {
@@ -636,10 +639,10 @@
             
             // Update tenant database with new unit assignments
             tenantDatabase = tenantDatabase.map(tenant => {
-                const assignedUnit = units.find(unit => unit.tenantId === tenant.id);
+                const assignedUnit = units.find(unit => unit.tenant === tenant.name);
                 return {
                     ...tenant,
-                    unit: assignedUnit ? assignedUnit.number : null,
+                    unit: assignedUnit ? assignedUnit.unitNumber : null,
                     status: assignedUnit ? assignedUnit.rentStatus : null
                 };
             });

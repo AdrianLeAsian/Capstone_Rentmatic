@@ -373,9 +373,28 @@
         // Payment history data structure
         const paymentHistory = {};
         let currentTenant = '';
+        let unitsData = {};
+
+        // Listen for changes in tenant and units data
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'tenants') {
+                const tenantDatabase = JSON.parse(e.newValue);
+                loadPaymentsTable(tenantDatabase);
+                initializePaymentHistory(tenantDatabase);
+            }
+            if (e.key === 'units') {
+                unitsData = JSON.parse(e.newValue);
+            }
+        });
 
         window.onload = function() {
             const savedTenants = localStorage.getItem('tenants');
+            const savedUnits = localStorage.getItem('units');
+            
+            if (savedUnits) {
+                unitsData = JSON.parse(savedUnits);
+            }
+            
             if (savedTenants) {
                 const tenantDatabase = JSON.parse(savedTenants);
                 loadPaymentsTable(tenantDatabase);
@@ -385,7 +404,9 @@
 
         function initializePaymentHistory(tenants) {
             tenants.forEach(tenant => {
-                paymentHistory[tenant.name] = [];
+                if (!paymentHistory[tenant.name]) {
+                    paymentHistory[tenant.name] = [];
+                }
             });
         }
 
@@ -396,12 +417,16 @@
             tenants.forEach(tenant => {
                 const row = tbody.insertRow();
                 row.onclick = () => showPaymentDetails(tenant.name);
+                
+                // Get payment status from tenant data or default to pending
+                const paymentStatus = tenant.status ? tenant.status.toLowerCase() : 'pending';
+                
                 row.innerHTML = `
-                    <td>${tenant.name}</td>
-                    <td>${tenant.unit}</td>
-                    <td>${tenant.email}</td>
-                    <td>${tenant.mobile}</td>
-                    <td><span class="status-${tenant.status}">${tenant.status.charAt(0).toUpperCase() + tenant.status.slice(1)}</span></td>
+                    <td>${tenant.name || 'N/A'}</td>
+                    <td>${tenant.unit || 'Not Assigned'}</td>
+                    <td>${tenant.email || 'N/A'}</td>
+                    <td>${tenant.mobile || 'N/A'}</td>
+                    <td><span class="status-${paymentStatus}">${paymentStatus.charAt(0).toUpperCase() + paymentStatus.slice(1)}</span></td>
                 `;
             });
         }
@@ -409,15 +434,25 @@
         function updatePaymentSummary(tenantName) {
             const payments = paymentHistory[tenantName] || [];
             const totalPaid = payments.reduce((sum, payment) => sum + parseFloat(payment.amount), 0);
-            const monthlyRent = 1500.00; // This should come from tenant data
+            
+            // Get tenant's unit info
+            const savedTenants = JSON.parse(localStorage.getItem('tenants'));
+            const tenant = savedTenants.find(t => t.name === tenantName);
+            const unitNumber = tenant?.unit;
+            
+            // Get unit price from units data
+            const savedUnits = JSON.parse(localStorage.getItem('units'));
+            const unit = savedUnits.find(u => u.number === unitNumber);
+            const monthlyRent = unit?.price || 0;
+            
             const outstandingBalance = monthlyRent - (payments[0]?.amount || 0);
             const creditBalance = totalPaid - (monthlyRent * payments.length);
 
             document.getElementById('rentDueDate').textContent = '1st of Month';
-            document.getElementById('monthlyRent').textContent = `$${monthlyRent.toFixed(2)}`;
-            document.getElementById('totalRentPaid').textContent = `$${totalPaid.toFixed(2)}`;
-            document.getElementById('outstandingBalance').textContent = `$${Math.max(0, outstandingBalance).toFixed(2)}`;
-            document.getElementById('creditBalance').textContent = `$${Math.max(0, creditBalance).toFixed(2)}`;
+            document.getElementById('monthlyRent').textContent = `₱${monthlyRent.toFixed(2)}`;
+            document.getElementById('totalRentPaid').textContent = `₱${totalPaid.toFixed(2)}`;
+            document.getElementById('outstandingBalance').textContent = `₱${Math.max(0, outstandingBalance).toFixed(2)}`;
+            document.getElementById('creditBalance').textContent = `₱${Math.max(0, creditBalance).toFixed(2)}`;
         }
 
         function showPaymentDetails(tenantName) {
@@ -434,7 +469,7 @@
                 const row = detailsBody.insertRow();
                 row.innerHTML = `
                     <td>${payment.date}</td>
-                    <td>$${payment.amount}</td>
+                    <td>₱${payment.amount}</td>
                     <td>${payment.method}</td>
                     <td><span class="status-${payment.status.toLowerCase()}">${payment.status}</span></td>
                     <td>${payment.notes}</td>
