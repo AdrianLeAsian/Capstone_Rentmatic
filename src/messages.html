@@ -3,8 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <title>Rentmatic Dashboard</title>
     <style>
+        :root {
+            --primary-color: #2A9D8F;
+            --background-color: #f5f5f5;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -12,109 +17,91 @@
         }
 
         body {
-            display: flex;
-            min-height: 100vh;
+            font-family: Arial, sans-serif;
             background-image: url('background.png');
             background-size: cover;
             background-position: center;
-            background-repeat: no-repeat;
-            font-family: Arial, sans-serif;
+            background-attachment: fixed;
         }
 
-        .top-bar {
+        .header {
+            background-color: #478778;
+            height: 60px;
             position: fixed;
             top: 0;
-            left: 0;
             right: 0;
-            height: 60px;
-            background-color: #2D6A4F;
+            left: 0;
+            z-index: 100;
             display: flex;
             align-items: center;
             padding: 0 20px;
-            z-index: 100;
+            justify-content: space-between;
         }
 
-        .top-bar-logo {
-            font-size: 20px;
-            font-weight: bold;
-            color: white;
+        .header-left {
             display: flex;
             align-items: center;
-            gap: 15px;
-            width: 250px;
+            gap: 40px;
         }
 
-        .top-bar-logo img {
-            height: 40px;
+        .logo {
+            height: 55px;
             width: auto;
         }
 
-        .search-container {
-            flex: 1;
-            display: flex;
-            justify-content: center;
+        .dashboard-label {
+            color: white;
+            font-size: 20px;
         }
 
-        .top-search-bar {
-            width: 400px;
-            padding: 8px 15px;
+        .search-bar {
+            width: 300px;
+            padding: 8px;
             border: none;
-            border-radius: 4px;
+            border-radius: 5px;
             background-color: rgba(255, 255, 255, 0.9);
         }
 
         .sidebar {
+            width: 200px;
+            height: 100vh;
+            background-color: rgba(240, 255, 235, 0.9);
             position: fixed;
             left: 0;
             top: 60px;
-            bottom: 0;
-            width: 250px;
-            background-color: white;
-            border-right: 1px solid #ddd;
             padding: 20px;
-        }
-
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: #2D6A4F;
-            margin-bottom: 30px;
+            border-right: 1px solid #eee;
         }
 
         .nav-item {
+            width: 160px;
+            padding: 10px;
+            margin: 5px 0;
             display: flex;
             align-items: center;
-            padding: 12px 15px;
-            margin-bottom: 8px;
             cursor: pointer;
-            border-radius: 6px;
-            color: #333;
             text-decoration: none;
-            transition: all 0.3s ease;
-            position: relative;
+            color: inherit;
+            gap: 10px;
         }
 
         .nav-item:hover {
-            background-color: #e8f5e9;
+            background-color: #478778;
+            border-radius: 5px;
+            color: white;
         }
 
-        .nav-item.active:hover {
-            background-color: #e8f5e9;
+        .nav-item:hover .nav-icon {
+            filter: brightness(0) invert(1);
         }
 
-        .nav-item.active {
-            background-color: white;
-            color: #333;
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            filter: brightness(0);
         }
 
-        .nav-item i {
-            margin-right: 10px;
-            font-size: 18px;
-        }
-
-        .nav-item .message-badge {
-            position: absolute;
-            right: 15px;
+        .message-badge {
             background-color: #e74c3c;
             color: white;
             border-radius: 50%;
@@ -124,6 +111,7 @@
             align-items: center;
             justify-content: center;
             font-size: 12px;
+            margin-left: auto;
         }
 
         .messages-container {
@@ -274,7 +262,6 @@
             font-size: 12px;
         }
 
-        /* Chat popup styles */
         .chat-popup {
             display: none;
             position: fixed;
@@ -382,7 +369,6 @@
             z-index: 999;
         }
 
-        /* Add Category Modal Styles */
         .category-modal {
             display: none;
             position: fixed;
@@ -432,7 +418,6 @@
             background: #ddd;
         }
 
-        /* Category Messages Container */
         .category-messages {
             display: none;
         }
@@ -443,31 +428,29 @@
     </style>
 </head>
 <body>
-    <div class="top-bar">
-        <div class="top-bar-logo">
-            <img src="rentmatic-logo.png" alt="RentMatic Logo">
-            <span id="headerText">Messages</span>
+    <div class="header">
+        <div class="header-left">
+            <img src="Rentmatic-Logo.png" alt="Rentmatic" class="logo">
+            <div class="dashboard-label" id="headerLabel">Messages</div>
+            <input type="text" class="search-bar" placeholder="Search..." onkeyup="searchTenants(this.value)">
         </div>
-        <div class="search-container">
-            <input type="text" class="top-search-bar" placeholder="Search tenants" onkeyup="searchTenants(this.value)">
-        </div>
-        <div style="width: 250px;"></div>
     </div>
     <div class="sidebar">
         <a href="dashboard.html" class="nav-item">
-            <i class="fas fa-tachometer-alt"></i>
-            Dashboard
+            <img src="dashboard-icon.png" alt="" class="nav-icon">
+            <span>Dashboard</span>
         </a>
-        <a href="#" class="nav-item active">
-            <i class="fas fa-envelope"></i>
-            Messages
+        <a href="messages.html" class="nav-item">
+            <img src="messages-icon.png" alt="" class="nav-icon">
+            <span>Messages</span>
             <span class="message-badge" id="totalMessages">10</span>
         </a>
         <a href="settings.html" class="nav-item">
-            <i class="fas fa-cogs"></i>
-            Settings
+            <img src="settings-icon.png" alt="" class="nav-icon">
+            <span>Settings</span>
         </a>
     </div>
+
     <div class="messages-container">
         <div class="message-header">
             <div class="tabs">
@@ -481,7 +464,6 @@
             </div>
         </div>
 
-        <!-- All Messages -->
         <div class="message-list" id="allMessages">
             <div class="message-item" onclick="openChat('Shan L. Poguiz', 'profile1.jpg', 'Hello sir! I would like to update our sink', this)" data-category="maintenance">
                 <img src="profile1.jpg" alt="Shan L. Poguiz" class="profile-pic">
@@ -548,7 +530,14 @@
     <script>
         let chatHistory = {};
         let categories = ['payments', 'maintenance'];
-        let totalUnreadMessages = 10; // Initial total of unread messages
+        let totalUnreadMessages = 10;
+
+        // Store unread messages count in localStorage
+        if (!localStorage.getItem('unreadMessages')) {
+            localStorage.setItem('unreadMessages', totalUnreadMessages);
+        } else {
+            totalUnreadMessages = parseInt(localStorage.getItem('unreadMessages'));
+        }
 
         function searchTenants(searchText) {
             const messageItems = document.querySelectorAll('.message-item');
@@ -572,6 +561,8 @@
             } else {
                 badge.style.display = 'none';
             }
+            // Update localStorage when messages count changes
+            localStorage.setItem('unreadMessages', totalUnreadMessages);
         }
 
         function toggleDropdown() {
@@ -581,24 +572,17 @@
         function showMessages(category) {
             const allMessages = document.querySelectorAll('.message-item');
             const tabs = document.querySelectorAll('.tab');
-            const headerText = document.getElementById('headerText');
+            const headerLabel = document.getElementById('headerLabel');
             
-            // Update header text
-            if (category === 'all') {
-                headerText.textContent = 'Messages';
-            } else {
-                headerText.textContent = category.charAt(0).toUpperCase() + category.slice(1);
-            }
-            
-            // Update active tab
             tabs.forEach(tab => tab.classList.remove('active'));
             if (category === 'all') {
                 tabs[0].classList.add('active');
+                headerLabel.textContent = 'Messages';
             } else {
                 tabs[1].classList.add('active');
+                headerLabel.textContent = category.charAt(0).toUpperCase() + category.slice(1);
             }
 
-            // Show/hide messages based on category
             allMessages.forEach(message => {
                 if (category === 'all' || message.dataset.category === category) {
                     message.style.display = 'flex';
@@ -607,7 +591,6 @@
                 }
             });
 
-            // Close dropdown
             document.getElementById("categoriesDropdown").classList.remove("show");
         }
 
@@ -741,7 +724,12 @@
             }
         });
 
-        // Initialize total messages badge
+        // Update notifications on page load
+        window.addEventListener('load', function() {
+            totalUnreadMessages = parseInt(localStorage.getItem('unreadMessages')) || 0;
+            updateTotalMessages();
+        });
+
         updateTotalMessages();
     </script>
 </body>
