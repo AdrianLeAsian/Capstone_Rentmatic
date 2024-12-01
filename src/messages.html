@@ -156,7 +156,7 @@
         }
 
         .tab.active {
-            background-color: white;
+            background-color: #90EE90; /* Light green background when active */
             color: #333;
         }
 
@@ -186,7 +186,7 @@
         }
 
         .dropdown-content button:hover {
-            background-color: #e8f5e9;
+            background-color: #90EE90; /* Light green on hover */
         }
 
         .dropdown-content .add-category {
@@ -532,13 +532,6 @@
         let categories = ['payments', 'maintenance'];
         let totalUnreadMessages = 10;
 
-        // Store unread messages count in localStorage
-        if (!localStorage.getItem('unreadMessages')) {
-            localStorage.setItem('unreadMessages', totalUnreadMessages);
-        } else {
-            totalUnreadMessages = parseInt(localStorage.getItem('unreadMessages'));
-        }
-
         function searchTenants(searchText) {
             const messageItems = document.querySelectorAll('.message-item');
             searchText = searchText.toLowerCase();
@@ -561,8 +554,6 @@
             } else {
                 badge.style.display = 'none';
             }
-            // Update localStorage when messages count changes
-            localStorage.setItem('unreadMessages', totalUnreadMessages);
         }
 
         function toggleDropdown() {
@@ -722,12 +713,6 @@
             if (e.key === 'Enter') {
                 addNewCategory();
             }
-        });
-
-        // Update notifications on page load
-        window.addEventListener('load', function() {
-            totalUnreadMessages = parseInt(localStorage.getItem('unreadMessages')) || 0;
-            updateTotalMessages();
         });
 
         updateTotalMessages();
