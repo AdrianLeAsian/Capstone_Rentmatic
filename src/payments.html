@@ -271,7 +271,7 @@
     <div class="header">
         <div class="header-left">
             <img src="Rentmatic-Logo.png" alt="Rentmatic" class="logo">
-            <div class="dashboard-label">Dashboard</div>
+            <div class="dashboard-label">Payments</div>
             <input type="text" class="search-bar" placeholder="Search...">
         </div>
     </div>
@@ -376,7 +376,7 @@
 
     <script>
         // Payment history data structure
-        const paymentHistory = {};
+        let paymentHistory = JSON.parse(localStorage.getItem('paymentHistory')) || {};
         let currentTenant = '';
         let unitsData = {};
 
@@ -436,6 +436,7 @@
                     paymentHistory[tenant.name] = [];
                 }
             });
+            localStorage.setItem('paymentHistory', JSON.stringify(paymentHistory));
         }
 
         function loadPaymentsTable(tenants) {
@@ -446,12 +447,26 @@
                 const row = tbody.insertRow();
                 row.onclick = () => showPaymentDetails(tenant.name);
                 
-                // Get payment status from tenant data or default to pending
-                const paymentStatus = tenant.status ? tenant.status.toLowerCase() : 'pending';
-                
                 // Get unit payment period
                 const unit = unitsData.find(u => u.number === tenant.unit);
                 const paymentPeriod = unit?.period || 'Monthly';
+                
+                // Calculate payment status based on payment history
+                const payments = paymentHistory[tenant.name] || [];
+                const latestPayment = payments[0];
+                let paymentStatus = 'pending';
+                
+                if (latestPayment) {
+                    const today = new Date();
+                    const paymentDate = new Date(latestPayment.date);
+                    const daysLate = Math.floor((today - paymentDate) / (1000 * 60 * 60 * 24));
+                    
+                    if (latestPayment.status === 'Paid') {
+                        paymentStatus = 'paid';
+                    } else if (daysLate > 7) {
+                        paymentStatus = 'overdue';
+                    }
+                }
                 
                 row.innerHTML = `
                     <td>${tenant.name || 'N/A'}</td>
@@ -552,6 +567,17 @@
             }
 
             paymentHistory[currentTenant].unshift(payment);
+            localStorage.setItem('paymentHistory', JSON.stringify(paymentHistory));
+            
+            // Update tenant's payment status in localStorage
+            const savedTenants = JSON.parse(localStorage.getItem('tenants'));
+            const tenantIndex = savedTenants.findIndex(t => t.name === currentTenant);
+            if (tenantIndex !== -1) {
+                savedTenants[tenantIndex].status = payment.status;
+                localStorage.setItem('tenants', JSON.stringify(savedTenants));
+                loadPaymentsTable(savedTenants); // Refresh the table to show updated status
+            }
+            
             showPaymentDetails(currentTenant);
             togglePaymentForm();
 

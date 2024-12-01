@@ -271,9 +271,9 @@
             </tbody>
         </table>
 
-        <button class="add-item-button">Add Item</button>
-        <button class="update-item-button">Update Item</button>
-        <button class="remove-item-button">Remove Item</button>
+        <button class="add-item-button" onclick="showAddItemModal()">Add Item</button>
+        <button class="update-item-button" onclick="showUpdateItemModal()">Update Item</button>
+        <button class="remove-item-button" onclick="showRemoveItemModal()">Remove Item</button>
         <table class="appliances-table">
             <thead>
                 <tr>
@@ -281,39 +281,7 @@
                     <th>Quantity</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td>Curtains</td>
-                    <td>10</td>
-                </tr>
-                <tr>
-                    <td>Blinds</td>
-                    <td>5</td>
-                </tr>
-                <tr>
-                    <td>Bed Covers</td>
-                    <td>10</td>
-                </tr>
-                <tr>
-                    <td>Pillow Covers</td>
-                    <td>15</td>
-                </tr>
-                <tr>
-                    <td>Small Rugs</td>
-                    <td>20</td>
-                </tr>
-                <tr>
-                    <td>Big Rugs</td>
-                    <td>5</td>
-                </tr>
-                <tr>
-                    <td>Shower Curtains</td>
-                    <td>10</td>
-                </tr>
-                <tr>
-                    <td>Beds</td>
-                    <td>5</td>
-                </tr>
+            <tbody id="itemsTableBody">
             </tbody>
         </table>
     </div>
@@ -421,16 +389,76 @@
         </div>
     </div>
 
+    <!-- Add Item Modal -->
+    <div id="addItemModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Add Item</h2>
+            <form id="addItemForm" onsubmit="handleAddItem(event)">
+                <div class="form-group">
+                    <label for="itemName">Item Name:</label>
+                    <input type="text" id="itemName" required>
+                </div>
+                <div class="form-group">
+                    <label for="itemQuantity">Quantity:</label>
+                    <input type="number" id="itemQuantity" min="1" required>
+                </div>
+                <button type="submit" class="submit-button">Add Item</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Update Item Modal -->
+    <div id="updateItemModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Update Item</h2>
+            <form id="updateItemForm" onsubmit="handleUpdateItem(event)">
+                <div class="form-group">
+                    <label for="updateItemSelect">Select Item:</label>
+                    <select id="updateItemSelect" required onchange="populateItemData()">
+                        <option value="">Select an item</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="updateItemQuantity">Quantity:</label>
+                    <input type="number" id="updateItemQuantity" min="1" required>
+                </div>
+                <button type="submit" class="submit-button">Update Item</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Remove Item Modal -->
+    <div id="removeItemModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Remove Item</h2>
+            <form id="removeItemForm" onsubmit="handleRemoveItem(event)">
+                <div class="form-group">
+                    <label for="removeItemSelect">Select Item to Remove:</label>
+                    <select id="removeItemSelect" required>
+                        <option value="">Select an item</option>
+                    </select>
+                </div>
+                <button type="submit" class="submit-button" style="background-color: #dc3545;">Remove Item</button>
+            </form>
+        </div>
+    </div>
+
     <script>
         // Store tenants data globally
         let tenantsData = [];
         let unitsData = [];
+        let itemsData = [];
 
         // Load data from localStorage on page load
         window.addEventListener('load', () => {
             tenantsData = JSON.parse(localStorage.getItem('tenants')) || [];
             unitsData = JSON.parse(localStorage.getItem('units')) || [];
+            itemsData = JSON.parse(localStorage.getItem('items')) || [];
             displayUnits();
+            displayItems();
         });
 
         function updatePrice(mode) {
@@ -565,10 +593,57 @@
             fetchTenantsData();
         }
 
+        function showAddItemModal() {
+            const modal = document.getElementById('addItemModal');
+            modal.style.display = 'block';
+        }
+
+        function showUpdateItemModal() {
+            const modal = document.getElementById('updateItemModal');
+            modal.style.display = 'block';
+            
+            const itemSelect = document.getElementById('updateItemSelect');
+            itemSelect.innerHTML = '<option value="">Select an item</option>';
+            
+            itemsData.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.name;
+                option.textContent = item.name;
+                itemSelect.appendChild(option);
+            });
+        }
+
+        function showRemoveItemModal() {
+            const modal = document.getElementById('removeItemModal');
+            modal.style.display = 'block';
+            
+            const itemSelect = document.getElementById('removeItemSelect');
+            itemSelect.innerHTML = '<option value="">Select an item</option>';
+            
+            itemsData.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.name;
+                option.textContent = item.name;
+                itemSelect.appendChild(option);
+            });
+        }
+
+        function populateItemData() {
+            const selectedItemName = document.getElementById('updateItemSelect').value;
+            const selectedItem = itemsData.find(item => item.name === selectedItemName);
+            
+            if (selectedItem) {
+                document.getElementById('updateItemQuantity').value = selectedItem.quantity;
+            }
+        }
+
         function closeModal() {
             document.getElementById('addUnitModal').style.display = 'none';
             document.getElementById('updateUnitModal').style.display = 'none';
             document.getElementById('removeUnitModal').style.display = 'none';
+            document.getElementById('addItemModal').style.display = 'none';
+            document.getElementById('updateItemModal').style.display = 'none';
+            document.getElementById('removeItemModal').style.display = 'none';
         }
 
         function displayUnits() {
@@ -589,6 +664,20 @@
                     <td>${unit.tenant || 'None'}</td>
                 `;
                 unitsTableBody.appendChild(row);
+            });
+        }
+
+        function displayItems() {
+            const itemsTableBody = document.getElementById('itemsTableBody');
+            itemsTableBody.innerHTML = '';
+            
+            itemsData.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.name}</td>
+                    <td>${item.quantity}</td>
+                `;
+                itemsTableBody.appendChild(row);
             });
         }
 
@@ -692,6 +781,62 @@
                 unitsData.splice(unitIndex, 1);
                 localStorage.setItem('units', JSON.stringify(unitsData));
                 displayUnits();
+            }
+            
+            closeModal();
+            event.target.reset();
+        }
+
+        function handleAddItem(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('itemName').value;
+            const quantity = document.getElementById('itemQuantity').value;
+            
+            const newItem = {
+                name,
+                quantity
+            };
+            
+            itemsData.push(newItem);
+            localStorage.setItem('items', JSON.stringify(itemsData));
+            
+            displayItems();
+            closeModal();
+            event.target.reset();
+        }
+
+        function handleUpdateItem(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('updateItemSelect').value;
+            const quantity = document.getElementById('updateItemQuantity').value;
+            
+            const itemIndex = itemsData.findIndex(item => item.name === name);
+            if (itemIndex !== -1) {
+                itemsData[itemIndex] = {
+                    name,
+                    quantity
+                };
+                
+                localStorage.setItem('items', JSON.stringify(itemsData));
+                displayItems();
+            }
+            
+            closeModal();
+            event.target.reset();
+        }
+
+        function handleRemoveItem(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('removeItemSelect').value;
+            const itemIndex = itemsData.findIndex(item => item.name === name);
+            
+            if (itemIndex !== -1) {
+                itemsData.splice(itemIndex, 1);
+                localStorage.setItem('items', JSON.stringify(itemsData));
+                displayItems();
             }
             
             closeModal();
