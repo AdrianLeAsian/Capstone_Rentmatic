@@ -106,13 +106,76 @@
             margin-top: 60px;
             padding: 20px;
         }
+
+        .units-table, .appliances-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .units-table.active, .appliances-table.active {
+            display: table;
+        }
+
+        .units-table th, .units-table td,
+        .appliances-table th, .appliances-table td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        .units-table th, .appliances-table th {
+            background-color: #478778;
+            color: white;
+        }
+
+        .units-table tr:nth-child(even),
+        .appliances-table tr:nth-child(even) {
+            background-color: rgba(240, 255, 235, 0.5);
+        }
+
+        .status-available {
+            color: #2A9D8F;
+            font-weight: bold;
+        }
+
+        .status-unavailable {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .view-buttons {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .view-button {
+            padding: 10px 20px;
+            background-color: #478778;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .view-button:hover {
+            background-color: #2A9D8F;
+        }
+
+        .view-button.active {
+            background-color: #2A9D8F;
+        }
     </style>
 </head>
 <body>
     <div class="header">
         <div class="header-left">
             <img src="Rentmatic-Logo.png" alt="Rentmatic" class="logo">
-            <div class="dashboard-label">Dashboard</div>
+            <div class="dashboard-label">Units</div>
             <input type="text" class="search-bar" placeholder="Search...">
         </div>
     </div>
@@ -132,6 +195,216 @@
     </div>
 
     <div class="main-content">
+        <div class="view-buttons">
+            <button class="view-button active" onclick="showTable('units')">Units</button>
+            <button class="view-button" onclick="showTable('appliances')">Appliances</button>
+        </div>
+        <table class="units-table active">
+            <thead>
+                <tr>
+                    <th>Unit Number</th>
+                    <th>Status</th>
+                    <th>Bedrooms</th>
+                    <th>Bathrooms</th>
+                    <th>Price (PHP)</th>
+                </tr>
+            </thead>
+            <tbody id="unitsTableBody">
+                <tr>
+                    <td>Unit 1</td>
+                    <td class="status-available">Available</td>
+                    <td>2</td>
+                    <td>1</td>
+                    <td>₱20,000</td>
+                </tr>
+                <tr>
+                    <td>Unit 2</td>
+                    <td class="status-available">Available</td>
+                    <td>3</td>
+                    <td>2</td>
+                    <td>₱24,500</td>
+                </tr>
+                <tr>
+                    <td>Unit 3</td>
+                    <td class="status-available">Available</td>
+                    <td>2</td>
+                    <td>1</td>
+                    <td>₱21,000</td>
+                </tr>
+                <tr>
+                    <td>Unit 4</td>
+                    <td class="status-available">Available</td>
+                    <td>3</td>
+                    <td>2</td>
+                    <td>₱25,000</td>
+                </tr>
+                <tr>
+                    <td>Unit 5</td>
+                    <td class="status-available">Available</td>
+                    <td>2</td>
+                    <td>1</td>
+                    <td>₱20,500</td>
+                </tr>
+                <tr>
+                    <td>Unit 6</td>
+                    <td class="status-available">Available</td>
+                    <td>3</td>
+                    <td>2</td>
+                    <td>₱23,000</td>
+                </tr>
+                <tr>
+                    <td>Unit 7</td>
+                    <td class="status-available">Available</td>
+                    <td>2</td>
+                    <td>1</td>
+                    <td>₱20,000</td>
+                </tr>
+                <tr>
+                    <td>Unit 8</td>
+                    <td class="status-available">Available</td>
+                    <td>3</td>
+                    <td>2</td>
+                    <td>₱24,000</td>
+                </tr>
+                <tr>
+                    <td>Unit 9</td>
+                    <td class="status-available">Available</td>
+                    <td>2</td>
+                    <td>1</td>
+                    <td>₱21,500</td>
+                </tr>
+                <tr>
+                    <td>Unit 10</td>
+                    <td class="status-available">Available</td>
+                    <td>3</td>
+                    <td>2</td>
+                    <td>₱25,000</td>
+                </tr>
+                <tr>
+                    <td>Unit 11</td>
+                    <td class="status-available">Available</td>
+                    <td>2</td>
+                    <td>1</td>
+                    <td>₱20,000</td>
+                </tr>
+                <tr>
+                    <td>Unit 12</td>
+                    <td class="status-available">Available</td>
+                    <td>3</td>
+                    <td>2</td>
+                    <td>₱22,500</td>
+                </tr>
+                <tr>
+                    <td>Unit 13</td>
+                    <td class="status-available">Available</td>
+                    <td>2</td>
+                    <td>1</td>
+                    <td>₱21,000</td>
+                </tr>
+                <tr>
+                    <td>Unit 14</td>
+                    <td class="status-available">Available</td>
+                    <td>3</td>
+                    <td>2</td>
+                    <td>₱23,500</td>
+                </tr>
+                <tr>
+                    <td>Unit 15</td>
+                    <td class="status-available">Available</td>
+                    <td>2</td>
+                    <td>1</td>
+                    <td>₱22,000</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <table class="appliances-table">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Quantity</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Curtains</td>
+                    <td>10</td>
+                </tr>
+                <tr>
+                    <td>Blinds</td>
+                    <td>5</td>
+                </tr>
+                <tr>
+                    <td>Bed Covers</td>
+                    <td>10</td>
+                </tr>
+                <tr>
+                    <td>Pillow Covers</td>
+                    <td>15</td>
+                </tr>
+                <tr>
+                    <td>Small Rugs</td>
+                    <td>20</td>
+                </tr>
+                <tr>
+                    <td>Big Rugs</td>
+                    <td>5</td>
+                </tr>
+                <tr>
+                    <td>Shower Curtains</td>
+                    <td>10</td>
+                </tr>
+                <tr>
+                    <td>Beds</td>
+                    <td>5</td>
+                </tr>
+            </tbody>
+        </table>
     </div>
+
+    <script>
+        function showTable(tableType) {
+            const unitsTable = document.querySelector('.units-table');
+            const appliancesTable = document.querySelector('.appliances-table');
+            const buttons = document.querySelectorAll('.view-button');
+            
+            if (tableType === 'units') {
+                unitsTable.classList.add('active');
+                appliancesTable.classList.remove('active');
+                buttons[0].classList.add('active');
+                buttons[1].classList.remove('active');
+            } else {
+                unitsTable.classList.remove('active');
+                appliancesTable.classList.add('active');
+                buttons[0].classList.remove('active');
+                buttons[1].classList.add('active');
+            }
+        }
+
+        // Function to update unit status
+        function updateUnitStatus(unitNumber) {
+            const unitsTableBody = document.getElementById('unitsTableBody');
+            const rows = unitsTableBody.getElementsByTagName('tr');
+            
+            for (let row of rows) {
+                const unitCell = row.cells[0];
+                const statusCell = row.cells[1];
+                
+                if (unitCell.textContent === unitNumber) {
+                    statusCell.textContent = 'Unavailable';
+                    statusCell.classList.remove('status-available');
+                    statusCell.classList.add('status-unavailable');
+                    break;
+                }
+            }
+        }
+
+        // Listen for messages from tenants.html
+        window.addEventListener('message', function(event) {
+            if (event.data.type === 'unitAssigned') {
+                updateUnitStatus(event.data.unitNumber);
+            }
+        });
+    </script>
 </body>
 </html>

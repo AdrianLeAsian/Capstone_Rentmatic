@@ -3,13 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rentmatic Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
-        :root {
-            --primary-color: #2A9D8F;
-            --background-color: #f5f5f5;
-        }
-
         * {
             margin: 0;
             padding: 0;
@@ -17,338 +12,737 @@
         }
 
         body {
-            font-family: Arial, sans-serif;
-            background-image: url('Dash-Background.jpg');
+            display: flex;
+            min-height: 100vh;
+            background-image: url('background.png');
             background-size: cover;
             background-position: center;
-            background-attachment: fixed;
+            background-repeat: no-repeat;
+            font-family: Arial, sans-serif;
         }
 
-        .header {
-            background-color: #478778;
-            height: 60px;
+        .top-bar {
             position: fixed;
             top: 0;
-            right: 0;
             left: 0;
-            z-index: 100;
+            right: 0;
+            height: 60px;
+            background-color: #2D6A4F;
             display: flex;
             align-items: center;
             padding: 0 20px;
-            justify-content: space-between;
+            z-index: 100;
         }
 
-        .header-left {
+        .top-bar-logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
             display: flex;
             align-items: center;
-            gap: 40px;
+            gap: 15px;
+            width: 250px;
         }
 
-        .logo {
-            height: 55px;
+        .top-bar-logo img {
+            height: 40px;
             width: auto;
         }
 
-        .dashboard-label {
-            color: white;
-            font-size: 20px;
+        .search-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
         }
 
-        .search-bar {
-            width: 300px;
-            padding: 8px;
+        .top-search-bar {
+            width: 400px;
+            padding: 8px 15px;
             border: none;
-            border-radius: 5px;
+            border-radius: 4px;
             background-color: rgba(255, 255, 255, 0.9);
         }
 
         .sidebar {
-            width: 200px;
-            height: 100vh;
-            background-color: rgba(240, 255, 235, 0.9);
             position: fixed;
             left: 0;
             top: 60px;
+            bottom: 0;
+            width: 250px;
+            background-color: white;
+            border-right: 1px solid #ddd;
             padding: 20px;
-            border-right: 1px solid #eee;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2D6A4F;
+            margin-bottom: 30px;
         }
 
         .nav-item {
-            width: 160px;
-            padding: 10px;
-            margin: 5px 0;
             display: flex;
             align-items: center;
+            padding: 12px 15px;
+            margin-bottom: 8px;
             cursor: pointer;
+            border-radius: 6px;
+            color: #333;
             text-decoration: none;
-            color: inherit;
-            gap: 10px;
+            transition: all 0.3s ease;
+            position: relative;
         }
 
         .nav-item:hover {
-            background-color: #478778;
-            border-radius: 5px;
+            background-color: #e8f5e9;
+        }
+
+        .nav-item.active:hover {
+            background-color: #e8f5e9;
+        }
+
+        .nav-item.active {
+            background-color: white;
+            color: #333;
+        }
+
+        .nav-item i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        .nav-item .message-badge {
+            position: absolute;
+            right: 15px;
+            background-color: #e74c3c;
             color: white;
-        }
-
-        .nav-item:hover .nav-icon {
-            filter: brightness(0) invert(1);
-        }
-
-        .nav-icon {
-            width: 20px;
-            height: 20px;
-            filter: brightness(0);
-        }
-
-        .main-content {
-            margin-left: 200px;
-            margin-top: 60px;
-            padding: 20px;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
             display: flex;
-            gap: 20px;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
         }
 
-        /* Message List Styles */
-        .message-list {
-            flex: 2;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 10px;
+        .messages-container {
+            flex-grow: 1;
+            margin-left: 250px;
             padding: 20px;
-            height: calc(100vh - 100px);
-            overflow-y: auto;
+            margin-top: 60px;
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .message-header h2 {
+            font-size: 18px;
+            color: #333;
+        }
+
+        .message-header .tabs {
+            display: flex;
+            gap: 10px;
+            position: relative;
+        }
+
+        .tab {
+            padding: 5px 15px;
+            border: none;
+            background-color: white;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        .tab:hover {
+            background-color: #e8f5e9;
+            transform: translateY(-2px);
+        }
+
+        .tab.active {
+            background-color: white;
+            color: #333;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: white;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            border-radius: 8px;
+            z-index: 1;
+            margin-top: 5px;
+        }
+
+        .dropdown-content button {
+            width: 100%;
+            padding: 12px 16px;
+            border: none;
+            background: none;
+            text-align: left;
+            cursor: pointer;
+            font-size: 14px;
+            color: #333;
+            transition: all 0.2s ease;
+        }
+
+        .dropdown-content button:hover {
+            background-color: #e8f5e9;
+        }
+
+        .dropdown-content .add-category {
+            border-top: 1px solid #eee;
+            color: #2D6A4F;
+            font-weight: bold;
+        }
+
+        .show {
+            display: block;
+        }
+
+        .message-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
         .message-item {
+            position: relative;
             display: flex;
             align-items: center;
             padding: 15px;
-            border-bottom: 1px solid #eee;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            gap: 20px;
+            transition: all 0.3s ease;
             cursor: pointer;
         }
 
         .message-item:hover {
-            background: rgba(71, 135, 120, 0.1);
+            background-color: #e8f5e9;
+            box-shadow: 0 0 15px rgba(45, 106, 79, 0.3);
+            transform: translateY(-2px);
         }
 
         .profile-pic {
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            margin-right: 15px;
-            filter: invert(31%) sepia(15%) saturate(1234%) hue-rotate(118deg) brightness(92%) contrast(87%);
+            object-fit: cover;
+            border: 2px solid #2D6A4F;
         }
 
         .message-content {
-            flex: 1;
+            flex-grow: 1;
         }
 
-        .message-header {
-            display: flex;
-            justify-content: space-between;
+        .message-content h4 {
             margin-bottom: 5px;
+            color: #333;
+            font-size: 16px;
         }
 
-        .unread-count {
-            background: #478778;
+        .message-content p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .message-number {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background-color: #e74c3c;
             color: white;
-            padding: 2px 8px;
-            border-radius: 10px;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 12px;
         }
 
-        /* Category System Styles */
-        .categories {
-            flex: 1;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 10px;
-            padding: 20px;
-        }
-
-        .category-item {
-            padding: 10px;
-            margin: 5px 0;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-
-        .category-item:hover {
-            background: rgba(71, 135, 120, 0.1);
-        }
-
-        .add-category {
-            color: #478778;
-            padding: 10px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        /* Chat Interface */
+        /* Chat popup styles */
         .chat-popup {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 300px;
-            height: 400px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
             display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 800px;
+            height: 80vh;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
         }
 
         .chat-header {
-            background: #478778;
-            color: white;
-            padding: 10px;
-            border-radius: 10px 10px 0 0;
             display: flex;
-            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            background-color: #2D6A4F;
+            border-radius: 15px 15px 0 0;
+            color: white;
+        }
+
+        .chat-header img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+
+        .close-chat {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: white;
         }
 
         .chat-messages {
-            height: 300px;
-            padding: 10px;
+            height: calc(100% - 180px);
+            padding: 20px;
             overflow-y: auto;
         }
 
+        .message-bubble {
+            max-width: 70%;
+            padding: 10px 15px;
+            margin: 10px 0;
+            border-radius: 15px;
+            position: relative;
+        }
+
+        .received {
+            background-color: #f0f0f0;
+            margin-right: auto;
+        }
+
+        .sent {
+            background-color: #2D6A4F;
+            color: white;
+            margin-left: auto;
+        }
+
         .chat-input {
-            padding: 10px;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 20px;
+            background: white;
             border-top: 1px solid #eee;
+            border-radius: 0 0 15px 15px;
+            display: flex;
+            gap: 10px;
         }
 
         .chat-input input {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-
-        /* Message Search */
-        .message-search {
-            padding: 10px 0;
-            margin-bottom: 20px;
-        }
-
-        .message-search input {
-            width: 100%;
+            flex: 1;
             padding: 10px;
             border: 1px solid #ddd;
-            border-radius: 5px;
+            border-radius: 20px;
+            outline: none;
+        }
+
+        .chat-input button {
+            padding: 10px 20px;
+            background: #2D6A4F;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        /* Add Category Modal Styles */
+        .category-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1001;
+            width: 300px;
+        }
+
+        .category-modal h3 {
+            margin-bottom: 15px;
+            color: #2D6A4F;
+        }
+
+        .category-modal input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .category-modal .buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .category-modal button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .category-modal .add-btn {
+            background: #2D6A4F;
+            color: white;
+        }
+
+        .category-modal .cancel-btn {
+            background: #ddd;
+        }
+
+        /* Category Messages Container */
+        .category-messages {
+            display: none;
+        }
+
+        .category-messages.active {
+            display: block;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="header-left">
-            <img src="Rentmatic-Logo.png" alt="Rentmatic" class="logo">
-            <div class="dashboard-label">Messages</div>
-            <input type="text" class="search-bar" placeholder="Search...">
+    <div class="top-bar">
+        <div class="top-bar-logo">
+            <img src="rentmatic-logo.png" alt="RentMatic Logo">
+            <span id="headerText">Messages</span>
         </div>
+        <div class="search-container">
+            <input type="text" class="top-search-bar" placeholder="Search tenants" onkeyup="searchTenants(this.value)">
+        </div>
+        <div style="width: 250px;"></div>
     </div>
     <div class="sidebar">
-        <a href="dashboard.html" class="nav-item">
-            <img src="dashboard-icon.png" alt="" class="nav-icon">
-            <span>Dashboard</span>
+        <a href="#" class="nav-item active">
+            <i class="fas fa-tachometer-alt"></i>
+            Dashboard
         </a>
-        <a href="messages.html" class="nav-item">
-            <img src="messages-icon.png" alt="" class="nav-icon">
-            <span>Messages</span>
+        <a href="#" class="nav-item">
+            <i class="fas fa-envelope"></i>
+            Messages
+            <span class="message-badge" id="totalMessages">10</span>
         </a>
-        <a href="settings.html" class="nav-item">
-            <img src="settings-icon.png" alt="" class="nav-icon">
-            <span>Settings</span>
+        <a href="#" class="nav-item">
+            <i class="fas fa-cogs"></i>
+            Settings
         </a>
     </div>
-
-    <div class="main-content">
-        <div class="categories">
-            <h2>Categories</h2>
-            <div class="message-search">
-                <input type="text" placeholder="Search messages...">
-            </div>
-            <div class="category-item">All Messages</div>
-            <div class="category-item">Payments</div>
-            <div class="category-item">Maintenance</div>
-            <div class="category-item">General</div>
-            <div class="add-category">
-                <span>+</span>
-                <span>Add Category</span>
-            </div>
-        </div>
-
-        <div class="message-list">
-            <div class="message-item" onclick="openChat('John Doe')">
-                <img src="tenants-icon.png" alt="Profile" class="profile-pic">
-                <div class="message-content">
-                    <div class="message-header">
-                        <strong>John Doe</strong>
-                        <span class="unread-count">2</span>
-                    </div>
-                    <div>Maintenance request for Unit 101...</div>
-                </div>
-            </div>
-            <div class="message-item" onclick="openChat('Jane Smith')">
-                <img src="tenants-icon.png" alt="Profile" class="profile-pic">
-                <div class="message-content">
-                    <div class="message-header">
-                        <strong>Jane Smith</strong>
-                        <span class="unread-count">1</span>
-                    </div>
-                    <div>Question about monthly payment...</div>
+    <div class="messages-container">
+        <div class="message-header">
+            <div class="tabs">
+                <button class="tab active" onclick="showMessages('all')">Message</button>
+                <button class="tab" onclick="toggleDropdown()">Categories</button>
+                <div id="categoriesDropdown" class="dropdown-content">
+                    <button onclick="showMessages('payments')">Payments</button>
+                    <button onclick="showMessages('maintenance')">Maintenance</button>
+                    <button class="add-category" onclick="showAddCategoryModal()">+ Add More Categories</button>
                 </div>
             </div>
         </div>
+
+        <!-- All Messages -->
+        <div class="message-list" id="allMessages">
+            <div class="message-item" onclick="openChat('Shan L. Poguiz', 'profile1.jpg', 'Hello sir! I would like to update our sink', this)" data-category="maintenance">
+                <img src="profile1.jpg" alt="Shan L. Poguiz" class="profile-pic">
+                <div class="message-content">
+                    <h4>Shan L. Poguiz</h4>
+                    <p>Hello sir! I would like to update our sink</p>
+                </div>
+                <div class="message-number">1</div>
+            </div>
+            <div class="message-item" onclick="openChat('Ley A. Labo', 'profile2.jpg', 'I would like to inform you that I have paid already for the month. Thank you!', this)" data-category="payments">
+                <img src="profile2.jpg" alt="Ley A. Labo" class="profile-pic">
+                <div class="message-content">
+                    <h4>Ley A. Labo</h4>
+                    <p>I would like to inform you that I have paid already for the month. Thank you!</p>
+                </div>
+                <div class="message-number">2</div>
+            </div>
+            <div class="message-item" onclick="openChat('George D. Ore', 'profile3.jpg', 'Hi! I would like to report our light.', this)" data-category="maintenance">
+                <img src="profile3.jpg" alt="George D. Ore" class="profile-pic">
+                <div class="message-content">
+                    <h4>George D. Ore</h4>
+                    <p>Hi! I would like to report our light.</p>
+                </div>
+                <div class="message-number">3</div>
+            </div>
+            <div class="message-item" onclick="openChat('Kyle P. Diaz', 'profile4.jpg', 'Thank you sir!', this)" data-category="payments">
+                <img src="profile4.jpg" alt="Kyle P. Diaz" class="profile-pic">
+                <div class="message-content">
+                    <h4>Kyle P. Diaz</h4>
+                    <p>Thank you sir!</p>
+                </div>
+                <div class="message-number">4</div>
+            </div>
+        </div>
     </div>
 
-    <div class="chat-popup">
+    <!-- Chat popup -->
+    <div class="overlay" id="overlay"></div>
+    <div class="chat-popup" id="chatPopup">
         <div class="chat-header">
-            <span id="chat-tenant-name">Chat with Tenant</span>
-            <span class="close-chat" onclick="closeChat()">×</span>
+            <img id="chatProfilePic" src="" alt="">
+            <h3 id="chatName"></h3>
+            <span class="close-chat" onclick="closeChat()">&times;</span>
         </div>
-        <div class="chat-messages">
+        <div class="chat-messages" id="chatMessages">
             <!-- Messages will be dynamically added here -->
         </div>
         <div class="chat-input">
-            <input type="text" placeholder="Type a message..." onkeypress="handleKeyPress(event)">
+            <input type="text" id="messageInput" placeholder="Type your message...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <!-- Add Category Modal -->
+    <div class="category-modal" id="categoryModal">
+        <h3>Add New Category</h3>
+        <input type="text" id="newCategoryInput" placeholder="Enter category name">
+        <div class="buttons">
+            <button class="cancel-btn" onclick="closeAddCategoryModal()">Cancel</button>
+            <button class="add-btn" onclick="addNewCategory()">Add</button>
         </div>
     </div>
 
     <script>
-        function openChat(tenantName) {
-            const chatPopup = document.querySelector('.chat-popup');
-            const chatTenantName = document.getElementById('chat-tenant-name');
-            chatTenantName.textContent = `Chat with ${tenantName}`;
-            chatPopup.style.display = 'block';
+        let chatHistory = {};
+        let categories = ['payments', 'maintenance'];
+        let totalUnreadMessages = 10; // Initial total of unread messages
+
+        function searchTenants(searchText) {
+            const messageItems = document.querySelectorAll('.message-item');
+            searchText = searchText.toLowerCase();
+            
+            messageItems.forEach(item => {
+                const tenantName = item.querySelector('h4').textContent.toLowerCase();
+                if (tenantName.includes(searchText)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
         }
 
-        function closeChat() {
-            const chatPopup = document.querySelector('.chat-popup');
-            chatPopup.style.display = 'none';
+        function updateTotalMessages() {
+            const badge = document.getElementById('totalMessages');
+            if (totalUnreadMessages > 0) {
+                badge.style.display = 'flex';
+                badge.textContent = totalUnreadMessages;
+            } else {
+                badge.style.display = 'none';
+            }
         }
 
-        function handleKeyPress(event) {
-            if (event.key === 'Enter') {
-                const input = event.target;
-                const message = input.value.trim();
-                
-                if (message) {
-                    const chatMessages = document.querySelector('.chat-messages');
-                    const messageElement = document.createElement('div');
-                    messageElement.style.padding = '5px';
-                    messageElement.style.margin = '5px';
-                    messageElement.style.backgroundColor = '#478778';
-                    messageElement.style.color = 'white';
-                    messageElement.style.borderRadius = '5px';
-                    messageElement.textContent = message;
-                    
-                    chatMessages.appendChild(messageElement);
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
-                    input.value = '';
+        function toggleDropdown() {
+            document.getElementById("categoriesDropdown").classList.toggle("show");
+        }
+
+        function showMessages(category) {
+            const allMessages = document.querySelectorAll('.message-item');
+            const tabs = document.querySelectorAll('.tab');
+            const headerText = document.getElementById('headerText');
+            
+            // Update header text
+            if (category === 'all') {
+                headerText.textContent = 'Messages';
+            } else {
+                headerText.textContent = category.charAt(0).toUpperCase() + category.slice(1);
+            }
+            
+            // Update active tab
+            tabs.forEach(tab => tab.classList.remove('active'));
+            if (category === 'all') {
+                tabs[0].classList.add('active');
+            } else {
+                tabs[1].classList.add('active');
+            }
+
+            // Show/hide messages based on category
+            allMessages.forEach(message => {
+                if (category === 'all' || message.dataset.category === category) {
+                    message.style.display = 'flex';
+                } else {
+                    message.style.display = 'none';
+                }
+            });
+
+            // Close dropdown
+            document.getElementById("categoriesDropdown").classList.remove("show");
+        }
+
+        window.onclick = function(event) {
+            if (!event.target.matches('.tab')) {
+                var dropdowns = document.getElementsByClassName("dropdown-content");
+                for (var i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
                 }
             }
         }
+
+        function showAddCategoryModal() {
+            document.getElementById('categoryModal').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+        function closeAddCategoryModal() {
+            document.getElementById('categoryModal').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        function addNewCategory() {
+            const newCategory = document.getElementById('newCategoryInput').value.trim().toLowerCase();
+            if (newCategory && !categories.includes(newCategory)) {
+                categories.push(newCategory);
+                
+                const dropdown = document.getElementById('categoriesDropdown');
+                const addButton = dropdown.querySelector('.add-category');
+                
+                const newButton = document.createElement('button');
+                newButton.textContent = newCategory.charAt(0).toUpperCase() + newCategory.slice(1);
+                newButton.onclick = () => showMessages(newCategory);
+                
+                dropdown.insertBefore(newButton, addButton);
+                
+                document.getElementById('newCategoryInput').value = '';
+                closeAddCategoryModal();
+            }
+        }
+
+        function openChat(name, profilePic, initialMessage, messageItem) {
+            document.getElementById('chatName').textContent = name;
+            document.getElementById('chatProfilePic').src = profilePic;
+            document.getElementById('chatPopup').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+            
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML = '';
+            
+            if (!chatHistory[name]) {
+                chatHistory[name] = [{
+                    text: initialMessage,
+                    type: 'received'
+                }];
+            }
+
+            chatHistory[name].forEach(msg => {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message-bubble ${msg.type}`;
+                messageDiv.textContent = msg.text;
+                chatMessages.appendChild(messageDiv);
+            });
+
+            const previewText = messageItem.querySelector('p');
+            const lastMessage = chatHistory[name][chatHistory[name].length - 1];
+            if (lastMessage.type === 'sent') {
+                previewText.textContent = 'You: ' + lastMessage.text;
+            }
+
+            const notificationBadge = messageItem.querySelector('.message-number');
+            if (notificationBadge) {
+                const unreadCount = parseInt(notificationBadge.textContent);
+                totalUnreadMessages -= unreadCount;
+                updateTotalMessages();
+                notificationBadge.style.display = 'none';
+            }
+
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function closeChat() {
+            document.getElementById('chatPopup').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (message) {
+                const chatMessages = document.getElementById('chatMessages');
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message-bubble sent';
+                messageDiv.textContent = message;
+                chatMessages.appendChild(messageDiv);
+                
+                const name = document.getElementById('chatName').textContent;
+                if (!chatHistory[name]) {
+                    chatHistory[name] = [];
+                }
+                chatHistory[name].push({
+                    text: message,
+                    type: 'sent'
+                });
+
+                const messageItems = document.querySelectorAll('.message-item');
+                messageItems.forEach(item => {
+                    if (item.querySelector('h4').textContent === name) {
+                        item.querySelector('p').textContent = 'You: ' + message;
+                    }
+                });
+                
+                input.value = '';
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        }
+
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        document.getElementById('newCategoryInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addNewCategory();
+            }
+        });
+
+        // Initialize total messages badge
+        updateTotalMessages();
     </script>
 </body>
 </html>
