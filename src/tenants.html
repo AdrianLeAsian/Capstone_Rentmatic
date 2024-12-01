@@ -469,18 +469,7 @@
 
                 <div class="form-section">
                     <div class="section-title">Unit Information</div>
-                    <div class="form-group">
-                        <label>Unit Number:</label>
-                        <input type="text" id="newUnitNumber">
-                    </div>
-                    <div class="form-group">
-                        <label>Rent Status:</label>
-                        <select id="newRentStatus">
-                            <option value="paid">Paid</option>
-                            <option value="pending">Pending</option>
-                            <option value="overdue">Overdue</option>
-                        </select>
-                    </div>
+                    <p class="unit-info-message">Please assign this tenant to a unit in the Unit Management page after creating their profile.</p>
                 </div>
             </div>
             <div class="modal-buttons">
@@ -558,17 +547,10 @@
 
                 <div class="form-section">
                     <div class="section-title">Unit Information</div>
-                    <div class="form-group">
-                        <label>Unit Number:</label>
-                        <input type="text" id="updateUnitNumber">
-                    </div>
-                    <div class="form-group">
-                        <label>Rent Status:</label>
-                        <select id="updateRentStatus">
-                            <option value="paid">Paid</option>
-                            <option value="pending">Pending</option>
-                            <option value="overdue">Overdue</option>
-                        </select>
+                    <p class="unit-info-message">Unit information can only be modified in the Unit Management page.</p>
+                    <div id="currentUnitInfo">
+                        <p><strong>Current Unit:</strong> <span id="displayUnitNumber">Not Assigned</span></p>
+                        <p><strong>Rent Status:</strong> <span id="displayRentStatus">N/A</span></p>
                     </div>
                 </div>
             </div>
@@ -610,6 +592,7 @@
                         <div class="section-title">Unit Information</div>
                         <p><span class="details-label">Unit Number:</span> <span id="detailsUnitNumber"></span></p>
                         <p><span class="details-label">Rent Status:</span> <span id="detailsRentStatus"></span></p>
+                        <p class="unit-info-message">Unit information is managed in the Unit Management page.</p>
                     </div>
                 </div>
             </div>
@@ -639,6 +622,33 @@
             document.getElementById('updateProfileImage').addEventListener('change', function(e) {
                 previewImage(e.target, 'updateProfilePreview');
             });
+
+            // Listen for unit assignment changes from units page
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'units') {
+                    updateUnitAssignments();
+                }
+            });
+        }
+
+        function updateUnitAssignments() {
+            const units = JSON.parse(localStorage.getItem('units')) || [];
+            
+            // Update tenant database with new unit assignments
+            tenantDatabase = tenantDatabase.map(tenant => {
+                const assignedUnit = units.find(unit => unit.tenantId === tenant.id);
+                return {
+                    ...tenant,
+                    unit: assignedUnit ? assignedUnit.number : null,
+                    status: assignedUnit ? assignedUnit.rentStatus : null
+                };
+            });
+
+            // Save updated tenant database
+            localStorage.setItem('tenants', JSON.stringify(tenantDatabase));
+            
+            // Refresh table display
+            loadTenantsToTable();
         }
 
         function previewImage(input, previewId) {
@@ -662,8 +672,8 @@
                     <td>${tenant.name}</td>
                     <td>${tenant.email}</td>
                     <td>${tenant.mobile}</td>
-                    <td>${tenant.unit}</td>
-                    <td><span class="rent-status status-${tenant.status}">${tenant.status.charAt(0).toUpperCase() + tenant.status.slice(1)}</span></td>
+                    <td>${tenant.unit || 'Not Assigned'}</td>
+                    <td><span class="rent-status status-${tenant.status || 'pending'}">${tenant.status ? tenant.status.charAt(0).toUpperCase() + tenant.status.slice(1) : 'Not Assigned'}</span></td>
                 `;
             });
         }
@@ -701,8 +711,10 @@
             document.getElementById('updateEmergencyEmail').value = tenant.emergencyEmail;
             document.getElementById('updateEmergencyMobile').value = tenant.emergencyMobile;
             document.getElementById('updateEmergencyRelation').value = tenant.emergencyRelation;
-            document.getElementById('updateUnitNumber').value = tenant.unit;
-            document.getElementById('updateRentStatus').value = tenant.status;
+            
+            // Display current unit information
+            document.getElementById('displayUnitNumber').textContent = tenant.unit || 'Not Assigned';
+            document.getElementById('displayRentStatus').textContent = tenant.status ? tenant.status.charAt(0).toUpperCase() + tenant.status.slice(1) : 'N/A';
             
             document.getElementById('updateModal').style.display = 'block';
         }
@@ -727,8 +739,8 @@
             document.getElementById('detailsEmergencyEmail').textContent = tenant.emergencyEmail;
             document.getElementById('detailsEmergencyMobile').textContent = tenant.emergencyMobile;
             document.getElementById('detailsEmergencyRelation').textContent = tenant.emergencyRelation;
-            document.getElementById('detailsUnitNumber').textContent = tenant.unit;
-            document.getElementById('detailsRentStatus').textContent = tenant.status;
+            document.getElementById('detailsUnitNumber').textContent = tenant.unit || 'Not Assigned';
+            document.getElementById('detailsRentStatus').textContent = tenant.status ? tenant.status.charAt(0).toUpperCase() + tenant.status.slice(1) : 'N/A';
             
             document.getElementById('detailsModal').style.display = 'block';
         }
@@ -741,6 +753,7 @@
             const profileImage = document.getElementById('newProfilePreview').src;
             
             const tenant = {
+                id: Date.now().toString(), // Add unique ID for tenant
                 profileImage: profileImage === 'tenants-icon.png' ? null : profileImage,
                 name: document.getElementById('newTenantName').value,
                 email: document.getElementById('newEmail').value,
@@ -752,11 +765,11 @@
                 emergencyEmail: document.getElementById('newEmergencyEmail').value,
                 emergencyMobile: document.getElementById('newEmergencyMobile').value,
                 emergencyRelation: document.getElementById('newEmergencyRelation').value,
-                unit: document.getElementById('newUnitNumber').value,
-                status: document.getElementById('newRentStatus').value
+                unit: null,
+                status: null
             };
 
-            if (!tenant.name || !tenant.email || !tenant.mobile || !tenant.unit) {
+            if (!tenant.name || !tenant.email || !tenant.mobile) {
                 alert('Please fill in all required fields');
                 return;
             }
@@ -783,8 +796,11 @@
             }
 
             const profileImage = document.getElementById('updateProfilePreview').src;
+            const index = Array.from(selectedRow.parentNode.children).indexOf(selectedRow);
+            const currentTenant = tenantDatabase[index];
 
             const tenant = {
+                ...currentTenant, // Preserve ID and unit information
                 profileImage: profileImage === 'tenants-icon.png' ? null : profileImage,
                 name: document.getElementById('updateTenantName').value,
                 email: document.getElementById('updateEmail').value,
@@ -796,17 +812,16 @@
                 emergencyEmail: document.getElementById('updateEmergencyEmail').value,
                 emergencyMobile: document.getElementById('updateEmergencyMobile').value,
                 emergencyRelation: document.getElementById('updateEmergencyRelation').value,
-                unit: document.getElementById('updateUnitNumber').value,
-                status: document.getElementById('updateRentStatus').value
+                unit: currentTenant.unit,
+                status: currentTenant.status
             };
 
-            if (!tenant.name || !tenant.email || !tenant.mobile || !tenant.unit) {
+            if (!tenant.name || !tenant.email || !tenant.mobile) {
                 alert('Please fill in all required fields');
                 return;
             }
 
             // Update database
-            const index = Array.from(selectedRow.parentNode.children).indexOf(selectedRow);
             tenantDatabase[index] = tenant;
 
             // Save to localStorage

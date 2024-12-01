@@ -74,7 +74,7 @@
         }
 
         .nav-item {
-            width: 160px; /* Same as sidebar width (200px) minus padding (20px * 2) */
+            width: 160px;
             padding: 10px;
             margin: 5px 0;
             display: flex;
@@ -112,11 +112,7 @@
             border-collapse: collapse;
             background-color: rgba(255, 255, 255, 0.9);
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            display: none;
-        }
-
-        .units-table.active, .appliances-table.active {
-            display: table;
+            margin-bottom: 20px;
         }
 
         .units-table th, .units-table td,
@@ -146,31 +142,7 @@
             font-weight: bold;
         }
 
-        .view-buttons {
-            margin-bottom: 20px;
-            display: flex;
-            gap: 10px;
-        }
-
-        .view-button {
-            padding: 10px 20px;
-            background-color: #478778;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        .view-button:hover {
-            background-color: #2A9D8F;
-        }
-
-        .view-button.active {
-            background-color: #2A9D8F;
-        }
-
-        .add-unit-button {
+        .add-unit-button, .update-unit-button, .remove-unit-button, .add-item-button, .update-item-button, .remove-item-button {
             padding: 10px 20px;
             background-color: #2A9D8F;
             color: white;
@@ -179,10 +151,19 @@
             cursor: pointer;
             font-size: 16px;
             margin-bottom: 20px;
+            margin-right: 10px;
         }
 
-        .add-unit-button:hover {
+        .remove-unit-button, .remove-item-button {
+            background-color: #dc3545;
+        }
+
+        .add-unit-button:hover, .update-unit-button:hover, .add-item-button:hover, .update-item-button:hover {
             background-color: #478778;
+        }
+
+        .remove-unit-button:hover, .remove-item-button:hover {
+            background-color: #c82333;
         }
 
         /* Modal styles */
@@ -271,12 +252,10 @@
     </div>
 
     <div class="main-content">
-        <div class="view-buttons">
-            <button class="view-button active" onclick="showTable('units')">Units</button>
-            <button class="view-button" onclick="showTable('appliances')">Appliances</button>
-        </div>
-        <button class="add-unit-button" onclick="showAddUnitModal()">Add New Unit</button>
-        <table class="units-table active">
+        <button class="add-unit-button" onclick="showAddUnitModal()">Add Unit</button>
+        <button class="update-unit-button" onclick="showUpdateUnitModal()">Update Unit</button>
+        <button class="remove-unit-button" onclick="showRemoveUnitModal()">Remove Unit</button>
+        <table class="units-table">
             <thead>
                 <tr>
                     <th>Unit Number</th>
@@ -291,6 +270,9 @@
             </tbody>
         </table>
 
+        <button class="add-item-button">Add Item</button>
+        <button class="update-item-button">Update Item</button>
+        <button class="remove-item-button">Remove Item</button>
         <table class="appliances-table">
             <thead>
                 <tr>
@@ -339,7 +321,7 @@
     <div id="addUnitModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal()">&times;</span>
-            <h2>Add New Unit</h2>
+            <h2>Add Unit</h2>
             <form id="addUnitForm" onsubmit="handleAddUnit(event)">
                 <div class="form-group">
                     <label for="unitNumber">Unit Number:</label>
@@ -360,7 +342,7 @@
                 <div class="form-group">
                     <label for="tenant">Assign Tenant:</label>
                     <select id="tenant">
-                        <option value="">Select Tenant</option>
+                        <option value="">Room Available</option>
                     </select>
                 </div>
                 <button type="submit" class="submit-button">Add Unit</button>
@@ -368,61 +350,187 @@
         </div>
     </div>
 
+    <!-- Update Unit Modal -->
+    <div id="updateUnitModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Update Unit</h2>
+            <form id="updateUnitForm" onsubmit="handleUpdateUnit(event)">
+                <div class="form-group">
+                    <label for="updateUnitNumber">Select Unit:</label>
+                    <select id="updateUnitNumber" required onchange="populateUnitData()">
+                        <option value="">Select a unit</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="updateBedrooms">Number of Bedrooms:</label>
+                    <input type="number" id="updateBedrooms" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="updateBathrooms">Number of Bathrooms:</label>
+                    <input type="number" id="updateBathrooms" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="updatePrice">Monthly Price (PHP):</label>
+                    <input type="number" id="updatePrice" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="updateTenant">Assign Tenant:</label>
+                    <select id="updateTenant">
+                        <option value="">Room Available</option>
+                    </select>
+                </div>
+                <button type="submit" class="submit-button">Update Unit</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Remove Unit Modal -->
+    <div id="removeUnitModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Remove Unit</h2>
+            <form id="removeUnitForm" onsubmit="handleRemoveUnit(event)">
+                <div class="form-group">
+                    <label for="removeUnitNumber">Select Unit to Remove:</label>
+                    <select id="removeUnitNumber" required>
+                        <option value="">Select a unit</option>
+                    </select>
+                </div>
+                <button type="submit" class="submit-button" style="background-color: #dc3545;">Remove Unit</button>
+            </form>
+        </div>
+    </div>
+
     <script>
-        function showTable(tableType) {
-            const unitsTable = document.querySelector('.units-table');
-            const appliancesTable = document.querySelector('.appliances-table');
-            const buttons = document.querySelectorAll('.view-button');
+        // Store tenants data globally
+        let tenantsData = [];
+        let unitsData = [];
+
+        // Load data from localStorage on page load
+        window.addEventListener('load', () => {
+            tenantsData = JSON.parse(localStorage.getItem('tenants')) || [];
+            unitsData = JSON.parse(localStorage.getItem('units')) || [];
+            displayUnits();
+        });
+
+        // Function to fetch and update tenants data
+        async function fetchTenantsData() {
+            tenantsData = JSON.parse(localStorage.getItem('tenants')) || [];
+        }
+
+        // Function to update tenant select options
+        function updateTenantSelect() {
+            const tenantSelect = document.getElementById('tenant');
+            tenantSelect.innerHTML = '<option value="">Room Available</option>';
             
-            if (tableType === 'units') {
-                unitsTable.classList.add('active');
-                appliancesTable.classList.remove('active');
-                buttons[0].classList.add('active');
-                buttons[1].classList.remove('active');
-            } else {
-                unitsTable.classList.remove('active');
-                appliancesTable.classList.add('active');
-                buttons[0].classList.remove('active');
-                buttons[1].classList.add('active');
-            }
+            tenantsData.forEach(tenant => {
+                if (!tenant.assigned) {
+                    const option = document.createElement('option');
+                    option.value = tenant.name;
+                    option.textContent = tenant.name;
+                    tenantSelect.appendChild(option);
+                }
+            });
         }
 
         function showAddUnitModal() {
             const modal = document.getElementById('addUnitModal');
             modal.style.display = 'block';
             
-            // Fetch tenants data from tenants.html
-            fetch('tenants.html')
-                .then(response => response.text())
-                .then(html => {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-                    const tenantSelect = document.getElementById('tenant');
-                    
-                    // Clear existing options
-                    tenantSelect.innerHTML = '<option value="">Select Tenant</option>';
-                    
-                    // Get tenant data from tenants table
-                    const tenantsTable = doc.querySelector('.tenants-table');
-                    if (tenantsTable) {
-                        const tenantRows = tenantsTable.querySelectorAll('tbody tr');
-                        tenantRows.forEach(row => {
-                            const tenantName = row.querySelector('td:first-child').textContent;
-                            const option = document.createElement('option');
-                            option.value = tenantName;
-                            option.textContent = tenantName;
-                            tenantSelect.appendChild(option);
-                        });
+            fetchTenantsData();
+            updateTenantSelect();
+        }
+
+        function showRemoveUnitModal() {
+            const modal = document.getElementById('removeUnitModal');
+            modal.style.display = 'block';
+            
+            const unitSelect = document.getElementById('removeUnitNumber');
+            unitSelect.innerHTML = '<option value="">Select a unit</option>';
+            
+            unitsData.forEach(unit => {
+                const option = document.createElement('option');
+                option.value = unit.unitNumber;
+                option.textContent = `Unit ${unit.unitNumber}`;
+                unitSelect.appendChild(option);
+            });
+        }
+
+        function populateUnitData() {
+            const selectedUnitNumber = document.getElementById('updateUnitNumber').value;
+            const selectedUnit = unitsData.find(unit => unit.unitNumber === selectedUnitNumber);
+            
+            if (selectedUnit) {
+                document.getElementById('updateBedrooms').value = selectedUnit.bedrooms;
+                document.getElementById('updateBathrooms').value = selectedUnit.bathrooms;
+                document.getElementById('updatePrice').value = selectedUnit.price;
+                
+                const updateTenantSelect = document.getElementById('updateTenant');
+                updateTenantSelect.innerHTML = '<option value="">Room Available</option>';
+                
+                // Add current tenant as first option if exists
+                if (selectedUnit.tenant) {
+                    const currentTenantOption = document.createElement('option');
+                    currentTenantOption.value = selectedUnit.tenant;
+                    currentTenantOption.textContent = selectedUnit.tenant;
+                    currentTenantOption.selected = true;
+                    updateTenantSelect.appendChild(currentTenantOption);
+                }
+                
+                // Add other available tenants
+                tenantsData.forEach(tenant => {
+                    if (!tenant.assigned || tenant.name === selectedUnit.tenant) {
+                        const option = document.createElement('option');
+                        option.value = tenant.name;
+                        option.textContent = tenant.name;
+                        updateTenantSelect.appendChild(option);
                     }
-                })
-                .catch(error => {
-                    console.error('Error fetching tenants:', error);
                 });
+            }
+        }
+
+        function showUpdateUnitModal() {
+            const modal = document.getElementById('updateUnitModal');
+            modal.style.display = 'block';
+            
+            const unitSelect = document.getElementById('updateUnitNumber');
+            unitSelect.innerHTML = '<option value="">Select a unit</option>';
+            
+            unitsData.forEach(unit => {
+                const option = document.createElement('option');
+                option.value = unit.unitNumber;
+                option.textContent = `Unit ${unit.unitNumber}`;
+                unitSelect.appendChild(option);
+            });
+            
+            fetchTenantsData();
         }
 
         function closeModal() {
-            const modal = document.getElementById('addUnitModal');
-            modal.style.display = 'none';
+            document.getElementById('addUnitModal').style.display = 'none';
+            document.getElementById('updateUnitModal').style.display = 'none';
+            document.getElementById('removeUnitModal').style.display = 'none';
+        }
+
+        function displayUnits() {
+            const unitsTableBody = document.getElementById('unitsTableBody');
+            unitsTableBody.innerHTML = '';
+            
+            unitsData.forEach(unit => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${unit.unitNumber}</td>
+                    <td class="${unit.tenant ? 'status-unavailable' : 'status-available'}">
+                        ${unit.tenant ? 'Unavailable' : 'Available'}
+                    </td>
+                    <td>${unit.bedrooms}</td>
+                    <td>${unit.bathrooms}</td>
+                    <td>₱${Number(unit.price).toLocaleString()}</td>
+                    <td>${unit.tenant || 'None'}</td>
+                `;
+                unitsTableBody.appendChild(row);
+            });
         }
 
         function handleAddUnit(event) {
@@ -434,28 +542,102 @@
             const price = document.getElementById('price').value;
             const tenant = document.getElementById('tenant').value;
             
-            const unitsTableBody = document.getElementById('unitsTableBody');
-            const newRow = document.createElement('tr');
-            newRow.innerHTML = `
-                <td>${unitNumber}</td>
-                <td class="${tenant ? 'status-unavailable' : 'status-available'}">
-                    ${tenant ? 'Unavailable' : 'Available'}
-                </td>
-                <td>${bedrooms}</td>
-                <td>${bathrooms}</td>
-                <td>₱${Number(price).toLocaleString()}</td>
-                <td>${tenant || 'None'}</td>
-            `;
+            const newUnit = {
+                unitNumber,
+                bedrooms,
+                bathrooms,
+                price,
+                tenant
+            };
             
-            unitsTableBody.appendChild(newRow);
+            unitsData.push(newUnit);
+            localStorage.setItem('units', JSON.stringify(unitsData));
+            
+            if (tenant) {
+                const tenantIndex = tenantsData.findIndex(t => t.name === tenant);
+                if (tenantIndex !== -1) {
+                    tenantsData[tenantIndex].assigned = true;
+                    localStorage.setItem('tenants', JSON.stringify(tenantsData));
+                }
+            }
+            
+            displayUnits();
+            closeModal();
+            event.target.reset();
+        }
+
+        function handleUpdateUnit(event) {
+            event.preventDefault();
+            
+            const unitNumber = document.getElementById('updateUnitNumber').value;
+            const bedrooms = document.getElementById('updateBedrooms').value;
+            const bathrooms = document.getElementById('updateBathrooms').value;
+            const price = document.getElementById('updatePrice').value;
+            const tenant = document.getElementById('updateTenant').value;
+            
+            const unitIndex = unitsData.findIndex(u => u.unitNumber === unitNumber);
+            if (unitIndex !== -1) {
+                const oldTenant = unitsData[unitIndex].tenant;
+                if (oldTenant) {
+                    const oldTenantIndex = tenantsData.findIndex(t => t.name === oldTenant);
+                    if (oldTenantIndex !== -1) {
+                        tenantsData[oldTenantIndex].assigned = false;
+                    }
+                }
+                
+                unitsData[unitIndex] = {
+                    unitNumber,
+                    bedrooms,
+                    bathrooms,
+                    price,
+                    tenant
+                };
+                
+                if (tenant) {
+                    const newTenantIndex = tenantsData.findIndex(t => t.name === tenant);
+                    if (newTenantIndex !== -1) {
+                        tenantsData[newTenantIndex].assigned = true;
+                    }
+                }
+                
+                localStorage.setItem('units', JSON.stringify(unitsData));
+                localStorage.setItem('tenants', JSON.stringify(tenantsData));
+                
+                displayUnits();
+            }
+            
+            closeModal();
+            event.target.reset();
+        }
+
+        function handleRemoveUnit(event) {
+            event.preventDefault();
+            
+            const unitNumber = document.getElementById('removeUnitNumber').value;
+            const unitIndex = unitsData.findIndex(u => u.unitNumber === unitNumber);
+            
+            if (unitIndex !== -1) {
+                const unit = unitsData[unitIndex];
+                if (unit.tenant) {
+                    const tenantIndex = tenantsData.findIndex(t => t.name === unit.tenant);
+                    if (tenantIndex !== -1) {
+                        tenantsData[tenantIndex].assigned = false;
+                        localStorage.setItem('tenants', JSON.stringify(tenantsData));
+                    }
+                }
+                
+                unitsData.splice(unitIndex, 1);
+                localStorage.setItem('units', JSON.stringify(unitsData));
+                displayUnits();
+            }
+            
             closeModal();
             event.target.reset();
         }
 
         // Close modal when clicking outside
         window.onclick = function(event) {
-            const modal = document.getElementById('addUnitModal');
-            if (event.target === modal) {
+            if (event.target.classList.contains('modal')) {
                 closeModal();
             }
         }
@@ -466,6 +648,9 @@
                 updateUnitStatus(event.data.unitNumber);
             }
         });
+
+        // Initial fetch of tenants data
+        fetchTenantsData();
     </script>
 </body>
 </html>
