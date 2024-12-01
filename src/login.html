@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Rentmatic</title>
+    <style>
+        :root {
+            --primary-color: #2A9D8F;
+            --background-color: #f5f5f5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('Dash-Background.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .login-container, .signup-container {
+            background: linear-gradient(135deg, rgba(42, 157, 143, 0.95), rgba(71, 135, 120, 0.95));
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+            color: white;
+            display: none;
+        }
+
+        .active {
+            display: block;
+        }
+
+        .logo {
+            display: block;
+            margin: 0 auto 30px;
+            height: 80px;
+            width: auto;
+        }
+
+        .login-form, .signup-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-weight: bold;
+            color: white;
+        }
+
+        .form-group input {
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .login-button, .signup-button {
+            background-color: white;
+            color: var(--primary-color);
+            border: none;
+            padding: 12px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .login-button:hover, .signup-button:hover {
+            background-color: rgba(255, 255, 255, 0.9);
+            transform: translateY(-2px);
+        }
+
+        .forgot-password {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .forgot-password a {
+            color: white;
+            text-decoration: none;
+            opacity: 0.9;
+            transition: opacity 0.3s;
+        }
+
+        .forgot-password a:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+
+        .switch-form {
+            text-align: center;
+            margin-top: 20px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .switch-form a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .switch-form a:hover {
+            text-decoration: underline;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container active" id="loginContainer">
+        <img src="Rentmatic-Logo.png" alt="Rentmatic" class="logo">
+        <form class="login-form" onsubmit="return handleLogin(event)">
+            <div class="form-group">
+                <label for="loginEmail">Email</label>
+                <input type="email" id="loginEmail" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="loginPassword">Password</label>
+                <input type="password" id="loginPassword" name="password" required>
+            </div>
+            <button type="submit" class="login-button">Log In</button>
+        </form>
+        <div class="forgot-password">
+            <a onclick="handleForgotPassword()">Forgot Password?</a>
+        </div>
+        <div class="switch-form">
+            Don't have an account? <a onclick="toggleForms()">Sign Up</a>
+        </div>
+    </div>
+
+    <div class="signup-container" id="signupContainer">
+        <img src="Rentmatic-Logo.png" alt="Rentmatic" class="logo">
+        <form class="signup-form" onsubmit="return handleSignup(event)">
+            <div class="form-group">
+                <label for="signupName">Full Name</label>
+                <input type="text" id="signupName" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="signupEmail">Email</label>
+                <input type="email" id="signupEmail" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="signupPassword">Password</label>
+                <input type="password" id="signupPassword" name="password" required>
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" required>
+            </div>
+            <button type="submit" class="signup-button">Sign Up</button>
+        </form>
+        <div class="switch-form">
+            Already have an account? <a onclick="toggleForms()">Log In</a>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div id="forgotPasswordModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Password Reset Email Sent</h2>
+            <p>An email has been sent to your registered email address with instructions to reset your password.</p>
+            <p>Please check your inbox and follow the instructions.</p>
+        </div>
+    </div>
+
+    <script>
+        function toggleForms() {
+            const loginContainer = document.getElementById('loginContainer');
+            const signupContainer = document.getElementById('signupContainer');
+            loginContainer.classList.toggle('active');
+            signupContainer.classList.toggle('active');
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            // Here you would typically validate credentials against stored user data
+            // For demo purposes, we'll just redirect to dashboard
+            window.location.href = 'dashboard.html';
+            
+            return false;
+        }
+
+        function handleSignup(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (password !== confirmPassword) {
+                alert("Passwords don't match!");
+                return false;
+            }
+
+            // Here you would typically store the user data
+            // For demo purposes, we'll just switch to login form
+            alert('Account created successfully! Please log in.');
+            toggleForms();
+            
+            return false;
+        }
+
+        function handleForgotPassword() {
+            const modal = document.getElementById('forgotPasswordModal');
+            modal.style.display = "block";
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('forgotPasswordModal');
+            modal.style.display = "none";
+        }
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            const modal = document.getElementById('forgotPasswordModal');
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>

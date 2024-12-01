@@ -13,7 +13,7 @@
         * {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
+            box-sizing: border-box; 
         }
 
         body {
@@ -178,6 +178,80 @@
             border-radius: 10px;
         }
 
+        /* Chat Window Styles */
+        .chat-window {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 350px;
+            height: 500px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            background: #478778;
+            color: white;
+            padding: 15px;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+        }
+
+        .chat-input {
+            padding: 15px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .chat-input button {
+            padding: 8px 15px;
+            background: #478778;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .message {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 15px;
+            max-width: 80%;
+        }
+
+        .bot-message {
+            background: #f0f0f0;
+            align-self: flex-start;
+        }
+
+        .user-message {
+            background: #478778;
+            color: white;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+
         .close {
             color: #aaa;
             float: right;
@@ -201,6 +275,20 @@
             padding: 10px;
         }
 
+        .logout-button {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .logout-button:hover {
+            background-color: #c82333;
+        }
+
         @media screen and (max-width: 768px) {
             .sidebar {
                 width: 100%;
@@ -212,6 +300,13 @@
             .main-content {
                 margin-left: 0;
                 margin-top: 120px;
+            }
+
+            .chat-window {
+                width: 100%;
+                height: 100%;
+                bottom: 0;
+                right: 0;
             }
         }
     </style>
@@ -241,7 +336,7 @@
     <div class="main-content">
         <div class="settings-section">
             <h2>Help & Support</h2>
-            <button onclick="window.location.href='help.html'">Help Center</button>
+            <button onclick="openChatWindow()">Help Center</button>
             <button onclick="openContactModal()">Contact Support</button>
         </div>
 
@@ -249,6 +344,26 @@
             <h2>Privacy & Security</h2>
             <button onclick="openPrivacyModal()">Privacy Policy</button>
             <button onclick="openSecurityModal()">Security Settings</button>
+        </div>
+
+        <div class="settings-section">
+            <h2>Account</h2>
+            <button class="logout-button" onclick="logout()">Log Out</button>
+        </div>
+    </div>
+
+    <!-- Chat Window -->
+    <div id="chatWindow" class="chat-window" style="display: none;">
+        <div class="chat-header">
+            <span>Help Center</span>
+            <span class="close" onclick="closeChatWindow()">&times;</span>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <!-- Messages will be added here dynamically -->
+        </div>
+        <div class="chat-input">
+            <input type="text" id="userInput" placeholder="Type your message...">
+            <button onclick="sendMessage()">Send</button>
         </div>
     </div>
 
@@ -395,6 +510,74 @@
             alert("Two-factor authentication enabled!");
             closeTwoFactorModal();
         }
+
+        function logout() {
+            if(confirm("Are you sure you want to log out?")) {
+                window.location.href = "login.html";
+            }
+        }
+
+        function openChatWindow() {
+            document.getElementById("chatWindow").style.display = "flex";
+            // Add initial bot message
+            addBotMessage("Hello! I'm your RentMatic assistant. How can I help you today?");
+        }
+
+        function closeChatWindow() {
+            document.getElementById("chatWindow").style.display = "none";
+        }
+
+        function addUserMessage(message) {
+            const chatMessages = document.getElementById("chatMessages");
+            const messageDiv = document.createElement("div");
+            messageDiv.className = "message user-message";
+            messageDiv.textContent = message;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function addBotMessage(message) {
+            const chatMessages = document.getElementById("chatMessages");
+            const messageDiv = document.createElement("div");
+            messageDiv.className = "message bot-message";
+            messageDiv.textContent = message;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function sendMessage() {
+            const userInput = document.getElementById("userInput");
+            const message = userInput.value.trim().toLowerCase();
+            
+            if (message) {
+                addUserMessage(message);
+                userInput.value = "";
+
+                // Bot responses based on user input
+                if (message.includes("change password") || message.includes("reset password")) {
+                    addBotMessage("To change your password: 1. Go to Security Settings 2. Click 'Reset Password' 3. Enter your current password and new password 4. Click Update Password");
+                } else if (message.includes("what is rentmatic")) {
+                    addBotMessage("RentMatic is a property management system that helps landlords and property managers efficiently manage their rental properties, tenants, and payments in one place.");
+                } else if (message.includes("add tenant") || message.includes("how to add tenant")) {
+                    addBotMessage("To add a tenant: 1. Go to the Dashboard 2. Click the 'Add' button 3. Fill in the tenant's information (name, contact details, unit assignment, etc.) 4. Click Save to add the tenant");
+                } else if (message.includes("delete tenant")) {
+                    addBotMessage("To delete a tenant: 1. Go to the Dashboard 2. Find the tenant in the list 3. Click on the tenant 4. Click the 'Delete' button 5. Confirm the deletion");
+                } else if (message.includes("update tenant")) {
+                    addBotMessage("To update tenant information: 1. Go to the Dashboard 2. Click on the tenant you want to update 3. Click the 'Update' button 4. Modify the necessary information 5. Save the changes");
+                } else if (message.includes("excel export")) {
+                    addBotMessage("The Excel Export feature allows you to download an Excel file containing all tenant information and payment records. This is useful for record-keeping and analysis.");
+                } else {
+                    addBotMessage("I'm here to help! You can ask me about: \n- How to change password\n- What is RentMatic\n- How to add/delete/update tenants\n- Excel export feature");
+                }
+            }
+        }
+
+        // Handle Enter key in chat input
+        document.getElementById("userInput").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                sendMessage();
+            }
+        });
 
         // Toggle two-factor setup display
         document.getElementById("twoFactorToggle").addEventListener("change", function() {
