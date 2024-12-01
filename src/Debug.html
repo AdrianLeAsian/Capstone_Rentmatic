@@ -169,6 +169,35 @@
             color: #666;
             font-size: 0.9em;
         }
+
+        .test-message-form {
+            background-color: rgba(240, 255, 235, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .test-message-form input, 
+        .test-message-form textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .test-message-form button {
+            background-color: #478778;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .test-message-form button:hover {
+            background-color: #2A9D8F;
+        }
     </style>
 </head>
 <body>
@@ -206,6 +235,13 @@
             <div class="data-content">
                 <pre id="currentData">Loading data...</pre>
             </div>
+
+            <div class="data-title">Test Message Sender</div>
+            <div class="test-message-form">
+                <input type="text" id="testMessageSubject" placeholder="Message Subject">
+                <textarea id="testMessageContent" placeholder="Message Content" rows="4"></textarea>
+                <button onclick="sendTestMessage()">Send Test Message</button>
+            </div>
         </div>
     </div>
 
@@ -219,6 +255,44 @@
             const notification = document.getElementById('messageNotification');
             notification.style.display = 'none';
             localStorage.setItem('messageNotificationDismissed', 'true');
+        }
+
+        function sendTestMessage() {
+            const subject = document.getElementById('testMessageSubject').value;
+            const content = document.getElementById('testMessageContent').value;
+            
+            if (!subject || !content) {
+                alert('Please fill in both subject and content');
+                return;
+            }
+
+            const messages = JSON.parse(localStorage.getItem('messages') || '[]');
+            const newMessage = {
+                id: Date.now(),
+                from: {
+                    name: 'Test User',
+                    image: 'tenants-icon.png'
+                },
+                subject: subject,
+                content: content,
+                timestamp: new Date().toISOString(),
+                read: false
+            };
+
+            messages.push(newMessage);
+            localStorage.setItem('messages', JSON.stringify(messages));
+            
+            // Update notification count
+            const currentCount = parseInt(document.getElementById('messageNotification').textContent);
+            document.getElementById('messageNotification').textContent = currentCount + 1;
+            document.getElementById('messageNotification').style.display = 'flex';
+            localStorage.setItem('messageNotificationDismissed', 'false');
+
+            // Clear form
+            document.getElementById('testMessageSubject').value = '';
+            document.getElementById('testMessageContent').value = '';
+            
+            alert('Test message sent successfully!');
         }
 
         let previousState = {
