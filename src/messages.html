@@ -465,38 +465,7 @@
         </div>
 
         <div class="message-list" id="allMessages">
-            <div class="message-item" onclick="openChat('Shan L. Poguiz', 'profile1.jpg', 'Hello sir! I would like to update our sink', this)" data-category="maintenance">
-                <img src="profile1.jpg" alt="Shan L. Poguiz" class="profile-pic">
-                <div class="message-content">
-                    <h4>Shan L. Poguiz</h4>
-                    <p>Hello sir! I would like to update our sink</p>
-                </div>
-                <div class="message-number">1</div>
-            </div>
-            <div class="message-item" onclick="openChat('Ley A. Labo', 'profile2.jpg', 'I would like to inform you that I have paid already for the month. Thank you!', this)" data-category="payments">
-                <img src="profile2.jpg" alt="Ley A. Labo" class="profile-pic">
-                <div class="message-content">
-                    <h4>Ley A. Labo</h4>
-                    <p>I would like to inform you that I have paid already for the month. Thank you!</p>
-                </div>
-                <div class="message-number">2</div>
-            </div>
-            <div class="message-item" onclick="openChat('George D. Ore', 'profile3.jpg', 'Hi! I would like to report our light.', this)" data-category="maintenance">
-                <img src="profile3.jpg" alt="George D. Ore" class="profile-pic">
-                <div class="message-content">
-                    <h4>George D. Ore</h4>
-                    <p>Hi! I would like to report our light.</p>
-                </div>
-                <div class="message-number">3</div>
-            </div>
-            <div class="message-item" onclick="openChat('Kyle P. Diaz', 'profile4.jpg', 'Thank you sir!', this)" data-category="payments">
-                <img src="profile4.jpg" alt="Kyle P. Diaz" class="profile-pic">
-                <div class="message-content">
-                    <h4>Kyle P. Diaz</h4>
-                    <p>Thank you sir!</p>
-                </div>
-                <div class="message-number">4</div>
-            </div>
+            <!-- Messages will be dynamically added here -->
         </div>
     </div>
 
@@ -529,8 +498,43 @@
 
     <script>
         let chatHistory = {};
-        let categories = ['payments', 'maintenance'];
+        let categories = ['payments', 'maintenance', 'debug'];
         let totalUnreadMessages = 10;
+
+        // Initialize messages from localStorage
+        function initializeMessages() {
+            const storedMessages = JSON.parse(localStorage.getItem('messages') || '[]');
+            const messageList = document.getElementById('allMessages');
+            
+            // Clear existing messages
+            messageList.innerHTML = '';
+            
+            // Add stored messages
+            storedMessages.forEach(msg => {
+                addMessageToList(msg);
+            });
+            
+            updateTotalMessages();
+        }
+
+        function addMessageToList(message) {
+            const messageList = document.getElementById('allMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message-item';
+            messageDiv.setAttribute('data-category', message.type || 'debug');
+            messageDiv.onclick = () => openChat(message.sender, 'profile-debug.jpg', message.text, messageDiv);
+            
+            messageDiv.innerHTML = `
+                <img src="profile-debug.jpg" alt="${message.sender}" class="profile-pic">
+                <div class="message-content">
+                    <h4>${message.sender}</h4>
+                    <p>${message.text}</p>
+                </div>
+                ${!message.read ? '<div class="message-number">1</div>' : ''}
+            `;
+            
+            messageList.insertBefore(messageDiv, messageList.firstChild);
+        }
 
         function searchTenants(searchText) {
             const messageItems = document.querySelectorAll('.message-item');
@@ -547,10 +551,13 @@
         }
 
         function updateTotalMessages() {
+            const messages = JSON.parse(localStorage.getItem('messages') || '[]');
+            const unreadCount = messages.filter(msg => !msg.read).length;
             const badge = document.getElementById('totalMessages');
-            if (totalUnreadMessages > 0) {
+            
+            if (unreadCount > 0) {
                 badge.style.display = 'flex';
-                badge.textContent = totalUnreadMessages;
+                badge.textContent = unreadCount;
             } else {
                 badge.style.display = 'none';
             }
@@ -585,47 +592,6 @@
             document.getElementById("categoriesDropdown").classList.remove("show");
         }
 
-        window.onclick = function(event) {
-            if (!event.target.matches('.tab')) {
-                var dropdowns = document.getElementsByClassName("dropdown-content");
-                for (var i = 0; i < dropdowns.length; i++) {
-                    var openDropdown = dropdowns[i];
-                    if (openDropdown.classList.contains('show')) {
-                        openDropdown.classList.remove('show');
-                    }
-                }
-            }
-        }
-
-        function showAddCategoryModal() {
-            document.getElementById('categoryModal').style.display = 'block';
-            document.getElementById('overlay').style.display = 'block';
-        }
-
-        function closeAddCategoryModal() {
-            document.getElementById('categoryModal').style.display = 'none';
-            document.getElementById('overlay').style.display = 'none';
-        }
-
-        function addNewCategory() {
-            const newCategory = document.getElementById('newCategoryInput').value.trim().toLowerCase();
-            if (newCategory && !categories.includes(newCategory)) {
-                categories.push(newCategory);
-                
-                const dropdown = document.getElementById('categoriesDropdown');
-                const addButton = dropdown.querySelector('.add-category');
-                
-                const newButton = document.createElement('button');
-                newButton.textContent = newCategory.charAt(0).toUpperCase() + newCategory.slice(1);
-                newButton.onclick = () => showMessages(newCategory);
-                
-                dropdown.insertBefore(newButton, addButton);
-                
-                document.getElementById('newCategoryInput').value = '';
-                closeAddCategoryModal();
-            }
-        }
-
         function openChat(name, profilePic, initialMessage, messageItem) {
             document.getElementById('chatName').textContent = name;
             document.getElementById('chatProfilePic').src = profilePic;
@@ -649,18 +615,18 @@
                 chatMessages.appendChild(messageDiv);
             });
 
-            const previewText = messageItem.querySelector('p');
-            const lastMessage = chatHistory[name][chatHistory[name].length - 1];
-            if (lastMessage.type === 'sent') {
-                previewText.textContent = 'You: ' + lastMessage.text;
+            // Mark message as read
+            const messages = JSON.parse(localStorage.getItem('messages') || '[]');
+            const messageIndex = messages.findIndex(msg => msg.text === initialMessage);
+            if (messageIndex !== -1) {
+                messages[messageIndex].read = true;
+                localStorage.setItem('messages', JSON.stringify(messages));
             }
 
             const notificationBadge = messageItem.querySelector('.message-number');
             if (notificationBadge) {
-                const unreadCount = parseInt(notificationBadge.textContent);
-                totalUnreadMessages -= unreadCount;
-                updateTotalMessages();
                 notificationBadge.style.display = 'none';
+                updateTotalMessages();
             }
 
             chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -690,18 +656,24 @@
                     text: message,
                     type: 'sent'
                 });
-
-                const messageItems = document.querySelectorAll('.message-item');
-                messageItems.forEach(item => {
-                    if (item.querySelector('h4').textContent === name) {
-                        item.querySelector('p').textContent = 'You: ' + message;
-                    }
-                });
                 
                 input.value = '';
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             }
         }
+
+        // Listen for new messages
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'messages') {
+                initializeMessages();
+            }
+        });
+
+        // Listen for new message events from Debug.html
+        window.addEventListener('newMessage', function(e) {
+            addMessageToList(e.detail);
+            updateTotalMessages();
+        });
 
         document.getElementById('messageInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
@@ -709,13 +681,8 @@
             }
         });
 
-        document.getElementById('newCategoryInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                addNewCategory();
-            }
-        });
-
-        updateTotalMessages();
+        // Initialize messages on page load
+        initializeMessages();
     </script>
 </body>
 </html>

@@ -169,6 +169,35 @@
             color: #666;
             font-size: 0.9em;
         }
+
+        /* New message form styles */
+        .message-form {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .message-input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .send-button {
+            background-color: #478778;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .send-button:hover {
+            background-color: #2A9D8F;
+        }
     </style>
 </head>
 <body>
@@ -196,6 +225,12 @@
     </div>
 
     <div class="main-content">
+        <div class="message-form">
+            <div class="data-title">Send Message</div>
+            <textarea class="message-input" id="messageText" placeholder="Type your message here..." rows="4"></textarea>
+            <button class="send-button" onclick="sendMessage()">Send Message</button>
+        </div>
+
         <div class="data-container">
             <div class="data-title">Change Logs</div>
             <div class="data-content" id="logsContainer">
@@ -215,89 +250,74 @@
             document.getElementById('messageNotification').style.display = 'none';
         }
 
-        function handleMessageClick(event) {
-            const notification = document.getElementById('messageNotification');
-            notification.style.display = 'none';
-            localStorage.setItem('messageNotificationDismissed', 'true');
+        // Initialize messages in localStorage if not exists
+        if (!localStorage.getItem('messages')) {
+            localStorage.setItem('messages', JSON.stringify([]));
         }
 
-        let previousState = {
-            tenants: [],
-            units: [],
-            payments: {}
-        };
+        function sendMessage() {
+            const messageText = document.getElementById('messageText').value.trim();
+            if (!messageText) return;
 
-        function compareObjects(oldObj, newObj) {
-            const changes = [];
-            
-            // Check for additions and modifications
-            for (const key in newObj) {
-                if (!oldObj.hasOwnProperty(key)) {
-                    changes.push({type: 'added', key, value: newObj[key]});
-                } else if (JSON.stringify(oldObj[key]) !== JSON.stringify(newObj[key])) {
-                    changes.push({type: 'modified', key, value: newObj[key], oldValue: oldObj[key]});
-                }
-            }
-            
-            // Check for deletions
-            for (const key in oldObj) {
-                if (!newObj.hasOwnProperty(key)) {
-                    changes.push({type: 'deleted', key, oldValue: oldObj[key]});
-                }
-            }
-            
-            return changes;
-        }
-
-        function addLogEntry(type, message) {
-            const logsContainer = document.getElementById('changeLogs');
-            const entry = document.createElement('div');
-            entry.className = `log-entry ${type}`;
-            const timestamp = new Date().toLocaleString();
-            entry.innerHTML = `<span class="timestamp">[${timestamp}]</span> ${message}`;
-            logsContainer.insertBefore(entry, logsContainer.firstChild);
-        }
-
-        function loadAndCompareData() {
-            const currentState = {
-                tenants: JSON.parse(localStorage.getItem('tenants') || '[]'),
-                units: JSON.parse(localStorage.getItem('units') || '[]'),
-                payments: JSON.parse(localStorage.getItem('paymentHistory') || '{}')
+            // Create message object
+            const message = {
+                id: Date.now(),
+                text: messageText,
+                sender: 'Debug Console',
+                timestamp: new Date().toISOString(),
+                type: 'debug',
+                read: false
             };
 
-            // Compare and log changes
-            for (const dataType in currentState) {
-                const changes = compareObjects(previousState[dataType], currentState[dataType]);
-                changes.forEach(change => {
-                    let message = '';
-                    switch (change.type) {
-                        case 'added':
-                            message = `${dataType}: New entry added - ${JSON.stringify(change.value)}`;
-                            break;
-                        case 'modified':
-                            message = `${dataType}: Entry modified - ${JSON.stringify(change.value)}`;
-                            break;
-                        case 'deleted':
-                            message = `${dataType}: Entry deleted - ${JSON.stringify(change.oldValue)}`;
-                            break;
-                    }
-                    addLogEntry(change.type, message);
-                });
-            }
+            // Get existing messages
+            const messages = JSON.parse(localStorage.getItem('messages') || '[]');
+            
+            // Add new message
+            messages.push(message);
+            
+            // Save back to localStorage
+            localStorage.setItem('messages', JSON.stringify(messages));
 
-            // Update previous state
-            previousState = currentState;
+            // Update logs
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry added';
+            logEntry.innerHTML = `
+                <span class="timestamp">${new Date().toLocaleTimeString()}</span>
+                Message sent: ${messageText}
+            `;
+            document.getElementById('changeLogs').prepend(logEntry);
 
-            // Display current state
-            document.getElementById('currentData').textContent = 
-                JSON.stringify(currentState, null, 2);
+            // Clear input
+            document.getElementById('messageText').value = '';
+
+            // Dispatch custom event for real-time updates
+            window.dispatchEvent(new CustomEvent('newMessage', { detail: message }));
         }
 
-        // Initial load
-        loadAndCompareData();
+        // Add event listener for Enter key
+        document.getElementById('messageText').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
 
-        // Check for changes every 2 seconds
-        setInterval(loadAndCompareData, 2000);
+        // Update current data display
+        function updateCurrentData() {
+            const messages = JSON.parse(localStorage.getItem('messages') || '[]');
+            document.getElementById('currentData').textContent = 
+                JSON.stringify(messages, null, 2);
+        }
+
+        // Update initial display
+        updateCurrentData();
+
+        // Listen for changes
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'messages') {
+                updateCurrentData();
+            }
+        });
     </script>
 </body>
 </html>

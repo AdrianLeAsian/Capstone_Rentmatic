@@ -202,43 +202,132 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // This will be updated dynamically based on tenant data
-        let tenants = [];
-        const rentPerUnit = 1500; // Example rent amount per unit
+        let unitsData = [];
+        let tenantsData = [];
+        let monthlyRevenueHistory = [];
 
         function updateStats() {
-            const activeTenantCount = tenants.length;
-            const totalRevenue = activeTenantCount * rentPerUnit;
+            // Load data from localStorage
+            const savedUnits = localStorage.getItem('units');
+            const savedTenants = localStorage.getItem('tenants');
             
+            unitsData = savedUnits ? JSON.parse(savedUnits) : [];
+            tenantsData = savedTenants ? JSON.parse(savedTenants) : [];
+            
+            // Calculate active tenants (units with tenants assigned)
+            const activeTenantCount = unitsData.filter(unit => unit.tenant).length;
+            
+            // Calculate total monthly revenue
+            let totalMonthlyRevenue = 0;
+            unitsData.forEach(unit => {
+                if (unit.tenant) {
+                    let monthlyPrice = Number(unit.price);
+                    // Convert price to monthly equivalent based on payment period
+                    switch(unit.paymentPeriod.toLowerCase()) {
+                        case 'daily':
+                            monthlyPrice *= 30;
+                            break;
+                        case 'weekly':
+                            monthlyPrice *= 4;
+                            break;
+                        case 'yearly':
+                            monthlyPrice /= 12;
+                            break;
+                    }
+                    totalMonthlyRevenue += monthlyPrice;
+                }
+            });
+            
+            // Update the display
             document.getElementById('activeTenants').textContent = activeTenantCount;
-            document.getElementById('monthlyRevenue').textContent = `$${totalRevenue.toLocaleString()}`;
+            document.getElementById('monthlyRevenue').textContent = `₱${totalMonthlyRevenue.toLocaleString()}`;
+            
+            // Update total units count
+            document.querySelector('.stats-grid .stat-card:first-child .stat-value').textContent = unitsData.length;
+            
+            // Store the monthly revenue for the chart
+            const currentDate = new Date();
+            const monthYear = `${currentDate.toLocaleString('default', { month: 'short' })} ${currentDate.getFullYear()}`;
+            
+            // Get existing history or initialize new array
+            monthlyRevenueHistory = JSON.parse(localStorage.getItem('monthlyRevenueHistory')) || [];
+            
+            // Add new monthly revenue if it's a new month
+            const lastEntry = monthlyRevenueHistory[monthlyRevenueHistory.length - 1];
+            if (!lastEntry || lastEntry.month !== monthYear) {
+                monthlyRevenueHistory.push({
+                    month: monthYear,
+                    revenue: totalMonthlyRevenue
+                });
+                
+                // Keep only last 6 months
+                if (monthlyRevenueHistory.length > 6) {
+                    monthlyRevenueHistory = monthlyRevenueHistory.slice(-6);
+                }
+                
+                localStorage.setItem('monthlyRevenueHistory', JSON.stringify(monthlyRevenueHistory));
+            }
+            
+            updateChart();
         }
 
-        const ctx = document.getElementById('revenueChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                datasets: [{
-                    label: 'Monthly Revenue',
-                    data: [0, 0, 0, 0, 0, 0], // Will be updated based on tenant data
-                    borderColor: '#2A9D8F',
-                    tension: 0.3
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top',
+        function updateChart() {
+            // Get current values
+            const totalUnits = unitsData.length;
+            const activeTenants = unitsData.filter(unit => unit.tenant).length;
+            const vacantUnits = totalUnits - activeTenants;
+            
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            if (window.revenueChart) {
+                window.revenueChart.destroy();
+            }
+            
+            window.revenueChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Occupied Units', 'Vacant Units'],
+                    datasets: [{
+                        data: [activeTenants, vacantUnits],
+                        backgroundColor: [
+                            '#2A9D8F',  // Occupied units - primary color
+                            '#E9ECEF'   // Vacant units - light gray
+                        ],
+                        borderColor: '#FFFFFF',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.dataset.data.reduce((acc, curr) => acc + curr, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
                     }
                 }
+            });
+        }
+
+        // Listen for changes in localStorage
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'units' || e.key === 'tenants') {
+                updateStats();
             }
         });
 
-        // Initial stats update
-        updateStats();
+        // Initial update
+        document.addEventListener('DOMContentLoaded', updateStats);
     </script>
 </body>
 </html>

@@ -448,8 +448,8 @@
                 row.onclick = () => showPaymentDetails(tenant.name);
                 
                 // Get unit payment period
-                const unit = unitsData.find(u => u.number === tenant.unit);
-                const paymentPeriod = unit?.period || 'Monthly';
+                const unit = unitsData.find(u => u.unitNumber === tenant.unit);
+                const paymentPeriod = unit?.paymentPeriod || 'Monthly';
                 
                 // Calculate payment status based on payment history
                 const payments = paymentHistory[tenant.name] || [];
@@ -490,8 +490,8 @@
             
             // Get unit price and period from units data
             const savedUnits = JSON.parse(localStorage.getItem('units'));
-            const unit = savedUnits.find(u => u.number === unitNumber);
-            const paymentPeriod = unit?.period || 'Monthly';
+            const unit = savedUnits.find(u => u.unitNumber === unitNumber);
+            const paymentPeriod = unit?.paymentPeriod || 'Monthly';
             let monthlyRent = unit?.price || 0;
             
             // Convert rent to monthly equivalent based on payment period

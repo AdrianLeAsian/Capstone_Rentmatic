@@ -695,9 +695,10 @@
                 unitNumber,
                 bedrooms,
                 bathrooms,
-                paymentPeriod,
+                paymentPeriod: paymentPeriod.charAt(0).toUpperCase() + paymentPeriod.slice(1),
                 price,
-                tenant
+                tenant,
+                number: unitNumber
             };
             
             unitsData.push(newUnit);
@@ -707,6 +708,7 @@
                 const tenantIndex = tenantsData.findIndex(t => t.name === tenant);
                 if (tenantIndex !== -1) {
                     tenantsData[tenantIndex].assigned = true;
+                    tenantsData[tenantIndex].unit = unitNumber;
                     localStorage.setItem('tenants', JSON.stringify(tenantsData));
                 }
             }
@@ -733,6 +735,7 @@
                     const oldTenantIndex = tenantsData.findIndex(t => t.name === oldTenant);
                     if (oldTenantIndex !== -1) {
                         tenantsData[oldTenantIndex].assigned = false;
+                        tenantsData[oldTenantIndex].unit = null;
                     }
                 }
                 
@@ -740,15 +743,17 @@
                     unitNumber,
                     bedrooms,
                     bathrooms,
-                    paymentPeriod,
+                    paymentPeriod: paymentPeriod.charAt(0).toUpperCase() + paymentPeriod.slice(1),
                     price,
-                    tenant
+                    tenant,
+                    number: unitNumber
                 };
                 
                 if (tenant) {
                     const newTenantIndex = tenantsData.findIndex(t => t.name === tenant);
                     if (newTenantIndex !== -1) {
                         tenantsData[newTenantIndex].assigned = true;
+                        tenantsData[newTenantIndex].unit = unitNumber;
                     }
                 }
                 
