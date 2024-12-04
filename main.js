@@ -20,7 +20,7 @@ function createWindow () {
 		return { success: true, filePath };
 	})
 
-	win.loadFile('src/dashboard.html');
+	win.loadFile('src/login.html');
 }
 
 app.whenReady().then(createWindow);
