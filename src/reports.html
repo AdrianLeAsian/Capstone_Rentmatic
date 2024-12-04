@@ -272,10 +272,8 @@
         }
 
         function updateChart() {
-            // Get current values
-            const totalUnits = unitsData.length;
-            const activeTenants = unitsData.filter(unit => unit.tenant).length;
-            const vacantUnits = totalUnits - activeTenants;
+            const labels = monthlyRevenueHistory.map(entry => entry.month);
+            const data = monthlyRevenueHistory.map(entry => entry.revenue);
             
             const ctx = document.getElementById('revenueChart').getContext('2d');
             if (window.revenueChart) {
@@ -283,17 +281,14 @@
             }
             
             window.revenueChart = new Chart(ctx, {
-                type: 'pie',
+                type: 'line',
                 data: {
-                    labels: ['Occupied Units', 'Vacant Units'],
+                    labels: labels,
                     datasets: [{
-                        data: [activeTenants, vacantUnits],
-                        backgroundColor: [
-                            '#2A9D8F',  // Occupied units - primary color
-                            '#E9ECEF'   // Vacant units - light gray
-                        ],
-                        borderColor: '#FFFFFF',
-                        borderWidth: 2
+                        label: 'Monthly Revenue (PHP)',
+                        data: data,
+                        borderColor: '#2A9D8F',
+                        tension: 0.3
                     }]
                 },
                 options: {
@@ -302,15 +297,14 @@
                     plugins: {
                         legend: {
                             position: 'top',
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const label = context.label || '';
-                                    const value = context.raw || 0;
-                                    const total = context.dataset.data.reduce((acc, curr) => acc + curr, 0);
-                                    const percentage = ((value / total) * 100).toFixed(1);
-                                    return `${label}: ${value} (${percentage}%)`;
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₱' + value.toLocaleString();
                                 }
                             }
                         }
