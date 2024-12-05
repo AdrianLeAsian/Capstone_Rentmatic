@@ -299,11 +299,12 @@
                     <th>Email</th>
                     <th>Mobile</th>
                     <th>Payment Period</th>
+                    <th>Amount Due (PHP)</th>
                     <th>Payment Status</th>
                 </tr>
             </thead>
             <tbody id="paymentsTableBody">
-                <!-- Table data will be populated from tenants.html data -->
+                <!-- Table data will be populated from tenants and units data -->
             </tbody>
         </table>
     </div>
@@ -378,7 +379,7 @@
         // Payment history data structure
         let paymentHistory = JSON.parse(localStorage.getItem('paymentHistory')) || {};
         let currentTenant = '';
-        let unitsData = {};
+        let unitsData = [];
 
         // Listen for changes in tenant and units data
         window.addEventListener('storage', function(e) {
@@ -406,6 +407,7 @@
             }
         });
 
+        // Load data on page load
         window.onload = function() {
             const savedTenants = localStorage.getItem('tenants');
             const savedUnits = localStorage.getItem('units');
@@ -423,6 +425,8 @@
             // Set up interval to check for updates
             setInterval(() => {
                 const currentUnits = localStorage.getItem('units');
+                const currentTenants = localStorage.getItem('tenants');
+                
                 if (currentUnits) {
                     const newUnitsData = JSON.parse(currentUnits);
                     if (JSON.stringify(newUnitsData) !== JSON.stringify(unitsData)) {
@@ -430,10 +434,8 @@
                         if (currentTenant && document.getElementById('paymentDetailsModal').style.display === 'block') {
                             updatePaymentSummary(currentTenant);
                         }
-                        // Refresh payments table to update payment periods
-                        const savedTenants = JSON.parse(localStorage.getItem('tenants'));
-                        if (savedTenants) {
-                            loadPaymentsTable(savedTenants);
+                        if (currentTenants) {
+                            loadPaymentsTable(JSON.parse(currentTenants));
                         }
                     }
                 }
@@ -454,12 +456,12 @@
             tbody.innerHTML = '';
             
             tenants.forEach(tenant => {
+                // Find the unit assigned to this tenant
+                const assignedUnit = unitsData.find(unit => unit.tenant === tenant.name);
+                if (!assignedUnit) return; // Skip if tenant has no assigned unit
+                
                 const row = tbody.insertRow();
                 row.onclick = () => showPaymentDetails(tenant.name);
-                
-                // Get unit payment period from units data
-                const unit = unitsData.find(u => u.number === tenant.unit);
-                const paymentPeriod = unit?.period || 'Not Set';
                 
                 // Calculate payment status based on payment history
                 const payments = paymentHistory[tenant.name] || [];
@@ -480,10 +482,11 @@
                 
                 row.innerHTML = `
                     <td>${tenant.name || 'N/A'}</td>
-                    <td>${tenant.unit || 'Not Assigned'}</td>
+                    <td>${assignedUnit.unitNumber || 'Not Assigned'}</td>
                     <td>${tenant.email || 'N/A'}</td>
                     <td>${tenant.mobile || 'N/A'}</td>
-                    <td>${paymentPeriod}</td>
+                    <td>${assignedUnit.paymentPeriod.charAt(0).toUpperCase() + assignedUnit.paymentPeriod.slice(1)}</td>
+                    <td>₱${Number(assignedUnit.price).toLocaleString()}</td>
                     <td><span class="status-${paymentStatus}">${paymentStatus.charAt(0).toUpperCase() + paymentStatus.slice(1)}</span></td>
                 `;
             });
@@ -494,15 +497,12 @@
             const totalPaid = payments.reduce((sum, payment) => sum + parseFloat(payment.amount), 0);
             
             // Get tenant's unit info
-            const savedTenants = JSON.parse(localStorage.getItem('tenants'));
-            const tenant = savedTenants.find(t => t.name === tenantName);
-            const unitNumber = tenant?.unit;
+            const assignedUnit = unitsData.find(unit => unit.tenant === tenantName);
+            if (!assignedUnit) return;
             
-            // Get unit details from units data
-            const unit = unitsData.find(u => u.number === unitNumber);
-            const paymentPeriod = unit?.period || 'Not Set';
-            const dueDate = unit?.dueDate || 'Not Set';
-            let monthlyRent = unit?.price || 0;
+            const paymentPeriod = assignedUnit.paymentPeriod;
+            const dueDate = new Date();
+            let monthlyRent = Number(assignedUnit.price);
             
             // Convert rent to monthly equivalent based on payment period
             switch(paymentPeriod.toLowerCase()) {
@@ -517,15 +517,31 @@
                     break;
             }
             
+            // Calculate next due date based on payment period
+            switch(paymentPeriod.toLowerCase()) {
+                case 'daily':
+                    dueDate.setDate(dueDate.getDate() + 1);
+                    break;
+                case 'weekly':
+                    dueDate.setDate(dueDate.getDate() + 7);
+                    break;
+                case 'monthly':
+                    dueDate.setMonth(dueDate.getMonth() + 1);
+                    break;
+                case 'yearly':
+                    dueDate.setFullYear(dueDate.getFullYear() + 1);
+                    break;
+            }
+            
             const outstandingBalance = monthlyRent - (payments[0]?.amount || 0);
             const creditBalance = totalPaid - (monthlyRent * payments.length);
 
-            document.getElementById('rentDueDate').textContent = dueDate;
-            document.getElementById('paymentPeriod').textContent = paymentPeriod;
-            document.getElementById('monthlyRent').textContent = `₱${monthlyRent.toFixed(2)}`;
-            document.getElementById('totalRentPaid').textContent = `₱${totalPaid.toFixed(2)}`;
-            document.getElementById('outstandingBalance').textContent = `₱${Math.max(0, outstandingBalance).toFixed(2)}`;
-            document.getElementById('creditBalance').textContent = `₱${Math.max(0, creditBalance).toFixed(2)}`;
+            document.getElementById('rentDueDate').textContent = dueDate.toLocaleDateString();
+            document.getElementById('paymentPeriod').textContent = paymentPeriod.charAt(0).toUpperCase() + paymentPeriod.slice(1);
+            document.getElementById('monthlyRent').textContent = `₱${monthlyRent.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('totalRentPaid').textContent = `₱${totalPaid.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('outstandingBalance').textContent = `₱${Math.max(0, outstandingBalance).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('creditBalance').textContent = `₱${Math.max(0, creditBalance).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
         }
 
         function showPaymentDetails(tenantName) {
@@ -572,6 +588,14 @@
                 return;
             }
 
+            // Get unit price for validation
+            const assignedUnit = unitsData.find(unit => unit.tenant === currentTenant);
+            if (assignedUnit && Number(payment.amount) < Number(assignedUnit.price)) {
+                if (!confirm('The payment amount is less than the required amount for this unit. Do you want to proceed?')) {
+                    return;
+                }
+            }
+
             if (!paymentHistory[currentTenant]) {
                 paymentHistory[currentTenant] = [];
             }
@@ -585,7 +609,7 @@
             if (tenantIndex !== -1) {
                 savedTenants[tenantIndex].status = payment.status;
                 localStorage.setItem('tenants', JSON.stringify(savedTenants));
-                loadPaymentsTable(savedTenants); // Refresh the table to show updated status
+                loadPaymentsTable(savedTenants);
             }
             
             showPaymentDetails(currentTenant);
@@ -596,7 +620,6 @@
             document.getElementById('paymentAmount').value = '';
             document.getElementById('paymentNotes').value = '';
             
-            // Update payment summary
             updatePaymentSummary(currentTenant);
         }
 
