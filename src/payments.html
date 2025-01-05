@@ -378,7 +378,7 @@
         // Payment history data structure
         let paymentHistory = JSON.parse(localStorage.getItem('paymentHistory')) || {};
         let currentTenant = '';
-        let unitsData = {};
+        let unitsData = JSON.parse(localStorage.getItem('units')) || [];
 
         // Listen for changes in tenant and units data
         window.addEventListener('storage', function(e) {
@@ -386,48 +386,52 @@
                 const tenantDatabase = JSON.parse(e.newValue);
                 loadPaymentsTable(tenantDatabase);
                 initializePaymentHistory(tenantDatabase);
-                
-                // Update payment details if modal is open
-                if (currentTenant && document.getElementById('paymentDetailsModal').style.display === 'block') {
-                    showPaymentDetails(currentTenant);
-                }
             }
             if (e.key === 'units') {
-                unitsData = JSON.parse(e.newValue);
-                // Update payment details if modal is open
-                if (currentTenant && document.getElementById('paymentDetailsModal').style.display === 'block') {
-                    updatePaymentSummary(currentTenant);
+                try {
+                    const newUnitsData = JSON.parse(e.newValue);
+                    unitsData = newUnitsData;
+                    
+                    // Get current tenants
+                    const savedTenants = JSON.parse(localStorage.getItem('tenants')) || [];
+                    
+                    // Update tenant unit assignments
+                    savedTenants.forEach(tenant => {
+                        const assignedUnit = newUnitsData.find(unit => unit.tenant === tenant.name);
+                        tenant.unit = assignedUnit ? assignedUnit.unitNumber : null;
+                    });
+                    
+                    // Save updated tenants
+                    localStorage.setItem('tenants', JSON.stringify(savedTenants));
+                    
+                    // Refresh the table
+                    loadPaymentsTable(savedTenants);
+                } catch (error) {
+                    console.error('Error handling unit update:', error);
                 }
             }
         });
 
         window.onload = function() {
-            const savedTenants = localStorage.getItem('tenants');
-            const savedUnits = localStorage.getItem('units');
-            
-            if (savedUnits) {
-                unitsData = JSON.parse(savedUnits);
+            try {
+                // Load initial data
+                const savedTenants = JSON.parse(localStorage.getItem('tenants')) || [];
+                const savedUnits = JSON.parse(localStorage.getItem('units')) || [];
+                unitsData = savedUnits;
+                
+                // Update tenant unit assignments
+                savedTenants.forEach(tenant => {
+                    const assignedUnit = savedUnits.find(unit => unit.tenant === tenant.name);
+                    tenant.unit = assignedUnit ? assignedUnit.unitNumber : null;
+                });
+                
+                // Save updated tenants and initialize
+                localStorage.setItem('tenants', JSON.stringify(savedTenants));
+                loadPaymentsTable(savedTenants);
+                initializePaymentHistory(savedTenants);
+            } catch (error) {
+                console.error('Error initializing payments:', error);
             }
-            
-            if (savedTenants) {
-                const tenantDatabase = JSON.parse(savedTenants);
-                loadPaymentsTable(tenantDatabase);
-                initializePaymentHistory(tenantDatabase);
-            }
-
-            // Set up interval to check for updates
-            setInterval(() => {
-                const currentUnits = localStorage.getItem('units');
-                if (currentUnits) {
-                    const newUnitsData = JSON.parse(currentUnits);
-                    if (JSON.stringify(newUnitsData) !== JSON.stringify(unitsData)) {
-                        unitsData = newUnitsData;
-                        if (currentTenant && document.getElementById('paymentDetailsModal').style.display === 'block') {
-                            updatePaymentSummary(currentTenant);
-                        }
-                    }
-                }
-            }, 1000); // Check every second
         }
 
         function initializePaymentHistory(tenants) {
@@ -445,25 +449,31 @@
             
             tenants.forEach(tenant => {
                 const row = tbody.insertRow();
-                row.onclick = () => showPaymentDetails(tenant.name);
+                row.style.cursor = 'pointer';
                 
-                // Get unit payment period
+                // Get unit information
                 const unit = unitsData.find(u => u.unitNumber === tenant.unit);
+                
+                // Set click handler
+                row.onclick = () => {
+                    if (unit) {
+                        showPaymentDetails(tenant.name);
+                    } else {
+                        alert('Please assign a unit to this tenant first');
+                    }
+                };
+                
                 const paymentPeriod = unit?.paymentPeriod || 'Monthly';
                 
-                // Calculate payment status based on payment history
+                // Calculate payment status
                 const payments = paymentHistory[tenant.name] || [];
                 const latestPayment = payments[0];
-                let paymentStatus = 'pending';
+                let paymentStatus = unit ? 'pending' : 'Not Assigned';
                 
-                if (latestPayment) {
-                    const today = new Date();
-                    const paymentDate = new Date(latestPayment.date);
-                    const daysLate = Math.floor((today - paymentDate) / (1000 * 60 * 60 * 24));
-                    
+                if (unit && latestPayment) {
                     if (latestPayment.status === 'Paid') {
                         paymentStatus = 'paid';
-                    } else if (daysLate > 7) {
+                    } else if (latestPayment.status === 'Overdue') {
                         paymentStatus = 'overdue';
                     }
                 }
@@ -473,74 +483,117 @@
                     <td>${tenant.unit || 'Not Assigned'}</td>
                     <td>${tenant.email || 'N/A'}</td>
                     <td>${tenant.mobile || 'N/A'}</td>
-                    <td>${paymentPeriod}</td>
-                    <td><span class="status-${paymentStatus}">${paymentStatus.charAt(0).toUpperCase() + paymentStatus.slice(1)}</span></td>
+                    <td>${unit ? paymentPeriod : 'N/A'}</td>
+                    <td><span class="status-${paymentStatus.toLowerCase()}">${paymentStatus.charAt(0).toUpperCase() + paymentStatus.slice(1)}</span></td>
                 `;
             });
         }
 
         function updatePaymentSummary(tenantName) {
-            const payments = paymentHistory[tenantName] || [];
-            const totalPaid = payments.reduce((sum, payment) => sum + parseFloat(payment.amount), 0);
-            
-            // Get tenant's unit info
-            const savedTenants = JSON.parse(localStorage.getItem('tenants'));
-            const tenant = savedTenants.find(t => t.name === tenantName);
-            const unitNumber = tenant?.unit;
-            
-            // Get unit price and period from units data
-            const savedUnits = JSON.parse(localStorage.getItem('units'));
-            const unit = savedUnits.find(u => u.unitNumber === unitNumber);
-            const paymentPeriod = unit?.paymentPeriod || 'Monthly';
-            let monthlyRent = unit?.price || 0;
-            
-            // Convert rent to monthly equivalent based on payment period
-            switch(paymentPeriod.toLowerCase()) {
-                case 'daily':
-                    monthlyRent *= 30;
-                    break;
-                case 'weekly':
-                    monthlyRent *= 4;
-                    break;
-                case 'yearly':
-                    monthlyRent /= 12;
-                    break;
+            try {
+                const payments = paymentHistory[tenantName] || [];
+                const totalPaid = payments.reduce((sum, payment) => sum + parseFloat(payment.amount), 0);
+                
+                // Get tenant and unit information
+                const savedTenants = JSON.parse(localStorage.getItem('tenants')) || [];
+                const tenant = savedTenants.find(t => t.name === tenantName);
+                const unit = unitsData.find(u => u.unitNumber === tenant?.unit);
+                
+                if (!unit) {
+                    throw new Error('No unit information found');
+                }
+                
+                const paymentPeriod = unit.paymentPeriod || 'Monthly';
+                let monthlyRent = unit.price || 0;
+                
+                // Convert rent to monthly equivalent
+                switch(paymentPeriod.toLowerCase()) {
+                    case 'daily':
+                        monthlyRent *= 30;
+                        break;
+                    case 'weekly':
+                        monthlyRent *= 4;
+                        break;
+                    case 'yearly':
+                        monthlyRent /= 12;
+                        break;
+                }
+                
+                const outstandingBalance = monthlyRent - (payments[0]?.amount || 0);
+                const creditBalance = totalPaid - (monthlyRent * payments.length);
+                
+                document.getElementById('rentDueDate').textContent = '1st of Month';
+                document.getElementById('paymentPeriod').textContent = paymentPeriod;
+                document.getElementById('monthlyRent').textContent = `₱${monthlyRent.toFixed(2)}`;
+                document.getElementById('totalRentPaid').textContent = `₱${totalPaid.toFixed(2)}`;
+                document.getElementById('outstandingBalance').textContent = `₱${Math.max(0, outstandingBalance).toFixed(2)}`;
+                document.getElementById('creditBalance').textContent = `₱${Math.max(0, creditBalance).toFixed(2)}`;
+            } catch (error) {
+                console.error('Error updating payment summary:', error);
             }
-            
-            const outstandingBalance = monthlyRent - (payments[0]?.amount || 0);
-            const creditBalance = totalPaid - (monthlyRent * payments.length);
-
-            document.getElementById('rentDueDate').textContent = '1st of Month';
-            document.getElementById('paymentPeriod').textContent = paymentPeriod;
-            document.getElementById('monthlyRent').textContent = `₱${monthlyRent.toFixed(2)}`;
-            document.getElementById('totalRentPaid').textContent = `₱${totalPaid.toFixed(2)}`;
-            document.getElementById('outstandingBalance').textContent = `₱${Math.max(0, outstandingBalance).toFixed(2)}`;
-            document.getElementById('creditBalance').textContent = `₱${Math.max(0, creditBalance).toFixed(2)}`;
         }
 
         function showPaymentDetails(tenantName) {
-            currentTenant = tenantName;
-            const modal = document.getElementById('paymentDetailsModal');
-            const modalTitle = document.getElementById('modalTenantName');
-            const detailsBody = document.getElementById('paymentDetailsBody');
-            
-            modalTitle.textContent = `Payment History - ${tenantName}`;
-            detailsBody.innerHTML = '';
-
-            const payments = paymentHistory[tenantName] || [];
-            payments.forEach(payment => {
-                const row = detailsBody.insertRow();
-                row.innerHTML = `
-                    <td>${payment.date}</td>
-                    <td>₱${payment.amount}</td>
-                    <td>${payment.method}</td>
-                    <td><span class="status-${payment.status.toLowerCase()}">${payment.status}</span></td>
-                    <td>${payment.notes}</td>
-                `;
-            });
-
-            updatePaymentSummary(tenantName);
-            modal.style.display = 'block';
+            try {
+                currentTenant = tenantName;
+                const modal = document.getElementById('paymentDetailsModal');
+                const modalTitle = document.getElementById('modalTenantName');
+                const detailsBody = document.getElementById('paymentDetailsBody');
+                const paymentForm = document.getElementById('paymentForm');
+                
+                // Get tenant and unit information
+                const savedTenants = JSON.parse(localStorage.getItem('tenants')) || [];
+                const tenant = savedTenants.find(t => t.name === tenantName);
+                const unit = unitsData.find(u => u.unitNumber === tenant?.unit);
+                
+                if (!tenant) {
+                    throw new Error('Tenant not found');
+                }
+                
+                if (!unit) {
+                    throw new Error('No unit assigned to this tenant');
+                }
+                
+                modalTitle.textContent = `Payment History - ${tenantName}`;
+                detailsBody.innerHTML = '';
+                
+                // Initialize payment history if needed
+                if (!paymentHistory[tenantName]) {
+                    paymentHistory[tenantName] = [];
+                    localStorage.setItem('paymentHistory', JSON.stringify(paymentHistory));
+                }
+                
+                const payments = paymentHistory[tenantName];
+                
+                // Show payment form
+                paymentForm.style.display = 'block';
+                
+                // Display payment history
+                if (payments.length === 0) {
+                    const row = detailsBody.insertRow();
+                    row.innerHTML = '<td colspan="5" style="text-align: center;">No payment history available yet. Use the form below to add a payment.</td>';
+                } else {
+                    payments.forEach(payment => {
+                        const row = detailsBody.insertRow();
+                        row.innerHTML = `
+                            <td>${payment.date}</td>
+                            <td>₱${payment.amount}</td>
+                            <td>${payment.method}</td>
+                            <td><span class="status-${payment.status.toLowerCase()}">${payment.status}</span></td>
+                            <td>${payment.notes}</td>
+                        `;
+                    });
+                }
+                
+                // Set today's date as default
+                document.getElementById('paymentDate').value = new Date().toISOString().split('T')[0];
+                
+                updatePaymentSummary(tenantName);
+                modal.style.display = 'block';
+            } catch (error) {
+                console.error('Error showing payment details:', error);
+                alert(error.message);
+            }
         }
 
         function togglePaymentForm() {
