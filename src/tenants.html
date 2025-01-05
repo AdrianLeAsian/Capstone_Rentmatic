@@ -756,7 +756,7 @@
             const profileImage = document.getElementById('newProfilePreview').src;
             
             const tenant = {
-                id: Date.now().toString(), // Add unique ID for tenant
+                id: Date.now().toString(),
                 profileImage: profileImage === 'tenants-icon.png' ? null : profileImage,
                 name: document.getElementById('newTenantName').value,
                 email: document.getElementById('newEmail').value,
@@ -786,10 +786,21 @@
             // Update table
             loadTenantsToTable();
 
-            closeModal('addModal');
-            // Reset form
-            document.getElementById('addModal').reset();
+            // Clear all form fields
+            document.getElementById('newTenantName').value = '';
+            document.getElementById('newEmail').value = '';
+            document.getElementById('newMobile').value = '';
+            document.getElementById('newBirthday').value = '';
+            document.getElementById('newMaritalStatus').value = 'single';
+            document.getElementById('newSex').value = 'male';
+            document.getElementById('newEmergencyName').value = '';
+            document.getElementById('newEmergencyEmail').value = '';
+            document.getElementById('newEmergencyMobile').value = '';
+            document.getElementById('newEmergencyRelation').value = '';
             document.getElementById('newProfilePreview').src = 'tenants-icon.png';
+
+            // Close modal
+            closeModal('addModal');
         }
 
         function updateTenant() {
@@ -866,6 +877,59 @@
             // Save file
             XLSX.writeFile(wb, "tenants_database.xlsx");
         }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get the form element
+            const tenantForm = document.querySelector('form');
+            
+            // Function to clear all form inputs
+            function clearForm() {
+                // Clear text inputs and email inputs
+                const inputs = tenantForm.querySelectorAll('input[type="text"], input[type="email"]');
+                inputs.forEach(input => input.value = '');
+                
+                // Reset select elements to first option
+                const selects = tenantForm.querySelectorAll('select');
+                selects.forEach(select => select.selectedIndex = 0);
+                
+                // Reset date inputs
+                const dateInputs = tenantForm.querySelectorAll('input[type="date"]');
+                dateInputs.forEach(input => input.value = '');
+                
+                // Reset mobile number inputs
+                const mobileInputs = tenantForm.querySelectorAll('input[type="tel"]');
+                mobileInputs.forEach(input => input.value = '');
+            }
+
+            // Handle form submission
+            tenantForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                try {
+                    // Your existing save logic here
+                    // ...
+                    
+                    // Clear the form after successful save
+                    clearForm();
+                    
+                    // Optional: Show success message
+                    alert('Tenant added successfully!');
+                    
+                } catch (error) {
+                    console.error('Error saving tenant:', error);
+                    alert('Error saving tenant. Please try again.');
+                }
+            });
+
+            // Optional: Add clear button functionality
+            const clearButton = document.querySelector('.cancel-btn') || document.querySelector('[type="reset"]');
+            if (clearButton) {
+                clearButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    clearForm();
+                });
+            }
+        });
     </script>
 </body>
 </html>
