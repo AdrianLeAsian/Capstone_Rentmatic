@@ -18,7 +18,7 @@
 
         body {
             font-family: Arial, sans-serif;
-            background-image: url('Dash-Background.jpg');
+            background-image: url('assets/images/Dash-Background.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -64,30 +64,59 @@
 
         .sidebar {
             width: 200px;
-            height: 100vh;
+            height: calc(100vh - 60px);
             background-color: rgba(240, 255, 235, 0.9);
             position: fixed;
             left: 0;
             top: 60px;
             padding: 20px;
             border-right: 1px solid #eee;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .nav-sections-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: min-content;
+        }
+
+        .nav-section {
+            margin-bottom: 15px;
+        }
+
+        .nav-section-title {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            padding: 0 10px;
+            margin-bottom: 5px;
         }
 
         .nav-item {
             width: 160px;
             padding: 10px;
-            margin: 5px 0;
+            margin: 2px 0;
             display: flex;
             align-items: center;
             cursor: pointer;
             text-decoration: none;
             color: inherit;
             gap: 10px;
+            border-radius: 5px;
+            transition: all 0.2s ease;
         }
 
         .nav-item:hover {
             background-color: #478778;
-            border-radius: 5px;
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .nav-item.active {
+            background-color: #478778;
             color: white;
         }
 
@@ -95,10 +124,20 @@
             filter: brightness(0) invert(1);
         }
 
+        .nav-item.active .nav-icon {
+            filter: brightness(0) invert(1);
+        }
+
         .nav-icon {
             width: 20px;
             height: 20px;
             filter: brightness(0);
+        }
+
+        .nav-divider {
+            height: 1px;
+            background-color: #ddd;
+            margin: 10px 0;
         }
 
         .main-content {
@@ -231,24 +270,65 @@
 <body>
     <div class="header">
         <div class="header-left">
-            <img src="Rentmatic-Logo.png" alt="Rentmatic" class="logo">
+            <img src="assets/images/Rentmatic-Logo.png" alt="Rentmatic" class="logo">
             <div class="dashboard-label">Units</div>
             <input type="text" class="search-bar" placeholder="Search...">
         </div>
     </div>
     <div class="sidebar">
-        <a href="dashboard.html" class="nav-item">
-            <img src="dashboard-icon.png" alt="" class="nav-icon">
-            <span>Dashboard</span>
-        </a>
-        <a href="messages.html" class="nav-item">
-            <img src="messages-icon.png" alt="" class="nav-icon">
-            <span>Messages</span>
-        </a>
-        <a href="settings.html" class="nav-item">
-            <img src="settings-icon.png" alt="" class="nav-icon">
-            <span>Settings</span>
-        </a>
+        <div class="nav-sections-container">
+            <div class="nav-section">
+                <div class="nav-section-title">Main Navigation</div>
+                <a href="dashboard.html" class="nav-item">
+                    <img src="assets/icons/dashboard-icon.png" alt="" class="nav-icon">
+                    <span>Dashboard</span>
+                </a>
+                <a href="ai.html" class="nav-item">
+                    <img src="assets/icons/ai-icon.png" alt="" class="nav-icon">
+                    <span>AI Assistant</span>
+                </a>
+            </div>
+
+            <div class="nav-divider"></div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Property Management</div>
+                <a href="tenants.html" class="nav-item">
+                    <img src="assets/icons/tenants-icon.png" alt="" class="nav-icon">
+                    <span>Tenants</span>
+                </a>
+                <a href="units.html" class="nav-item active">
+                    <img src="assets/icons/units-icon.png" alt="" class="nav-icon">
+                    <span>Units</span>
+                </a>
+                <a href="payments.html" class="nav-item">
+                    <img src="assets/icons/payments-icon.png" alt="" class="nav-icon">
+                    <span>Payments</span>
+                </a>
+                <a href="reports.html" class="nav-item">
+                    <img src="assets/icons/reports-icon.png" alt="" class="nav-icon">
+                    <span>Reports</span>
+                </a>
+            </div>
+
+            <div class="nav-divider"></div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Communication</div>
+                <a href="messages.html" class="nav-item">
+                    <img src="assets/icons/messages-icon.png" alt="" class="nav-icon">
+                    <span>Messages</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="system-section">
+            <div class="nav-section-title">System</div>
+            <a href="settings.html" class="nav-item">
+                <img src="assets/icons/settings-icon.png" alt="" class="nav-icon">
+                <span>Settings</span>
+            </a>
+        </div>
     </div>
 
     <div class="main-content">
