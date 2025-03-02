@@ -248,17 +248,6 @@
 
         .typing-indicator {
             display: none;
-            align-self: flex-start;
-            background-color: #f0f0f0;
-            padding: 12px 16px;
-            border-radius: 15px;
-            border-bottom-left-radius: 5px;
-            font-size: 14px;
-            color: #666;
-        }
-
-        .typing-indicator.active {
-            display: block;
         }
 
         .suggestions {
@@ -350,144 +339,91 @@
         <div class="chatbot-container">
             <div class="chat-header">
                 <img src="assets/icons/ai-icon.png" alt="AI Assistant">
-                <h2>RentMatic AI Assistant</h2>
+                <h2>AI Property Assistant</h2>
             </div>
             <div class="chat-messages" id="chatMessages">
                 <div class="message bot-message">
-                    Hello! I'm your RentMatic assistant. I can help you manage your property data and use the system. I can make changes, provide summaries, and help you with various tasks.
-                </div>
-                <div class="suggestions">
-                    <div class="suggestion-chip" onclick="sendSuggestion(this)">Add new tenant</div>
-                    <div class="suggestion-chip" onclick="sendSuggestion(this)">Record payment</div>
-                    <div class="suggestion-chip" onclick="sendSuggestion(this)">Show unit summary</div>
-                    <div class="suggestion-chip" onclick="sendSuggestion(this)">Show payment summary</div>
-                    <div class="suggestion-chip" onclick="sendSuggestion(this)">Update unit details</div>
+                    Hello! I'm your AI property assistant. I can help you with:
+                    • Generating property descriptions
+                    • Suggesting rental prices
+                    • Answering property management questions
+                    How can I assist you today?
                 </div>
             </div>
             <div class="typing-indicator" id="typingIndicator">AI is typing...</div>
             <div class="chat-input-container">
-                <input type="text" class="chat-input" id="userInput" placeholder="Type your message here...">
-                <button class="send-button" onclick="sendMessage()">Send</button>
+                <input type="text" class="chat-input" id="messageInput" placeholder="Type your message here...">
+                <button class="send-button" id="sendButton">Send</button>
             </div>
         </div>
     </div>
 
     <script>
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
         const chatMessages = document.getElementById('chatMessages');
-        const userInput = document.getElementById('userInput');
         const typingIndicator = document.getElementById('typingIndicator');
 
-        // Add event listener for Enter key
-        userInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
-
-        function sendMessage() {
-            const message = userInput.value.trim();
-            if (message === '') return;
-
-            // Add user message
-            addMessage(message, 'user');
-            userInput.value = '';
-
-            // Show typing indicator
-            showTypingIndicator();
-
-            // Process the message and get AI response
-            setTimeout(() => {
-                const response = processMessage(message);
-                hideTypingIndicator();
-                addMessage(response, 'bot');
-            }, 1000);
-        }
-
-        function sendSuggestion(element) {
-            const message = element.textContent;
-            addMessage(message, 'user');
-            
-            // Show typing indicator
-            showTypingIndicator();
-
-            // Process the suggestion and get AI response
-            setTimeout(() => {
-                const response = processMessage(message);
-                hideTypingIndicator();
-                addMessage(response, 'bot');
-            }, 1000);
-        }
-
-        function addMessage(text, sender) {
+        function addMessage(message, isUser = false) {
             const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${sender}-message`;
-            messageDiv.textContent = text;
+            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+            messageDiv.textContent = message;
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
-        function showTypingIndicator() {
-            typingIndicator.classList.add('active');
+        async function handleSendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            // Add user message to chat
+            addMessage(message, true);
+            messageInput.value = '';
+
+            // Show typing indicator
+            typingIndicator.style.display = 'block';
+
+            try {
+                // Get AI response
+                const response = await window.api.ai.sendMessage(message);
+                
+                // Hide typing indicator and add AI response
+                typingIndicator.style.display = 'none';
+                addMessage(response);
+            } catch (error) {
+                typingIndicator.style.display = 'none';
+                addMessage('Sorry, I encountered an error. Please try again.');
+                console.error('Error:', error);
+            }
         }
 
-        function hideTypingIndicator() {
-            typingIndicator.classList.remove('active');
+        // Event listeners
+        sendButton.addEventListener('click', handleSendMessage);
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                handleSendMessage();
+            }
+        });
+
+        // Example function for generating property descriptions
+        async function generatePropertyDescription(propertyDetails) {
+            try {
+                const description = await window.api.ai.generatePropertyDescription(propertyDetails);
+                return description;
+            } catch (error) {
+                console.error('Error generating description:', error);
+                throw error;
+            }
         }
 
-        function processMessage(message) {
-            const lowerMessage = message.toLowerCase();
-            
-            // Get current data from localStorage
-            const tenants = JSON.parse(localStorage.getItem('tenants')) || [];
-            const units = JSON.parse(localStorage.getItem('units')) || [];
-            const payments = JSON.parse(localStorage.getItem('paymentHistory')) || {};
-
-            // Helper function to save data
-            function saveData(key, data) {
-                localStorage.setItem(key, JSON.stringify(data));
-            }
-
-            // Quick summary functions
-            function getUnitSummary() {
-                const totalUnits = units.length;
-                const occupiedUnits = units.filter(unit => unit.tenant).length;
-                const availableUnits = totalUnits - occupiedUnits;
-                return `Unit Summary:\n\n` +
-                    `Total Units: ${totalUnits}\n` +
-                    `Occupied Units: ${occupiedUnits}\n` +
-                    `Available Units: ${availableUnits}`;
-            }
-
-            function getPaymentSummary() {
-                const totalPayments = Object.keys(payments).length;
-                const totalAmount = Object.values(payments).reduce((total, payment) => total + payment, 0);
-                return `Payment Summary:\n\n` +
-                    `Total Payments: ${totalPayments}\n` +
-                    `Total Amount: $${totalAmount.toFixed(2)}`;
-            }
-
-            // Process the message and return a response
-            if (lowerMessage.includes('summary')) {
-                if (lowerMessage.includes('unit')) {
-                    return getUnitSummary();
-                } else if (lowerMessage.includes('payment')) {
-                    return getPaymentSummary();
-                }
-            } else if (lowerMessage.includes('add new tenant')) {
-                // Implementation of adding a new tenant
-                return "Tenant added successfully!";
-            } else if (lowerMessage.includes('record payment')) {
-                // Implementation of recording a payment
-                return "Payment recorded successfully!";
-            } else if (lowerMessage.includes('show unit summary')) {
-                return getUnitSummary();
-            } else if (lowerMessage.includes('show payment summary')) {
-                return getPaymentSummary();
-            } else if (lowerMessage.includes('update unit details')) {
-                // Implementation of updating unit details
-                return "Unit details updated successfully!";
-            } else {
-                return "I'm sorry, I didn't understand that. Please try again with a different command or question.";
+        // Example function for getting rental price suggestions
+        async function getRentalPriceSuggestion(propertyDetails, marketData) {
+            try {
+                const suggestion = await window.api.ai.suggestRentalPrice(propertyDetails, marketData);
+                return suggestion;
+            } catch (error) {
+                console.error('Error getting price suggestion:', error);
+                throw error;
             }
         }
     </script>

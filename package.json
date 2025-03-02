@@ -10,8 +10,11 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^20.3.12",
+    "electron": "^34.3.0",
     "electron-packager": "^16.0.0",
     "tailwindcss": "^3.4.15"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.2.1"
   }
 }
