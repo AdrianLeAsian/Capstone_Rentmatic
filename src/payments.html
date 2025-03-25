@@ -455,73 +455,39 @@
     </div>
 
     <script>
-        // Payment history data structure
-        let paymentHistory = JSON.parse(localStorage.getItem('paymentHistory')) || {};
-        let currentTenant = '';
-        let unitsData = JSON.parse(localStorage.getItem('units')) || [];
-
-        // Listen for changes in tenant and units data
-        window.addEventListener('storage', function(e) {
-            if (e.key === 'tenants') {
-                const tenantDatabase = JSON.parse(e.newValue);
-                loadPaymentsTable(tenantDatabase);
-                initializePaymentHistory(tenantDatabase);
-            }
-            if (e.key === 'units') {
-                try {
-                    const newUnitsData = JSON.parse(e.newValue);
-                    unitsData = newUnitsData;
-                    
-                    // Get current tenants
-                    const savedTenants = JSON.parse(localStorage.getItem('tenants')) || [];
-                    
-                    // Update tenant unit assignments
-                    savedTenants.forEach(tenant => {
-                        const assignedUnit = newUnitsData.find(unit => unit.tenant === tenant.name);
-                        tenant.unit = assignedUnit ? assignedUnit.unitNumber : null;
-                    });
-                    
-                    // Save updated tenants
-                    localStorage.setItem('tenants', JSON.stringify(savedTenants));
-                    
-                    // Refresh the table
-                    loadPaymentsTable(savedTenants);
-                } catch (error) {
-                    console.error('Error handling unit update:', error);
-                }
-            }
-        });
-
-        window.onload = function() {
+        // Replace localStorage usage with dataAPI
+        async function loadInitialData() {
             try {
-                // Load initial data
-                const savedTenants = JSON.parse(localStorage.getItem('tenants')) || [];
-                const savedUnits = JSON.parse(localStorage.getItem('units')) || [];
-                unitsData = savedUnits;
+                const tenants = await window.dataAPI.getData('tenants') || [];
+                const units = await window.dataAPI.getData('units') || [];
+                unitsData = units;
                 
                 // Update tenant unit assignments
-                savedTenants.forEach(tenant => {
-                    const assignedUnit = savedUnits.find(unit => unit.tenant === tenant.name);
-                    tenant.unit = assignedUnit ? assignedUnit.unitNumber : null;
+                tenants.forEach(tenant => {
+                    const assignedUnit = units.find(unit => unit.tenantId === tenant.id);
+                    tenant.unit = assignedUnit ? assignedUnit.number : null;
                 });
                 
-                // Save updated tenants and initialize
-                localStorage.setItem('tenants', JSON.stringify(savedTenants));
-                loadPaymentsTable(savedTenants);
-                initializePaymentHistory(savedTenants);
+                loadPaymentsTable(tenants);
+                initializePaymentHistory(tenants);
             } catch (error) {
                 console.error('Error initializing payments:', error);
             }
         }
 
-        function initializePaymentHistory(tenants) {
+        // Update payment history storage
+        async function initializePaymentHistory(tenants) {
+            const history = await window.dataAPI.getData('paymentHistory') || {};
             tenants.forEach(tenant => {
-                if (!paymentHistory[tenant.name]) {
-                    paymentHistory[tenant.name] = [];
+                if (!history[tenant.id]) {
+                    history[tenant.id] = [];
                 }
             });
-            localStorage.setItem('paymentHistory', JSON.stringify(paymentHistory));
+            await window.dataAPI.saveData('paymentHistory', history);
         }
+
+        // Update window.onload
+        window.onload = loadInitialData;
 
         function loadPaymentsTable(tenants) {
             const tbody = document.getElementById('paymentsTableBody');

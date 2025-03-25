@@ -11,3 +11,12 @@ contextBridge.exposeInMainWorld('api', {
 		suggestRentalPrice: (details, marketData) => aiService.suggestRentalPrice(details, marketData)
 	}
 })
+
+contextBridge.exposeInMainWorld('dataAPI', {
+	getData: (dataType) => ipcRenderer.invoke('getData', dataType),
+	saveData: (dataType, data) => ipcRenderer.invoke('saveData', dataType, data),
+	deleteAllData: () => ipcRenderer.invoke('deleteAllData'),
+	getSavedCredentials: () => ipcRenderer.invoke('getSavedCredentials'),
+	saveCredentials: (credentials) => ipcRenderer.invoke('saveCredentials', credentials),
+	clearCredentials: () => ipcRenderer.invoke('clearCredentials')
+});

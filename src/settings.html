@@ -347,6 +347,112 @@
                 right: 0;
             }
         }
+
+        /* Add styles for the danger zone section */
+        .danger-zone {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #dc3545;
+            border-radius: 8px;
+            background-color: #fff5f5;
+        }
+
+        .danger-zone h2 {
+            color: #dc3545;
+            margin-bottom: 15px;
+        }
+
+        .danger-zone p {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
+        .delete-button {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s;
+        }
+
+        .delete-button:hover {
+            background-color: #c82333;
+        }
+
+        .delete-button img {
+            width: 16px;
+            height: 16px;
+            filter: brightness(0) invert(1);
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .modal-title {
+            color: #dc3545;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .modal-text {
+            margin-bottom: 25px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+
+        .modal-cancel {
+            padding: 10px 20px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .modal-confirm {
+            padding: 10px 20px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .modal-confirm:hover {
+            background: #c82333;
+        }
     </style>
 </head>
 <body>
@@ -430,10 +536,16 @@
             <button class="logout-button" onclick="logout()">Log Out</button>
         </div>
 
-        <div class="settings-section">
-            <h2>Debug</h2>
-            <button onclick="window.location.href='debug.html'">Debug Console</button>
+        <div class="danger-zone">
+            <h2>Danger Zone</h2>
+            <p>Permanently delete all your data. This action cannot be undone.</p>
+            <button class="delete-button" onclick="showDeleteConfirmation()">
+                <img src="assets/icons/remove-icon.png" alt="delete">
+                Delete All Data
+            </button>
         </div>
+
+        <button onclick="cleanupData()">Clean Up Data</button>
     </div>
 
     <!-- Chat Window -->
@@ -538,6 +650,28 @@
                     <input type="text" id="verificationCode" placeholder="Enter 6-digit code">
                     <button onclick="verifyTwoFactor()">Verify</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <h3 class="modal-title">Delete All Data</h3>
+            <p class="modal-text">
+                Are you absolutely sure you want to delete all your data? This action cannot be undone.
+                <br><br>
+                Please type <strong>DELETE</strong> to confirm.
+            </p>
+            <input 
+                type="text" 
+                id="deleteConfirmInput" 
+                placeholder="Type DELETE to confirm"
+                style="width: 100%; padding: 10px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 6px;"
+            >
+            <div class="modal-buttons">
+                <button class="modal-cancel" onclick="hideDeleteConfirmation()">Cancel</button>
+                <button class="modal-confirm" onclick="deleteAllData()">Delete All Data</button>
             </div>
         </div>
     </div>
@@ -673,6 +807,49 @@
         window.onclick = function(event) {
             if (event.target.classList.contains("modal")) {
                 event.target.style.display = "none";
+            }
+        }
+
+        function showDeleteConfirmation() {
+            document.getElementById('deleteModal').style.display = 'block';
+            document.getElementById('deleteConfirmInput').value = '';
+        }
+
+        function hideDeleteConfirmation() {
+            document.getElementById('deleteModal').style.display = 'none';
+        }
+
+        async function deleteAllData() {
+            const confirmInput = document.getElementById('deleteConfirmInput').value;
+            
+            if (confirmInput !== 'DELETE') {
+                alert('Please type DELETE to confirm the data deletion');
+                return;
+            }
+
+            try {
+                // Clear localStorage
+                localStorage.clear();
+                
+                // Clear all JSON files in Documents/Rentmatic/data
+                const dataTypes = ['tenants', 'units', 'payments', 'messages', 'paymentHistory', 'settings'];
+                for (const dataType of dataTypes) {
+                    await window.dataAPI.saveData(dataType, []);
+                }
+
+                alert('All data has been successfully deleted');
+                logout();
+            } catch (error) {
+                console.error('Error deleting data:', error);
+                alert('An error occurred while deleting data');
+            }
+        }
+
+        async function cleanupData() {
+            if (confirm('This will clear all data. Are you sure?')) {
+                await window.dataAPI.clearAllData();
+                alert('Data cleared. Please restart the application.');
+                window.location.reload();
             }
         }
     </script>

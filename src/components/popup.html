@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: transparent;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        .popup-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .popup-message {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .popup-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: #478778;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn-secondary {
+            background: #e9ecef;
+            color: #2c3e50;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="popup-container">
+        <div class="popup-message" id="message"></div>
+        <div class="popup-buttons">
+            <button class="btn-secondary" onclick="sendResponse(false)">Cancel</button>
+            <button class="btn-primary" onclick="sendResponse(true)">OK</button>
+        </div>
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+
+        // Receive message from main process
+        ipcRenderer.on('popup-message', (event, message) => {
+            document.getElementById('message').textContent = message;
+        });
+
+        function sendResponse(response) {
+            ipcRenderer.send('popup-response', response);
+        }
+    </script>
+</body>
+</html> 

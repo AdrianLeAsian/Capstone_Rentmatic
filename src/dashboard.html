@@ -148,63 +148,172 @@
         .main-content {
             margin-left: 200px;
             margin-top: 60px;
-            padding: 20px;
+            padding: 30px;
+            background-color: #f8f9fa;
         }
 
         .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
         }
 
         .dashboard-card {
-            background-color: rgba(237, 237, 237, 0.8);
-            aspect-ratio: 1;
+            background: white;
+            border-radius: 12px;
             padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            text-decoration: none;
-            transition: transform 0.2s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
         .dashboard-card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
 
-        .card-icon {
-            width: 60px;
-            height: 60px;
-            margin-bottom: 10px;
-        }
-
-        .tenants-icon {
-            filter: invert(48%) sepia(79%) saturate(2476%) hue-rotate(190deg) brightness(118%) contrast(119%);
-        }
-
-        .payments-icon {
-            filter: invert(42%) sepia(93%) saturate(1352%) hue-rotate(87deg) brightness(119%) contrast(119%);
-        }
-
-        .units-icon {
-            filter: invert(72%) sepia(32%) saturate(1217%) hue-rotate(6deg) brightness(127%) contrast(119%);
-        }
-
-        .reports-icon {
-            filter: invert(60%) sepia(11%) saturate(2000%) hue-rotate(177deg) brightness(99%) contrast(96%);
-        }
-
-        .ai-icon {
-            filter: invert(45%) sepia(82%) saturate(2742%) hue-rotate(264deg) brightness(101%) contrast(101%);
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
         }
 
         .card-title {
-            color: #666973;
-            font-size: 16px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .card-icon {
+            width: 20px;
+            height: 20px;
+            filter: brightness(0) invert(1);
+            background: #478778;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .card-icon img {
+            width: 100%;
+            height: 100%;
+            filter: brightness(0) invert(1);
+        }
+
+        .card-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 10px 0;
+        }
+
+        .card-subtitle {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .trend-positive {
+            color: #2ecc71;
+        }
+
+        .trend-negative {
+            color: #e74c3c;
+        }
+
+        /* Recent Activity Section */
+        .activity-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .activity-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .activity-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+
+        .dot-payment { background-color: #3498db; }
+        .dot-maintenance { background-color: #e74c3c; }
+        .dot-tenant { background-color: #2ecc71; }
+
+        .activity-content {
+            flex-grow: 1;
+        }
+
+        .activity-text {
+            font-size: 0.95rem;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .activity-time {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        /* Quick Actions Section */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .action-button {
+            background: #478778;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .action-button:hover {
+            background: #3a6e62;
+        }
+
+        .action-button img {
+            width: 20px;
+            height: 20px;
+            filter: brightness(0) invert(1);
         }
     </style>
 </head>
@@ -274,27 +383,224 @@
 
     <div class="main-content">
         <div class="dashboard-grid">
-            <a href="tenants.html" class="dashboard-card">
-                <img src="assets/icons/tenants-icon.png" alt="Tenants" class="card-icon tenants-icon">
-                <div class="card-title">Tenants</div>
-            </a>
-            <a href="payments.html" class="dashboard-card">
-                <img src="assets/icons/payments-icon.png" alt="Payments" class="card-icon payments-icon">
-                <div class="card-title">Payments</div>
-            </a>
-            <a href="units.html" class="dashboard-card">
-                <img src="assets/icons/units-icon.png" alt="Unit Management" class="card-icon units-icon">
-                <div class="card-title">Unit Management</div>
-            </a>
-            <a href="reports.html" class="dashboard-card">
-                <img src="assets/icons/reports-icon.png" alt="Basic Reports" class="card-icon reports-icon">
-                <div class="card-title">Basic Reports</div>
-            </a>
-            <a href="ai.html" class="dashboard-card">
-                <img src="assets/icons/ai-icon.png" alt="AI Assistant" class="card-icon ai-icon">
-                <div class="card-title">AI Assistant</div>
-            </a>
+            <!-- Occupancy Card -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-title">Occupancy Rate</div>
+                    <div class="card-icon">
+                        <img src="assets/icons/tenants-icon.png" alt="occupancy">
+                    </div>
+                </div>
+                <div class="card-value" id="occupancyRate">85%</div>
+                <div class="card-subtitle" id="occupancyChange">
+                    <span class="trend-positive">↑ 5% </span>from last month
+                </div>
+            </div>
+
+            <!-- Revenue Card -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-title">Monthly Revenue</div>
+                    <div class="card-icon">
+                        <img src="assets/icons/payments-icon.png" alt="revenue">
+                    </div>
+                </div>
+                <div class="card-value" id="monthlyRevenue">₱125,000</div>
+                <div class="card-subtitle" id="revenueChange">
+                    <span class="trend-positive">↑ 12% </span>from last month
+                </div>
+            </div>
+
+            <!-- Maintenance Card -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-title">Pending Maintenance</div>
+                    <div class="card-icon">
+                        <img src="assets/icons/update-icon.png" alt="maintenance">
+                    </div>
+                </div>
+                <div class="card-value" id="pendingMaintenance">4</div>
+                <div class="card-subtitle" id="maintenanceChange">
+                    <span class="trend-negative">↑ 2 </span>new requests
+                </div>
+            </div>
+
+            <!-- Vacant Units Card -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-title">Vacant Units</div>
+                    <div class="card-icon">
+                        <img src="assets/icons/units-icon.png" alt="units">
+                    </div>
+                </div>
+                <div class="card-value" id="vacantUnits">3</div>
+                <div class="card-subtitle" id="vacantUnitsSubtext">Out of 20 total units</div>
+            </div>
+        </div>
+
+        <!-- Recent Activity Section -->
+        <div class="activity-section">
+            <div class="activity-header">
+                <div class="activity-title">Recent Activity</div>
+                <img src="assets/icons/details-icon.png" alt="details" style="width: 20px; height: 20px;">
+            </div>
+            <ul class="activity-list">
+                <li class="activity-item">
+                    <div class="activity-dot dot-payment"></div>
+                    <div class="activity-content">
+                        <div class="activity-text">Payment received from Unit 301</div>
+                        <div class="activity-time">2 hours ago</div>
+                    </div>
+                </li>
+                <li class="activity-item">
+                    <div class="activity-dot dot-maintenance"></div>
+                    <div class="activity-content">
+                        <div class="activity-text">Maintenance request from Unit 205</div>
+                        <div class="activity-time">5 hours ago</div>
+                    </div>
+                </li>
+                <li class="activity-item">
+                    <div class="activity-dot dot-tenant"></div>
+                    <div class="activity-content">
+                        <div class="activity-text">New tenant moved in Unit 402</div>
+                        <div class="activity-time">1 day ago</div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <button class="action-button" onclick="window.location.href='payments.html'">
+                <img src="assets/icons/payments-icon.png" alt="payment">
+                Add Payment
+            </button>
+            <button class="action-button" onclick="window.location.href='tenants.html'">
+                <img src="assets/icons/tenants-icon.png" alt="tenant">
+                Add Tenant
+            </button>
+            <button class="action-button" onclick="window.location.href='units.html'">
+                <img src="assets/icons/units-icon.png" alt="units">
+                View Units
+            </button>
+            <button class="action-button" onclick="window.location.href='reports.html'">
+                <img src="assets/icons/reports-icon.png" alt="report">
+                View Reports
+            </button>
         </div>
     </div>
+
+    <!-- Add this script section -->
+    <script>
+        // Function to initialize dashboard data
+        async function initializeDashboard() {
+            await updateOccupancyRate();
+            await updateMonthlyRevenue();
+            await updateMaintenanceRequests();
+            await updateVacantUnits();
+        }
+
+        // Calculate and update occupancy rate
+        async function updateOccupancyRate() {
+            try {
+                const units = await window.dataAPI.getData('units');
+                const tenants = await window.dataAPI.getData('tenants');
+                
+                const totalUnits = units.length;
+                const occupiedUnits = tenants.filter(tenant => tenant.status === 'active').length;
+                const occupancyRate = totalUnits > 0 ? Math.round((occupiedUnits / totalUnits) * 100) : 0;
+                
+                // Get last month's data
+                const settings = await window.dataAPI.getData('settings');
+                const lastMonthRate = settings.lastMonthOccupancy || occupancyRate - 5;
+                const change = occupancyRate - lastMonthRate;
+
+                document.getElementById('occupancyRate').textContent = `${occupancyRate}%`;
+                document.getElementById('occupancyChange').innerHTML = 
+                    `<span class="${change >= 0 ? 'trend-positive' : 'trend-negative'}">
+                        ${change >= 0 ? '↑' : '↓'} ${Math.abs(change)}%
+                    </span> from last month`;
+            } catch (error) {
+                console.error('Error updating occupancy rate:', error);
+                document.getElementById('occupancyRate').textContent = '0%';
+                document.getElementById('occupancyChange').textContent = 'Error loading data';
+            }
+        }
+
+        // Calculate and update monthly revenue
+        async function updateMonthlyRevenue() {
+            const payments = await window.dataAPI.getData('payments');
+            const currentMonth = new Date().getMonth();
+            
+            // Calculate total revenue for current month
+            const monthlyRevenue = payments
+                .filter(payment => new Date(payment.date).getMonth() === currentMonth)
+                .reduce((total, payment) => total + parseFloat(payment.amount), 0);
+
+            // Get last month's revenue
+            const lastMonthRevenue = payments
+                .filter(payment => new Date(payment.date).getMonth() === currentMonth - 1)
+                .reduce((total, payment) => total + parseFloat(payment.amount), 0);
+
+            const change = ((monthlyRevenue - lastMonthRevenue) / lastMonthRevenue * 100).toFixed(1);
+
+            document.getElementById('monthlyRevenue').textContent = `₱${monthlyRevenue.toLocaleString()}`;
+            document.getElementById('revenueChange').innerHTML = 
+                `<span class="${change >= 0 ? 'trend-positive' : 'trend-negative'}">
+                    ${change >= 0 ? '↑' : '↓'} ${Math.abs(change)}%
+                </span> from last month`;
+        }
+
+        // Update maintenance requests
+        async function updateMaintenanceRequests() {
+            const maintenance = await window.dataAPI.getData('maintenance');
+            const pendingRequests = maintenance.filter(request => request.status === 'pending').length;
+            
+            // Get new requests (within last 24 hours)
+            const newRequests = maintenance.filter(request => {
+                const requestDate = new Date(request.date);
+                const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
+                return requestDate > yesterday && request.status === 'pending';
+            }).length;
+
+            document.getElementById('pendingMaintenance').textContent = pendingRequests;
+            document.getElementById('maintenanceChange').innerHTML = 
+                `<span class="${newRequests > 0 ? 'trend-negative' : 'trend-positive'}">
+                    ${newRequests > 0 ? '↑' : ''} ${newRequests}
+                </span> new requests`;
+        }
+
+        // Update vacant units
+        async function updateVacantUnits() {
+            try {
+                // Get both units and tenants data
+                const units = await window.dataAPI.getData('units');
+                const tenants = await window.dataAPI.getData('tenants');
+                
+                // Calculate total units from units data
+                const totalUnits = units.length;
+                // Calculate occupied units from active tenants
+                const occupiedUnits = tenants.filter(tenant => tenant.status === 'active').length;
+                // Calculate vacant units
+                const vacantUnits = totalUnits - occupiedUnits;
+
+                // Update the display
+                document.getElementById('vacantUnits').textContent = vacantUnits;
+                document.getElementById('vacantUnitsSubtext').textContent = `Out of ${totalUnits} total units`;
+                
+            } catch (error) {
+                console.error('Error updating vacant units:', error);
+                // Fallback display if there's an error
+                document.getElementById('vacantUnits').textContent = '0';
+                document.getElementById('vacantUnitsSubtext').textContent = 'Error loading units';
+            }
+        }
+
+        // Update dashboard every minute
+        setInterval(initializeDashboard, 60000);
+
+        // Initial load
+        document.addEventListener('DOMContentLoaded', initializeDashboard);
+    </script>
 </body>
 </html>

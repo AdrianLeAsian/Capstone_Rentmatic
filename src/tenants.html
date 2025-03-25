@@ -150,111 +150,194 @@
         .main-content {
             margin-left: 200px;
             margin-top: 60px;
-            padding: 20px;
+            padding: 30px;
+            background-color: #f8f9fa;
         }
 
-        .action-buttons {
+        /* Tenant Stats Cards */
+        .tenant-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .stat-title {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            color: #2c3e50;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        /* Action Buttons */
+        .tenant-actions {
             display: flex;
-            gap: 30px;
-            justify-content: center;
-            margin-bottom: 40px;
+            gap: 15px;
+            margin-bottom: 25px;
         }
 
         .action-button {
-            width: 200px;
-            height: 200px;
-            background-color: rgba(237, 237, 237, 0.8);
-            border-radius: 15px;
             display: flex;
-            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            transition: transform 0.2s;
-            backdrop-filter: blur(10px);
+            gap: 8px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
             cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
         }
 
-        .action-button:hover {
-            transform: translateY(-5px);
+        .primary-button {
+            background: #478778;
+            color: white;
         }
 
-        .button-icon {
-            width: 80px;
-            height: 80px;
-            margin-bottom: 15px;
+        .primary-button:hover {
+            background: #3a6e62;
         }
 
-        .add-icon {
-            filter: invert(73%) sepia(41%) saturate(402%) hue-rotate(93deg) brightness(92%) contrast(87%);
+        .secondary-button {
+            background: #e9ecef;
+            color: #2c3e50;
         }
 
-        .remove-icon {
-            filter: invert(71%) sepia(51%) saturate(1291%) hue-rotate(314deg) brightness(101%) contrast(101%);
+        .secondary-button:hover {
+            background: #dee2e6;
         }
 
-        .update-icon {
-            filter: invert(93%) sepia(100%) saturate(1352%) hue-rotate(360deg) brightness(109%) contrast(109%);
+        .primary-button img {
+            width: 20px;
+            height: 20px;
+            filter: brightness(0) invert(1);
         }
 
-        .export-icon {
-            filter: invert(80%) sepia(11%) saturate(2000%) hue-rotate(177deg) brightness(99%) contrast(96%);
+        .secondary-button img {
+            width: 20px;
+            height: 20px;
+            filter: brightness(0);
         }
 
-        .details-icon {
-            filter: invert(60%) sepia(11%) saturate(2000%) hue-rotate(177deg) brightness(99%) contrast(96%);
+        /* Optional: Adjust hover state for better contrast */
+        .secondary-button:hover img {
+            filter: brightness(0.2);
         }
 
-        .button-title {
-            color: #666973;
-            font-size: 18px;
+        /* Search and Filter */
+        .tenant-filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .filter-select {
+            padding: 10px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: #2c3e50;
+        }
+
+        /* Tenants Table */
+        .tenants-table-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            overflow: auto;
         }
 
         .tenants-table {
             width: 100%;
-            background-color: rgba(255, 255, 255, 0.9);
-            border-radius: 10px;
             border-collapse: collapse;
-            margin-top: 20px;
-            backdrop-filter: blur(10px);
         }
 
-        .tenants-table th {
-            background-color: var(--header-color);
-            color: white;
+        .tenants-table th,
+        .tenants-table td {
             padding: 15px;
             text-align: left;
-        }
-
-        .tenants-table td {
-            padding: 12px 15px;
             border-bottom: 1px solid #eee;
         }
 
-        .tenants-table tr:last-child td {
-            border-bottom: none;
+        .tenants-table th {
+            color: #666;
+            font-weight: 600;
+            font-size: 0.9rem;
         }
 
-        .rent-status {
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 14px;
-            font-weight: bold;
+        .tenants-table tr:hover {
+            background-color: #f8f9fa;
         }
 
-        .status-paid {
-            background-color: #90EE90;
-            color: #006400;
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background: #e1f6e1;
+            color: #1f8b4c;
+        }
+
+        .status-inactive {
+            background: #fee2e2;
+            color: #dc2626;
         }
 
         .status-pending {
-            background-color: #FFE4B5;
-            color: #8B4513;
+            background: #fff7ed;
+            color: #c2410c;
         }
 
-        .status-overdue {
-            background-color: #FFB6C1;
-            color: #8B0000;
+        /* Action Menu */
+        .row-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .row-action-btn {
+            padding: 6px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background: none;
+        }
+
+        .row-action-btn:hover {
+            background: #eee;
+        }
+
+        .row-action-btn img {
+            width: 16px;
+            height: 16px;
         }
 
         .modal {
@@ -264,39 +347,65 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.5);
             z-index: 1000;
-            overflow-y: auto;
         }
 
         .modal-content {
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            width: 800px;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            background: white;
+            margin: 50px auto;
+            padding: 25px;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 12px;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
         }
 
-        .form-sections {
+        .modal-header {
             display: flex;
-            gap: 20px;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .profile-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .profile-picture {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            overflow: hidden;
+            background: #f0f0f0;
+        }
+
+        .profile-picture img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .form-section {
-            flex: 1;
-            padding: 15px;
-            border: 1px solid #eee;
-            border-radius: 5px;
+            margin-bottom: 20px;
         }
 
-        .section-title {
-            font-size: 16px;
-            font-weight: bold;
+        .form-section h3 {
+            color: #2c3e50;
             margin-bottom: 15px;
-            color: var(--header-color);
+            font-size: 1.1rem;
         }
 
         .form-group {
@@ -305,51 +414,41 @@
 
         .form-group label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
+            margin-bottom: 8px;
+            color: #2c3e50;
         }
 
-        .form-group input, .form-group select {
+        .form-group input {
             width: 100%;
-            padding: 8px;
+            padding: 10px;
             border: 1px solid #ddd;
-            border-radius: 5px;
+            border-radius: 8px;
+            font-size: 14px;
         }
 
-        .modal-buttons {
+        .form-actions {
             display: flex;
             justify-content: flex-end;
             gap: 10px;
             margin-top: 20px;
         }
 
-        .modal-button {
-            padding: 8px 15px;
+        .btn-primary {
+            background: #478778;
+            color: white;
             border: none;
-            border-radius: 5px;
+            padding: 10px 20px;
+            border-radius: 8px;
             cursor: pointer;
         }
 
-        .save-button {
-            background-color: var(--header-color);
-            color: white;
-        }
-
-        .cancel-button {
-            background-color: #ddd;
-        }
-
-        .selected {
-            background-color: #e8f4f3;
-        }
-
-        .details-content {
-            line-height: 1.6;
-        }
-
-        .details-label {
-            font-weight: bold;
-            color: var(--header-color);
+        .btn-secondary {
+            background: #e9ecef;
+            color: #2c3e50;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
         }
 
         /* New styles for profile image */
@@ -379,6 +478,194 @@
             border-radius: 5px;
             cursor: pointer;
             margin-top: 10px;
+        }
+
+        .tenants-container {
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .tenant-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tenant-profile {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .profile-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .tenant-info h3 {
+            margin: 0 0 5px 0;
+            color: #2c3e50;
+        }
+
+        .tenant-info p {
+            margin: 0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .tenant-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            background: none;
+            transition: background 0.2s;
+        }
+
+        .action-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .action-btn img {
+            width: 20px;
+            height: 20px;
+            filter: brightness(0) saturate(100%) invert(45%) sepia(12%) saturate(1090%) hue-rotate(118deg) brightness(92%) contrast(86%);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .details-modal {
+            max-width: 500px;
+        }
+
+        .details-content {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .details-profile-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .details-info {
+            flex: 1;
+        }
+
+        .details-info p {
+            margin: 8px 0;
+        }
+
+        .details-info h4 {
+            margin: 20px 0 10px 0;
+            color: #2c3e50;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            color: #666;
+            font-weight: 500;
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+
+        .status-badge.not-assigned {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .actions-cell {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 6px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background: none;
+        }
+
+        .action-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .action-btn img {
+            width: 16px;
+            height: 16px;
+            filter: brightness(0) saturate(100%) invert(45%) sepia(12%) saturate(1090%) hue-rotate(118deg) brightness(92%) contrast(86%);
+        }
+
+        .details-body {
+            padding: 20px 0;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .detail-label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .detail-value {
+            color: #2c3e50;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+
+        .status-badge.assigned {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .status-badge.not-assigned {
+            background: #fee2e2;
+            color: #dc2626;
         }
     </style>
 </head>
@@ -447,242 +734,121 @@
     </div>
 
     <div class="main-content">
-        <div class="action-buttons">
-            <a onclick="showAddModal()" class="action-button">
-                <img src="assets/icons/add-icon.png" alt="Add" class="button-icon add-icon">
-                <div class="button-title">Add</div>
-            </a>
-            <a onclick="removeTenant()" class="action-button">
-                <img src="assets/icons/remove-icon.png" alt="Remove" class="button-icon remove-icon">
-                <div class="button-title">Remove</div>
-            </a>
-            <a onclick="showUpdateModal()" class="action-button">
-                <img src="assets/icons/update-icon.png" alt="Update" class="button-icon update-icon">
-                <div class="button-title">Update</div>
-            </a>
-            <a onclick="exportToExcel()" class="action-button">
-                <img src="assets/icons/export-icon.png" alt="Export" class="button-icon export-icon">
-                <div class="button-title">Export to Excel</div>
-            </a>
-            <a onclick="showDetailsModal()" class="action-button">
-                <img src="assets/icons/details-icon.png" alt="Details" class="button-icon details-icon">
-                <div class="button-title">Details</div>
-            </a>
+        <!-- Tenant Statistics -->
+        <div class="tenant-stats">
+            <div class="stat-card">
+                <div class="stat-title">Total Tenants</div>
+                <div class="stat-value" id="totalTenants">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Active Tenants</div>
+                <div class="stat-value" id="activeTenants">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Pending Contracts</div>
+                <div class="stat-value" id="pendingContracts">0</div>
+            </div>
         </div>
 
-        <table class="tenants-table" id="tenantsTable">
-            <thead>
-                <tr>
-                    <th>Tenant Name</th>
-                    <th>Email</th>
-                    <th>Mobile Number</th>
-                    <th>Unit Number</th>
-                    <th>Rent Status</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
-    </div>
+        <!-- Action Buttons -->
+        <div class="tenant-actions">
+            <button class="action-button primary-button" onclick="showAddTenantModal()">
+                <img src="assets/icons/add-icon.png" alt="add">
+                Add New Tenant
+            </button>
+            <button class="action-button secondary-button" onclick="exportToExcel()">
+                <img src="assets/icons/export-icon.png" alt="export">
+                Export List
+            </button>
+        </div>
 
-    <!-- Add Modal -->
-    <div id="addModal" class="modal">
-        <div class="modal-content">
-            <h2>Add New Tenant</h2>
-            <div class="profile-image-container">
-                <img id="newProfilePreview" src="assets/icons/tenants-icon.png" alt="Profile" class="profile-image">
-                <input type="file" id="newProfileImage" class="profile-image-input" accept="image/*">
-                <button class="profile-image-button" onclick="document.getElementById('newProfileImage').click()">Choose Profile Picture</button>
+        <!-- Search and Filter -->
+        <div class="tenant-filters">
+            <div class="search-box">
+                <input type="text" class="search-input" placeholder="Search tenants..." id="searchInput" oninput="filterTenants()">
             </div>
-            <div class="form-sections">
-                <div class="form-section">
-                    <div class="section-title">Personal Information</div>
-                    <div class="form-group">
-                        <label>Full Name:</label>
-                        <input type="text" id="newTenantName">
-                    </div>
-                    <div class="form-group">
-                        <label>Email Address:</label>
-                        <input type="email" id="newEmail">
-                    </div>
-                    <div class="form-group">
-                        <label>Mobile Number:</label>
-                        <input type="tel" id="newMobile">
-                    </div>
-                    <div class="form-group">
-                        <label>Birthday:</label>
-                        <input type="date" id="newBirthday">
-                    </div>
-                    <div class="form-group">
-                        <label>Marital Status:</label>
-                        <select id="newMaritalStatus">
-                            <option value="single">Single</option>
-                            <option value="married">Married</option>
-                            <option value="divorced">Divorced</option>
-                            <option value="widowed">Widowed</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Sex:</label>
-                        <select id="newSex">
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="form-section">
-                    <div class="section-title">Emergency Contact</div>
-                    <div class="form-group">
-                        <label>Contact Name:</label>
-                        <input type="text" id="newEmergencyName">
-                    </div>
-                    <div class="form-group">
-                        <label>Email Address:</label>
-                        <input type="email" id="newEmergencyEmail">
-                    </div>
-                    <div class="form-group">
-                        <label>Mobile Number:</label>
-                        <input type="tel" id="newEmergencyMobile">
-                    </div>
-                    <div class="form-group">
-                        <label>Relationship:</label>
-                        <input type="text" id="newEmergencyRelation">
-                    </div>
-                </div>
+            <select class="filter-select" id="statusFilter" onchange="filterTenants()">
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="pending">Pending</option>
+            </select>
+        </div>
 
-                <div class="form-section">
-                    <div class="section-title">Unit Information</div>
-                    <p class="unit-info-message">Please assign this tenant to a unit in the Unit Management page after creating their profile.</p>
-                </div>
-            </div>
-            <div class="modal-buttons">
-                <button class="modal-button cancel-button" onclick="closeModal('addModal')">Cancel</button>
-                <button class="modal-button save-button" onclick="addTenant()">Save</button>
-            </div>
+        <!-- Tenants Table -->
+        <div class="tenants-table-container">
+            <table class="tenants-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Unit</th>
+                        <th>Contact</th>
+                        <th>Move-in Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tenantsTableBody">
+                    <!-- Table rows will be dynamically populated -->
+                </tbody>
+            </table>
+        </div>
+
+        <div id="tenantsList" class="tenants-container">
+            <!-- Tenants will be loaded here -->
+        </div>
+        
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <img src="assets/icons/tenants-icon.png" alt="No tenants" style="width: 60px; margin-bottom: 20px;">
+            <h3>No Tenants Added</h3>
+            <p>Start by adding your first tenant</p>
         </div>
     </div>
 
-    <!-- Update Modal -->
-    <div id="updateModal" class="modal">
+    <!-- Tenant Details Modal -->
+    <div id="tenantDetailsModal" class="modal">
         <div class="modal-content">
-            <h2>Update Tenant</h2>
-            <div class="profile-image-container">
-                <img id="updateProfilePreview" src="assets/icons/tenants-icon.png" alt="Profile" class="profile-image">
-                <input type="file" id="updateProfileImage" class="profile-image-input" accept="image/*">
-                <button class="profile-image-button" onclick="document.getElementById('updateProfileImage').click()">Update Profile Picture</button>
+            <div class="modal-header">
+                <h2>Tenant Details</h2>
+                <button class="close-btn" onclick="document.getElementById('tenantDetailsModal').style.display='none'">&times;</button>
             </div>
-            <div class="form-sections">
-                <div class="form-section">
-                    <div class="section-title">Personal Information</div>
-                    <div class="form-group">
-                        <label>Full Name:</label>
-                        <input type="text" id="updateTenantName">
-                    </div>
-                    <div class="form-group">
-                        <label>Email Address:</label>
-                        <input type="email" id="updateEmail">
-                    </div>
-                    <div class="form-group">
-                        <label>Mobile Number:</label>
-                        <input type="tel" id="updateMobile">
-                    </div>
-                    <div class="form-group">
-                        <label>Birthday:</label>
-                        <input type="date" id="updateBirthday">
-                    </div>
-                    <div class="form-group">
-                        <label>Marital Status:</label>
-                        <select id="updateMaritalStatus">
-                            <option value="single">Single</option>
-                            <option value="married">Married</option>
-                            <option value="divorced">Divorced</option>
-                            <option value="widowed">Widowed</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Sex:</label>
-                        <select id="updateSex">
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="form-section">
-                    <div class="section-title">Emergency Contact</div>
-                    <div class="form-group">
-                        <label>Contact Name:</label>
-                        <input type="text" id="updateEmergencyName">
-                    </div>
-                    <div class="form-group">
-                        <label>Email Address:</label>
-                        <input type="email" id="updateEmergencyEmail">
-                    </div>
-                    <div class="form-group">
-                        <label>Mobile Number:</label>
-                        <input type="tel" id="updateEmergencyMobile">
-                    </div>
-                    <div class="form-group">
-                        <label>Relationship:</label>
-                        <input type="text" id="updateEmergencyRelation">
-                    </div>
-                </div>
-
-                <div class="form-section">
-                    <div class="section-title">Unit Information</div>
-                    <p class="unit-info-message">Unit information can only be modified in the Unit Management page.</p>
-                    <div id="currentUnitInfo">
-                        <p><strong>Current Unit:</strong> <span id="displayUnitNumber">Not Assigned</span></p>
-                        <p><strong>Rent Status:</strong> <span id="displayRentStatus">N/A</span></p>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-buttons">
-                <button class="modal-button cancel-button" onclick="closeModal('updateModal')">Cancel</button>
-                <button class="modal-button save-button" onclick="updateTenant()">Save</button>
-            </div>
+            <div id="tenantDetailsContent"></div>
         </div>
     </div>
 
-    <!-- Details Modal -->
-    <div id="detailsModal" class="modal">
+    <!-- Add/Edit Tenant Modal -->
+    <div id="addTenantModal" class="modal">
         <div class="modal-content">
-            <h2>Tenant Details</h2>
-            <div class="profile-image-container">
-                <img id="detailsProfileImage" src="assets/icons/tenants-icon.png" alt="Profile" class="profile-image">
+            <div class="modal-header">
+                <h2>Add New Tenant</h2>
+                <button class="close-btn" onclick="closeAddTenantModal()">&times;</button>
             </div>
-            <div class="details-content">
-                <div class="form-sections">
-                    <div class="form-section">
-                        <div class="section-title">Personal Information</div>
-                        <p><span class="details-label">Full Name:</span> <span id="detailsName"></span></p>
-                        <p><span class="details-label">Email:</span> <span id="detailsEmail"></span></p>
-                        <p><span class="details-label">Mobile:</span> <span id="detailsMobile"></span></p>
-                        <p><span class="details-label">Birthday:</span> <span id="detailsBirthday"></span></p>
-                        <p><span class="details-label">Marital Status:</span> <span id="detailsMaritalStatus"></span></p>
-                        <p><span class="details-label">Sex:</span> <span id="detailsSex"></span></p>
-                    </div>
-                    
-                    <div class="form-section">
-                        <div class="section-title">Emergency Contact</div>
-                        <p><span class="details-label">Contact Name:</span> <span id="detailsEmergencyName"></span></p>
-                        <p><span class="details-label">Email:</span> <span id="detailsEmergencyEmail"></span></p>
-                        <p><span class="details-label">Mobile:</span> <span id="detailsEmergencyMobile"></span></p>
-                        <p><span class="details-label">Relationship:</span> <span id="detailsEmergencyRelation"></span></p>
-                    </div>
-
-                    <div class="form-section">
-                        <div class="section-title">Unit Information</div>
-                        <p><span class="details-label">Unit Number:</span> <span id="detailsUnitNumber"></span></p>
-                        <p><span class="details-label">Rent Status:</span> <span id="detailsRentStatus"></span></p>
-                        <p class="unit-info-message">Unit information is managed in the Unit Management page.</p>
-                    </div>
+            <form id="addTenantForm">
+                <div class="form-group">
+                    <label for="fullName">Full Name</label>
+                    <input type="text" id="fullName" required>
                 </div>
-            </div>
-            <div class="modal-buttons">
-                <button class="modal-button cancel-button" onclick="closeModal('detailsModal')">Close</button>
-            </div>
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="mobile">Mobile Number</label>
+                    <input type="tel" id="mobile" required>
+                </div>
+                <div class="form-group">
+                    <label for="emergencyName">Emergency Contact Name</label>
+                    <input type="text" id="emergencyName" required>
+                </div>
+                <div class="form-group">
+                    <label for="emergencyMobile">Emergency Contact Number</label>
+                    <input type="tel" id="emergencyMobile" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeAddTenantModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Add Tenant</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -749,87 +915,65 @@
         }
 
         function loadTenantsToTable() {
-            const tbody = document.getElementById('tenantsTable').getElementsByTagName('tbody')[0];
+            const tbody = document.getElementById('tenantsTableBody');
             tbody.innerHTML = '';
             
             tenantDatabase.forEach(tenant => {
-                const newRow = tbody.insertRow();
-                newRow.onclick = function() { selectRow(this); };
-                newRow.innerHTML = `
+                const row = tbody.insertRow();
+                row.innerHTML = `
                     <td>${tenant.name}</td>
-                    <td>${tenant.email}</td>
-                    <td>${tenant.mobile}</td>
                     <td>${tenant.unit || 'Not Assigned'}</td>
-                    <td><span class="rent-status status-${tenant.status || 'pending'}">${tenant.status ? tenant.status.charAt(0).toUpperCase() + tenant.status.slice(1) : 'Not Assigned'}</span></td>
+                    <td>${tenant.contact}</td>
+                    <td>${new Date(tenant.moveInDate).toLocaleDateString()}</td>
+                    <td>
+                        <span class="status-badge status-${tenant.status ? tenant.status.toLowerCase() : 'pending'}">
+                            ${tenant.status ? tenant.status.charAt(0).toUpperCase() + tenant.status.slice(1) : 'Not Assigned'}
+                        </span>
+                    </td>
+                    <td class="row-actions">
+                        <button class="row-action-btn" onclick="showTenantDetails('${tenant.id}')">
+                            <img src="assets/icons/details-icon.png" alt="details">
+                        </button>
+                        <button class="row-action-btn" onclick="showEditTenantModal('${tenant.id}')">
+                            <img src="assets/icons/update-icon.png" alt="edit">
+                        </button>
+                        <button class="row-action-btn" onclick="confirmDeleteTenant('${tenant.id}')">
+                            <img src="assets/icons/remove-icon.png" alt="delete">
+                        </button>
+                    </td>
                 `;
             });
         }
 
-        function selectRow(row) {
-            if (selectedRow) {
-                selectedRow.classList.remove('selected');
-            }
-            row.classList.add('selected');
-            selectedRow = row;
+        function filterTenants() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const rows = document.getElementById('tenantsTableBody').getElementsByTagName('tr');
+
+            Array.from(rows).forEach(row => {
+                const name = row.cells[0].textContent.toLowerCase();
+                const status = row.cells[4].textContent.trim().toLowerCase();
+                const matchesSearch = name.includes(searchTerm);
+                const matchesStatus = statusFilter === 'all' || status === statusFilter;
+                row.style.display = matchesSearch && matchesStatus ? '' : 'none';
+            });
         }
 
-        function showAddModal() {
-            document.getElementById('addModal').style.display = 'block';
+        function showAddTenantModal() {
+            document.getElementById('addTenantModal').style.display = 'block';
             document.getElementById('newProfilePreview').src = 'assets/icons/tenants-icon.png';
         }
 
-        function showUpdateModal() {
-            if (!selectedRow) {
-                alert('Please select a tenant to update');
-                return;
-            }
-            const index = Array.from(selectedRow.parentNode.children).indexOf(selectedRow);
-            const tenant = tenantDatabase[index];
-            
-            // Fill in all fields
-            document.getElementById('updateProfilePreview').src = tenant.profileImage || 'assets/icons/tenants-icon.png';
-            document.getElementById('updateTenantName').value = tenant.name;
-            document.getElementById('updateEmail').value = tenant.email;
-            document.getElementById('updateMobile').value = tenant.mobile;
-            document.getElementById('updateBirthday').value = tenant.birthday;
-            document.getElementById('updateMaritalStatus').value = tenant.maritalStatus;
-            document.getElementById('updateSex').value = tenant.sex;
-            document.getElementById('updateEmergencyName').value = tenant.emergencyName;
-            document.getElementById('updateEmergencyEmail').value = tenant.emergencyEmail;
-            document.getElementById('updateEmergencyMobile').value = tenant.emergencyMobile;
-            document.getElementById('updateEmergencyRelation').value = tenant.emergencyRelation;
-            
-            // Display current unit information
-            document.getElementById('displayUnitNumber').textContent = tenant.unit || 'Not Assigned';
-            document.getElementById('displayRentStatus').textContent = tenant.status ? tenant.status.charAt(0).toUpperCase() + tenant.status.slice(1) : 'N/A';
-            
-            document.getElementById('updateModal').style.display = 'block';
+        function showEditTenantModal(id) {
+            // Implement the logic to show the edit tenant modal
         }
 
-        function showDetailsModal() {
-            if (!selectedRow) {
-                alert('Please select a tenant to view details');
-                return;
-            }
-            const index = Array.from(selectedRow.parentNode.children).indexOf(selectedRow);
-            const tenant = tenantDatabase[index];
-            
-            // Fill in all details including profile image
-            document.getElementById('detailsProfileImage').src = tenant.profileImage || 'assets/icons/tenants-icon.png';
-            document.getElementById('detailsName').textContent = tenant.name;
-            document.getElementById('detailsEmail').textContent = tenant.email;
-            document.getElementById('detailsMobile').textContent = tenant.mobile;
-            document.getElementById('detailsBirthday').textContent = tenant.birthday;
-            document.getElementById('detailsMaritalStatus').textContent = tenant.maritalStatus;
-            document.getElementById('detailsSex').textContent = tenant.sex;
-            document.getElementById('detailsEmergencyName').textContent = tenant.emergencyName;
-            document.getElementById('detailsEmergencyEmail').textContent = tenant.emergencyEmail;
-            document.getElementById('detailsEmergencyMobile').textContent = tenant.emergencyMobile;
-            document.getElementById('detailsEmergencyRelation').textContent = tenant.emergencyRelation;
-            document.getElementById('detailsUnitNumber').textContent = tenant.unit || 'Not Assigned';
-            document.getElementById('detailsRentStatus').textContent = tenant.status ? tenant.status.charAt(0).toUpperCase() + tenant.status.slice(1) : 'N/A';
-            
-            document.getElementById('detailsModal').style.display = 'block';
+        function showTenantDetails(id) {
+            // Implement the logic to show tenant details
+        }
+
+        function confirmDeleteTenant(id) {
+            // Implement the logic to confirm tenant deletion
         }
 
         function closeModal(modalId) {
@@ -1014,6 +1158,215 @@
                 });
             }
         });
+
+        // Add this function to verify tenant data
+        async function verifyTenantData() {
+            const tenants = await window.dataAPI.getData('tenants');
+            console.log('Current tenants in system:', tenants);
+        }
+
+        // Add this function to handle tenant form submission
+        async function handleAddTenant(event) {
+            event.preventDefault();
+            
+            try {
+                const newTenant = {
+                    id: Date.now().toString(),
+                    fullName: document.getElementById('fullName').value,
+                    email: document.getElementById('email').value,
+                    mobile: document.getElementById('mobile').value,
+                    emergency: {
+                        name: document.getElementById('emergencyName').value,
+                        mobile: document.getElementById('emergencyMobile').value
+                    },
+                    profilePicture: document.getElementById('profilePreview').src,
+                    dateAdded: new Date().toISOString()
+                };
+
+                const existingTenants = await window.dataAPI.getData('tenants') || [];
+                const updatedTenants = [...existingTenants, newTenant];
+                await window.dataAPI.saveData('tenants', updatedTenants);
+
+                closeAddTenantModal();
+                await initializeTenants();
+                alert('Tenant added successfully!');
+            } catch (error) {
+                console.error('Error adding tenant:', error);
+                alert('Failed to add tenant. Please try again.');
+            }
+        }
+
+        // Add event listeners when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('addTenantForm');
+            if (form) {
+                form.addEventListener('submit', handleAddTenant);
+            }
+        });
+
+        function closeAddTenantModal() {
+            document.getElementById('addTenantModal').style.display = 'none';
+            document.getElementById('addTenantForm').reset();
+            document.getElementById('profilePreview').src = 'assets/icons/profile-icon.png';
+        }
+
+        // Add this function to initialize and display tenants
+        async function initializeTenants() {
+            try {
+                const tenants = await window.dataAPI.getData('tenants') || [];
+                const tableBody = document.querySelector('table tbody');
+                tableBody.innerHTML = '';
+
+                tenants.forEach(tenant => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${tenant.fullName}</td>
+                        <td>${tenant.unit || 'Not Assigned'}</td>
+                        <td>${tenant.mobile || 'No Contact'}</td>
+                        <td>${tenant.moveInDate || 'Not Set'}</td>
+                        <td class="status-cell">
+                            <span class="status-badge ${tenant.unit ? 'assigned' : 'not-assigned'}">
+                                ${tenant.unit ? 'Assigned' : 'Not Assigned'}
+                            </span>
+                        </td>
+                        <td class="actions-cell">
+                            <button class="action-btn" onclick="showTenantDetails('${tenant.id}')">
+                                <img src="assets/icons/details-icon.png" alt="Details">
+                            </button>
+                            <button class="action-btn" onclick="showEditTenantModal('${tenant.id}')">
+                                <img src="assets/icons/update-icon.png" alt="Edit">
+                            </button>
+                            <button class="action-btn" onclick="confirmDeleteTenant('${tenant.id}')">
+                                <img src="assets/icons/remove-icon.png" alt="Delete">
+                            </button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error loading tenants:', error);
+            }
+        }
+
+        // Function to show tenant details
+        async function showTenantDetails(tenantId) {
+            try {
+                const tenants = await window.dataAPI.getData('tenants');
+                const tenant = tenants.find(t => t.id === tenantId);
+                if (!tenant) return;
+
+                const detailsModal = document.getElementById('tenantDetailsModal');
+                const detailsContent = document.getElementById('tenantDetailsContent');
+                
+                detailsContent.innerHTML = `
+                    <div class="details-header">
+                        <h3>Tenant Details</h3>
+                    </div>
+                    <div class="details-body">
+                        <div class="detail-row">
+                            <span class="detail-label">Full Name:</span>
+                            <span class="detail-value">${tenant.fullName}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Email:</span>
+                            <span class="detail-value">${tenant.email || 'Not provided'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Mobile:</span>
+                            <span class="detail-value">${tenant.mobile || 'Not provided'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Emergency Contact:</span>
+                            <span class="detail-value">${tenant.emergency?.name || 'Not provided'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Emergency Number:</span>
+                            <span class="detail-value">${tenant.emergency?.mobile || 'Not provided'}</span>
+                        </div>
+                    </div>
+                `;
+
+                detailsModal.style.display = 'block';
+            } catch (error) {
+                console.error('Error showing tenant details:', error);
+            }
+        }
+
+        // Function to show edit modal
+        async function showEditTenantModal(tenantId) {
+            try {
+                const tenants = await window.dataAPI.getData('tenants');
+                const tenant = tenants.find(t => t.id === tenantId);
+                if (!tenant) return;
+
+                // Fill the edit form with tenant data
+                document.getElementById('fullName').value = tenant.fullName || '';
+                document.getElementById('email').value = tenant.email || '';
+                document.getElementById('mobile').value = tenant.mobile || '';
+                document.getElementById('emergencyName').value = tenant.emergency?.name || '';
+                document.getElementById('emergencyMobile').value = tenant.emergency?.mobile || '';
+
+                // Update form submission handler
+                const form = document.getElementById('addTenantForm');
+                form.onsubmit = (e) => handleEditTenant(e, tenantId);
+
+                // Update modal title and button
+                document.querySelector('.modal-header h2').textContent = 'Edit Tenant';
+                document.querySelector('.btn-primary').textContent = 'Save Changes';
+
+                // Show the modal
+                document.getElementById('addTenantModal').style.display = 'block';
+            } catch (error) {
+                console.error('Error showing edit modal:', error);
+            }
+        }
+
+        // Function to handle tenant editing
+        async function handleEditTenant(event, tenantId) {
+            event.preventDefault();
+            
+            try {
+                const tenants = await window.dataAPI.getData('tenants');
+                const updatedTenant = {
+                    id: tenantId,
+                    fullName: document.getElementById('fullName').value,
+                    email: document.getElementById('email').value,
+                    mobile: document.getElementById('mobile').value,
+                    emergency: {
+                        name: document.getElementById('emergencyName').value,
+                        mobile: document.getElementById('emergencyMobile').value
+                    }
+                };
+
+                const updatedTenants = tenants.map(t => 
+                    t.id === tenantId ? { ...t, ...updatedTenant } : t
+                );
+
+                await window.dataAPI.saveData('tenants', updatedTenants);
+                closeAddTenantModal();
+                await initializeTenants();
+                alert('Tenant updated successfully!');
+            } catch (error) {
+                console.error('Error updating tenant:', error);
+                alert('Failed to update tenant. Please try again.');
+            }
+        }
+
+        // Function to delete tenant
+        async function confirmDeleteTenant(tenantId) {
+            if (confirm('Are you sure you want to delete this tenant?')) {
+                try {
+                    const tenants = await window.dataAPI.getData('tenants');
+                    const updatedTenants = tenants.filter(t => t.id !== tenantId);
+                    await window.dataAPI.saveData('tenants', updatedTenants);
+                    await initializeTenants();
+                    alert('Tenant deleted successfully!');
+                } catch (error) {
+                    console.error('Error deleting tenant:', error);
+                    alert('Failed to delete tenant. Please try again.');
+                }
+            }
+        }
     </script>
 </body>
 </html>
