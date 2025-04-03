@@ -52,14 +52,11 @@
         .dashboard-label {
             color: white;
             font-size: 20px;
-        }
-
-        .search-bar {
-            width: 300px;
-            padding: 8px;
-            border: none;
-            border-radius: 5px;
-            background-color: rgba(255, 255, 255, 0.9);
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: capitalize;
+            margin-left: 15px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         .sidebar {
@@ -82,17 +79,18 @@
             cursor: pointer;
             text-decoration: none;
             color: inherit;
+            transition: background-color 0.2s;
             gap: 10px;
-        }
-
-        .nav-item:hover {
-            background-color: #478778;
             border-radius: 5px;
-            color: white;
         }
 
-        .nav-item:hover .nav-icon {
-            filter: brightness(0) invert(1);
+        .nav-item:hover, .nav-item.active {
+            background-color: #90EE90;
+            color: black;
+        }
+
+        .nav-item:hover .nav-icon, .nav-item.active .nav-icon {
+            filter: brightness(0);
         }
 
         .nav-icon {
@@ -105,68 +103,100 @@
             margin-left: 200px;
             margin-top: 60px;
             padding: 20px;
+            min-height: calc(100vh - 60px);
+            background-color: rgba(255, 255, 255, 0.1);
         }
 
-        .units-table, .appliances-table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: rgba(255, 255, 255, 0.9);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
+        .units-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 20px;
+            padding: 20px;
         }
 
-        .units-table th, .units-table td,
-        .appliances-table th, .appliances-table td {
-            padding: 12px;
-            text-align: left;
-            border: 1px solid #ddd;
-        }
-
-        .units-table th, .appliances-table th {
-            background-color: #478778;
-            color: white;
-        }
-
-        .units-table tr:nth-child(even),
-        .appliances-table tr:nth-child(even) {
-            background-color: rgba(240, 255, 235, 0.5);
-        }
-
-        .status-available {
-            color: #2A9D8F;
-            font-weight: bold;
-        }
-
-        .status-unavailable {
-            color: #dc3545;
-            font-weight: bold;
-        }
-
-        .add-unit-button, .update-unit-button, .remove-unit-button, .add-item-button, .update-item-button, .remove-item-button {
-            padding: 10px 20px;
-            background-color: #2A9D8F;
-            color: white;
-            border: none;
-            border-radius: 5px;
+        .add-unit-card {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            height: 180px;
+            width: 180px;
+            padding: 15px;
+        }
+
+        .add-icon {
+            font-size: 32px;
+            color: #478778;
+        }
+
+        .building-card {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 8px;
+            position: relative;
+            padding: 8px;
+        }
+
+        .delete-building {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: #ff6b6b;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s ease;
             font-size: 16px;
-            margin-bottom: 20px;
-            margin-right: 10px;
+            border: none;
+            padding: 0;
         }
 
-        .remove-unit-button, .remove-item-button {
-            background-color: #dc3545;
+        .building-card:hover .delete-building {
+            opacity: 1;
         }
 
-        .add-unit-button:hover, .update-unit-button:hover, .add-item-button:hover, .update-item-button:hover {
-            background-color: #478778;
+        .delete-building:hover {
+            background-color: #ff5252;
         }
 
-        .remove-unit-button:hover, .remove-item-button:hover {
-            background-color: #c82333;
+        .building-icon {
+            font-size: 32px;
+            color: #478778;
+            margin-bottom: 8px;
         }
 
-        /* Modal styles */
+        .building-name {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 150px;
+            line-height: 1.2;
+        }
+
+        .building-units {
+            font-size: 14px;
+            color: #478778;
+            line-height: 1.2;
+        }
+
         .modal {
             display: none;
             position: fixed;
@@ -174,57 +204,135 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.5);
+            background-color: rgba(0, 0, 0, 0.5);
             z-index: 1000;
         }
 
         .modal-content {
             position: relative;
-            background-color: #fff;
-            margin: 15% auto;
-            padding: 20px;
-            width: 50%;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background-color: white;
+            margin: 2% auto;
+            padding: 40px 50px;
+            width: 98%;
+            max-width: 1200px;
+            max-height: 95vh;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
         }
 
-        .close {
+        .close-modal {
             position: absolute;
             right: 20px;
-            top: 10px;
+            top: 20px;
             font-size: 24px;
             cursor: pointer;
+            color: #666;
         }
 
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
         }
 
         .form-group input, .form-group select {
             width: 100%;
-            padding: 8px;
+            padding: 10px;
             border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
-        .submit-button {
-            padding: 10px 20px;
-            background-color: #2A9D8F;
-            color: white;
-            border: none;
             border-radius: 5px;
-            cursor: pointer;
             font-size: 16px;
         }
 
-        .submit-button:hover {
+        .submit-button {
             background-color: #478778;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .submit-button:hover {
+            background-color: #2A9D8F;
+        }
+
+        .notification {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background-color: #f8f9fa;
+            border-left: 4px solid #2A9D8F;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 9999;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+            }
+            to {
+                transform: translateX(0);
+            }
+        }
+
+        .confirm-dialog {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1001;
+            text-align: center;
+        }
+
+        .confirm-dialog-buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .confirm-dialog button {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .confirm-dialog .confirm-yes {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .confirm-dialog .confirm-no {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .confirm-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
         }
     </style>
 </head>
@@ -232,14 +340,25 @@
     <div class="header">
         <div class="header-left">
             <img src="Rentmatic-Logo.png" alt="Rentmatic" class="logo">
-            <div class="dashboard-label">Units</div>
-            <input type="text" class="search-bar" placeholder="Search...">
+            <div class="dashboard-label">Buildings</div>
         </div>
     </div>
     <div class="sidebar">
         <a href="dashboard.html" class="nav-item">
             <img src="dashboard-icon.png" alt="" class="nav-icon">
-            <span>Dashboard</span>
+            <span>Home</span>
+        </a>
+        <a href="ai-assistant.html" class="nav-item">
+            <img src="ai-icon.png" alt="" class="nav-icon">
+            <span>AI Assistant</span>
+        </a>
+        <a href="tenants.html" class="nav-item">
+            <img src="tenants-icon.png" alt="" class="nav-icon">
+            <span>Tenants</span>
+        </a>
+        <a href="units.html" class="nav-item active">
+            <img src="units-icon.png" alt="" class="nav-icon">
+            <span>Unit Management</span>
         </a>
         <a href="messages.html" class="nav-item">
             <img src="messages-icon.png" alt="" class="nav-icon">
@@ -252,613 +371,208 @@
     </div>
 
     <div class="main-content">
-        <button class="add-unit-button" onclick="showAddUnitModal()">Add Unit</button>
-        <button class="update-unit-button" onclick="showUpdateUnitModal()">Update Unit</button>
-        <button class="remove-unit-button" onclick="showRemoveUnitModal()">Remove Unit</button>
-        <table class="units-table">
-            <thead>
-                <tr>
-                    <th>Unit Number</th>
-                    <th>Status</th>
-                    <th>Bedrooms</th>
-                    <th>Bathrooms</th>
-                    <th>Payment Period</th>
-                    <th>Price (PHP)</th>
-                    <th>Tenant</th>
-                </tr>
-            </thead>
-            <tbody id="unitsTableBody">
-            </tbody>
-        </table>
-
-        <button class="add-item-button" onclick="showAddItemModal()">Add Item</button>
-        <button class="update-item-button" onclick="showUpdateItemModal()">Update Item</button>
-        <button class="remove-item-button" onclick="showRemoveItemModal()">Remove Item</button>
-        <table class="appliances-table">
-            <thead>
-                <tr>
-                    <th>Item</th>
-                    <th>Quantity</th>
-                </tr>
-            </thead>
-            <tbody id="itemsTableBody">
-            </tbody>
-        </table>
+        <div class="units-grid" id="unitsGrid">
+            <!-- Add Building Card -->
+            <div class="add-unit-card" onclick="showAddBuildingModal()">
+                <div class="add-icon">+</div>
+            </div>
+        </div>
     </div>
 
-    <!-- Add Unit Modal -->
+    <!-- Add Building Modal -->
     <div id="addUnitModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <h2>Add Unit</h2>
-            <form id="addUnitForm" onsubmit="handleAddUnit(event)">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h2>Add New Building</h2>
+            <form id="addUnitForm" onsubmit="handleAddBuilding(event)">
                 <div class="form-group">
-                    <label for="unitNumber">Unit Number:</label>
-                    <input type="text" id="unitNumber" required>
+                    <label for="buildingName">Building Name</label>
+                    <input type="text" id="buildingName" required>
                 </div>
-                <div class="form-group">
-                    <label for="bedrooms">Number of Bedrooms:</label>
-                    <input type="number" id="bedrooms" min="1" required>
-                </div>
-                <div class="form-group">
-                    <label for="bathrooms">Number of Bathrooms:</label>
-                    <input type="number" id="bathrooms" min="1" required>
-                </div>
-                <div class="form-group">
-                    <label for="paymentPeriod">Payment Period:</label>
-                    <select id="paymentPeriod" onchange="updatePrice('add')" required>
-                        <option value="daily">Daily</option>
-                        <option value="weekly">Weekly</option>
-                        <option value="monthly" selected>Monthly</option>
-                        <option value="yearly">Yearly</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="price">Price (PHP):</label>
-                    <input type="number" id="price" min="0" required>
-                </div>
-                <div class="form-group">
-                    <label for="tenant">Assign Tenant:</label>
-                    <select id="tenant">
-                        <option value="">Room Available</option>
-                    </select>
-                </div>
-                <button type="submit" class="submit-button">Add Unit</button>
+                <button type="submit" class="submit-button">Add Building</button>
             </form>
         </div>
     </div>
 
-    <!-- Update Unit Modal -->
-    <div id="updateUnitModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <h2>Update Unit</h2>
-            <form id="updateUnitForm" onsubmit="handleUpdateUnit(event)">
-                <div class="form-group">
-                    <label for="updateUnitNumber">Select Unit:</label>
-                    <select id="updateUnitNumber" required onchange="populateUnitData()">
-                        <option value="">Select a unit</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="updateBedrooms">Number of Bedrooms:</label>
-                    <input type="number" id="updateBedrooms" min="1" required>
-                </div>
-                <div class="form-group">
-                    <label for="updateBathrooms">Number of Bathrooms:</label>
-                    <input type="number" id="updateBathrooms" min="1" required>
-                </div>
-                <div class="form-group">
-                    <label for="updatePaymentPeriod">Payment Period:</label>
-                    <select id="updatePaymentPeriod" onchange="updatePrice('update')" required>
-                        <option value="daily">Daily</option>
-                        <option value="weekly">Weekly</option>
-                        <option value="monthly" selected>Monthly</option>
-                        <option value="yearly">Yearly</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="updatePrice">Price (PHP):</label>
-                    <input type="number" id="updatePrice" min="0" required>
-                </div>
-                <div class="form-group">
-                    <label for="updateTenant">Assign Tenant:</label>
-                    <select id="updateTenant">
-                        <option value="">Room Available</option>
-                    </select>
-                </div>
-                <button type="submit" class="submit-button">Update Unit</button>
-            </form>
-        </div>
-    </div>
+    <div id="notification" class="notification"></div>
 
-    <!-- Remove Unit Modal -->
-    <div id="removeUnitModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <h2>Remove Unit</h2>
-            <form id="removeUnitForm" onsubmit="handleRemoveUnit(event)">
-                <div class="form-group">
-                    <label for="removeUnitNumber">Select Unit to Remove:</label>
-                    <select id="removeUnitNumber" required>
-                        <option value="">Select a unit</option>
-                    </select>
-                </div>
-                <button type="submit" class="submit-button" style="background-color: #dc3545;">Remove Unit</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Add Item Modal -->
-    <div id="addItemModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <h2>Add Item</h2>
-            <form id="addItemForm" onsubmit="handleAddItem(event)">
-                <div class="form-group">
-                    <label for="itemName">Item Name:</label>
-                    <input type="text" id="itemName" required>
-                </div>
-                <div class="form-group">
-                    <label for="itemQuantity">Quantity:</label>
-                    <input type="number" id="itemQuantity" min="1" required>
-                </div>
-                <button type="submit" class="submit-button">Add Item</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Update Item Modal -->
-    <div id="updateItemModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <h2>Update Item</h2>
-            <form id="updateItemForm" onsubmit="handleUpdateItem(event)">
-                <div class="form-group">
-                    <label for="updateItemSelect">Select Item:</label>
-                    <select id="updateItemSelect" required onchange="populateItemData()">
-                        <option value="">Select an item</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="updateItemQuantity">Quantity:</label>
-                    <input type="number" id="updateItemQuantity" min="1" required>
-                </div>
-                <button type="submit" class="submit-button">Update Item</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Remove Item Modal -->
-    <div id="removeItemModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <h2>Remove Item</h2>
-            <form id="removeItemForm" onsubmit="handleRemoveItem(event)">
-                <div class="form-group">
-                    <label for="removeItemSelect">Select Item to Remove:</label>
-                    <select id="removeItemSelect" required>
-                        <option value="">Select an item</option>
-                    </select>
-                </div>
-                <button type="submit" class="submit-button" style="background-color: #dc3545;">Remove Item</button>
-            </form>
+    <div class="confirm-overlay" id="confirmOverlay"></div>
+    <div class="confirm-dialog" id="confirmDialog">
+        <p id="confirmMessage"></p>
+        <div class="confirm-dialog-buttons">
+            <button class="confirm-no" onclick="handleConfirmResponse(false)">Cancel</button>
+            <button class="confirm-yes" onclick="handleConfirmResponse(true)">Delete</button>
         </div>
     </div>
 
     <script>
-        // Store tenants data globally
-        let tenantsData = [];
-        let unitsData = [];
-        let itemsData = [];
-
-        // Load data from localStorage on page load
-        window.addEventListener('load', () => {
-            tenantsData = JSON.parse(localStorage.getItem('tenants')) || [];
-            unitsData = JSON.parse(localStorage.getItem('units')) || [];
-            itemsData = JSON.parse(localStorage.getItem('items')) || [];
-            displayUnits();
-            displayItems();
-        });
-
-        function updatePrice(mode) {
-            const periodSelect = mode === 'add' ? 
-                document.getElementById('paymentPeriod') : 
-                document.getElementById('updatePaymentPeriod');
-            const priceInput = mode === 'add' ? 
-                document.getElementById('price') : 
-                document.getElementById('updatePrice');
-            
-            const currentPrice = parseFloat(priceInput.value) || 0;
-            const period = periodSelect.value;
-            
-            // Convert current price to daily rate first
-            let dailyRate;
-            if(period === 'yearly') {
-                dailyRate = currentPrice / 365;
-            } else if(period === 'monthly') {
-                dailyRate = currentPrice / 30;
-            } else if(period === 'weekly') {
-                dailyRate = currentPrice / 7;
-            } else {
-                dailyRate = currentPrice;
-            }
-            
-            // Convert daily rate to selected period
-            let newPrice;
-            if(periodSelect.value === 'yearly') {
-                newPrice = dailyRate * 365;
-            } else if(periodSelect.value === 'monthly') {
-                newPrice = dailyRate * 30;
-            } else if(periodSelect.value === 'weekly') {
-                newPrice = dailyRate * 7;
-            } else {
-                newPrice = dailyRate;
-            }
-            
-            priceInput.value = Math.round(newPrice);
+        // Initialize buildings array from localStorage or create empty array
+        let buildings = [];
+        try {
+            const storedBuildings = window.api.getItem('buildings');
+            buildings = storedBuildings ? JSON.parse(storedBuildings) : [];
+        } catch (error) {
+            console.error('Error loading buildings:', error);
+            buildings = [];
         }
 
-        // Function to fetch and update tenants data
-        async function fetchTenantsData() {
-            tenantsData = JSON.parse(localStorage.getItem('tenants')) || [];
-        }
-
-        // Function to update tenant select options
-        function updateTenantSelect() {
-            const tenantSelect = document.getElementById('tenant');
-            tenantSelect.innerHTML = '<option value="">Room Available</option>';
-            
-            tenantsData.forEach(tenant => {
-                if (!tenant.assigned) {
-                    const option = document.createElement('option');
-                    option.value = tenant.name;
-                    option.textContent = tenant.name;
-                    tenantSelect.appendChild(option);
-                }
-            });
-        }
-
-        function showAddUnitModal() {
+        function showAddBuildingModal() {
             const modal = document.getElementById('addUnitModal');
-            modal.style.display = 'block';
-            
-            fetchTenantsData();
-            updateTenantSelect();
-        }
-
-        function showRemoveUnitModal() {
-            const modal = document.getElementById('removeUnitModal');
-            modal.style.display = 'block';
-            
-            const unitSelect = document.getElementById('removeUnitNumber');
-            unitSelect.innerHTML = '<option value="">Select a unit</option>';
-            
-            unitsData.forEach(unit => {
-                const option = document.createElement('option');
-                option.value = unit.unitNumber;
-                option.textContent = `Unit ${unit.unitNumber}`;
-                unitSelect.appendChild(option);
-            });
-        }
-
-        function populateUnitData() {
-            const selectedUnitNumber = document.getElementById('updateUnitNumber').value;
-            const selectedUnit = unitsData.find(unit => unit.unitNumber === selectedUnitNumber);
-            
-            if (selectedUnit) {
-                document.getElementById('updateBedrooms').value = selectedUnit.bedrooms;
-                document.getElementById('updateBathrooms').value = selectedUnit.bathrooms;
-                document.getElementById('updatePaymentPeriod').value = selectedUnit.paymentPeriod;
-                document.getElementById('updatePrice').value = selectedUnit.price;
-                
-                const updateTenantSelect = document.getElementById('updateTenant');
-                updateTenantSelect.innerHTML = '<option value="">Room Available</option>';
-                
-                // Add current tenant as first option if exists
-                if (selectedUnit.tenant) {
-                    const currentTenantOption = document.createElement('option');
-                    currentTenantOption.value = selectedUnit.tenant;
-                    currentTenantOption.textContent = selectedUnit.tenant;
-                    currentTenantOption.selected = true;
-                    updateTenantSelect.appendChild(currentTenantOption);
+            if (modal) {
+                modal.style.display = 'block';
+                const input = document.getElementById('buildingName');
+                if (input) {
+                    input.value = '';
+                    input.focus();
                 }
-                
-                // Add other available tenants
-                tenantsData.forEach(tenant => {
-                    if (!tenant.assigned || tenant.name === selectedUnit.tenant) {
-                        const option = document.createElement('option');
-                        option.value = tenant.name;
-                        option.textContent = tenant.name;
-                        updateTenantSelect.appendChild(option);
-                    }
+            }
+        }
+
+        function closeModal(modalId = 'addUnitModal') {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'none';
+                // Only reset form if it exists
+                const form = modal.querySelector('form');
+                if (form) {
+                    form.reset();
+                }
+            }
+        }
+
+        function displayBuildings() {
+            const grid = document.getElementById('unitsGrid');
+            
+            // Always start with the add button
+            grid.innerHTML = `
+                <div class="add-unit-card" onclick="showAddBuildingModal()">
+                    <div class="add-icon">+</div>
+                </div>
+            `;
+            
+            // Add each building card
+            if (buildings && buildings.length > 0) {
+                buildings.forEach(building => {
+                    const buildingCard = document.createElement('div');
+                    buildingCard.className = 'add-unit-card';
+                    buildingCard.innerHTML = `
+                        <div class="building-card" onclick="showBuildingDetails('${building.id}')">
+                            <button class="delete-building" onclick="event.stopPropagation(); deleteBuilding('${building.id}')">&times;</button>
+                            <div class="building-icon">🏢</div>
+                            <div class="building-name">${building.name}</div>
+                            <div class="building-units">${building.units ? building.units.length : 0} units</div>
+                </div>
+            `;
+                    grid.appendChild(buildingCard);
                 });
             }
+            
+            console.log('Displaying buildings:', buildings);
         }
 
-        function showUpdateUnitModal() {
-            const modal = document.getElementById('updateUnitModal');
-            modal.style.display = 'block';
+        function showNotification(message, duration = 3000) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.display = 'block';
             
-            const unitSelect = document.getElementById('updateUnitNumber');
-            unitSelect.innerHTML = '<option value="">Select a unit</option>';
-            
-            unitsData.forEach(unit => {
-                const option = document.createElement('option');
-                option.value = unit.unitNumber;
-                option.textContent = `Unit ${unit.unitNumber}`;
-                unitSelect.appendChild(option);
-            });
-            
-            fetchTenantsData();
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, duration);
         }
 
-        function showAddItemModal() {
-            const modal = document.getElementById('addItemModal');
-            modal.style.display = 'block';
+        function showConfirmDialog(message, callback) {
+            document.getElementById('confirmMessage').textContent = message;
+            document.getElementById('confirmDialog').style.display = 'block';
+            document.getElementById('confirmOverlay').style.display = 'block';
+            window.confirmCallback = callback;
         }
 
-        function showUpdateItemModal() {
-            const modal = document.getElementById('updateItemModal');
-            modal.style.display = 'block';
-            
-            const itemSelect = document.getElementById('updateItemSelect');
-            itemSelect.innerHTML = '<option value="">Select an item</option>';
-            
-            itemsData.forEach(item => {
-                const option = document.createElement('option');
-                option.value = item.name;
-                option.textContent = item.name;
-                itemSelect.appendChild(option);
-            });
-        }
-
-        function showRemoveItemModal() {
-            const modal = document.getElementById('removeItemModal');
-            modal.style.display = 'block';
-            
-            const itemSelect = document.getElementById('removeItemSelect');
-            itemSelect.innerHTML = '<option value="">Select an item</option>';
-            
-            itemsData.forEach(item => {
-                const option = document.createElement('option');
-                option.value = item.name;
-                option.textContent = item.name;
-                itemSelect.appendChild(option);
-            });
-        }
-
-        function populateItemData() {
-            const selectedItemName = document.getElementById('updateItemSelect').value;
-            const selectedItem = itemsData.find(item => item.name === selectedItemName);
-            
-            if (selectedItem) {
-                document.getElementById('updateItemQuantity').value = selectedItem.quantity;
+        function handleConfirmResponse(confirmed) {
+            document.getElementById('confirmDialog').style.display = 'none';
+            document.getElementById('confirmOverlay').style.display = 'none';
+            if (window.confirmCallback) {
+                window.confirmCallback(confirmed);
+                window.confirmCallback = null;
             }
         }
 
-        function closeModal() {
-            document.getElementById('addUnitModal').style.display = 'none';
-            document.getElementById('updateUnitModal').style.display = 'none';
-            document.getElementById('removeUnitModal').style.display = 'none';
-            document.getElementById('addItemModal').style.display = 'none';
-            document.getElementById('updateItemModal').style.display = 'none';
-            document.getElementById('removeItemModal').style.display = 'none';
-        }
-
-        function displayUnits() {
-            const unitsTableBody = document.getElementById('unitsTableBody');
-            unitsTableBody.innerHTML = '';
-            
-            unitsData.forEach(unit => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${unit.unitNumber}</td>
-                    <td class="${unit.tenant ? 'status-unavailable' : 'status-available'}">
-                        ${unit.tenant ? 'Unavailable' : 'Available'}
-                    </td>
-                    <td>${unit.bedrooms}</td>
-                    <td>${unit.bathrooms}</td>
-                    <td>${unit.paymentPeriod ? unit.paymentPeriod.charAt(0).toUpperCase() + unit.paymentPeriod.slice(1) : 'Monthly'}</td>
-                    <td>₱${Number(unit.price).toLocaleString()}</td>
-                    <td>${unit.tenant || 'None'}</td>
-                `;
-                unitsTableBody.appendChild(row);
+        function deleteBuilding(buildingId) {
+            showConfirmDialog('Are you sure you want to delete this building?', (confirmed) => {
+                if (confirmed) {
+                    console.log('Deleting building with ID:', buildingId);
+                    buildings = buildings.filter(building => building.id.toString() !== buildingId.toString());
+                    try {
+                        window.api.setItem('buildings', JSON.stringify(buildings));
+                        console.log('Updated buildings after delete:', buildings);
+                        displayBuildings();
+                        showNotification('Building deleted successfully');
+                    } catch (error) {
+                        console.error('Error deleting building:', error);
+                        showNotification('Error deleting building. Please try again.');
+                    }
+                }
             });
         }
 
-        function displayItems() {
-            const itemsTableBody = document.getElementById('itemsTableBody');
-            itemsTableBody.innerHTML = '';
-            
-            itemsData.forEach(item => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${item.name}</td>
-                    <td>${item.quantity}</td>
-                `;
-                itemsTableBody.appendChild(row);
-            });
-        }
-
-        function handleAddUnit(event) {
+        function handleAddBuilding(event) {
             event.preventDefault();
             
-            const unitNumber = document.getElementById('unitNumber').value;
-            const bedrooms = document.getElementById('bedrooms').value;
-            const bathrooms = document.getElementById('bathrooms').value;
-            const paymentPeriod = document.getElementById('paymentPeriod').value;
-            const price = document.getElementById('price').value;
-            const tenant = document.getElementById('tenant').value;
+            const buildingName = document.getElementById('buildingName').value.trim();
+            if (!buildingName) {
+                showNotification('Please enter a building name');
+                document.getElementById('buildingName').focus();
+                return false;
+            }
             
-            const newUnit = {
-                unitNumber,
-                bedrooms,
-                bathrooms,
-                paymentPeriod,
-                price,
-                tenant
+            // Check for duplicate building name
+            if (buildings.some(building => building.name === buildingName)) {
+                showNotification(`There's already a building named ${buildingName}`);
+                document.getElementById('buildingName').value = '';
+                document.getElementById('buildingName').focus();
+                    return false;
+            }
+            
+            const newBuilding = {
+                id: Date.now(),
+                name: buildingName,
+                units: []
             };
             
-            unitsData.push(newUnit);
-            localStorage.setItem('units', JSON.stringify(unitsData));
+            buildings.push(newBuilding);
             
-            if (tenant) {
-                const tenantIndex = tenantsData.findIndex(t => t.name === tenant);
-                if (tenantIndex !== -1) {
-                    tenantsData[tenantIndex].assigned = true;
-                    localStorage.setItem('tenants', JSON.stringify(tenantsData));
-                }
+            try {
+                window.api.setItem('buildings', JSON.stringify(buildings));
+                console.log('Added new building:', newBuilding);
+                console.log('Updated buildings array:', buildings);
+                
+                closeModal('addUnitModal');
+                displayBuildings();
+                showNotification('Building added successfully');
+            } catch (error) {
+                console.error('Error saving building:', error);
+                showNotification('Error saving building. Please try again.');
+                document.getElementById('buildingName').focus();
             }
             
-            displayUnits();
-            closeModal();
-            event.target.reset();
+            return false;
         }
 
-        function handleUpdateUnit(event) {
-            event.preventDefault();
-            
-            const unitNumber = document.getElementById('updateUnitNumber').value;
-            const bedrooms = document.getElementById('updateBedrooms').value;
-            const bathrooms = document.getElementById('updateBathrooms').value;
-            const paymentPeriod = document.getElementById('updatePaymentPeriod').value;
-            const price = document.getElementById('updatePrice').value;
-            const tenant = document.getElementById('updateTenant').value;
-            
-            const unitIndex = unitsData.findIndex(u => u.unitNumber === unitNumber);
-            if (unitIndex !== -1) {
-                const oldTenant = unitsData[unitIndex].tenant;
-                if (oldTenant) {
-                    const oldTenantIndex = tenantsData.findIndex(t => t.name === oldTenant);
-                    if (oldTenantIndex !== -1) {
-                        tenantsData[oldTenantIndex].assigned = false;
-                    }
-                }
-                
-                unitsData[unitIndex] = {
-                    unitNumber,
-                    bedrooms,
-                    bathrooms,
-                    paymentPeriod,
-                    price,
-                    tenant
-                };
-                
-                if (tenant) {
-                    const newTenantIndex = tenantsData.findIndex(t => t.name === tenant);
-                    if (newTenantIndex !== -1) {
-                        tenantsData[newTenantIndex].assigned = true;
-                    }
-                }
-                
-                localStorage.setItem('units', JSON.stringify(unitsData));
-                localStorage.setItem('tenants', JSON.stringify(tenantsData));
-                
-                displayUnits();
-            }
-            
-            closeModal();
-            event.target.reset();
-        }
-
-        function handleRemoveUnit(event) {
-            event.preventDefault();
-            
-            const unitNumber = document.getElementById('removeUnitNumber').value;
-            const unitIndex = unitsData.findIndex(u => u.unitNumber === unitNumber);
-            
-            if (unitIndex !== -1) {
-                const unit = unitsData[unitIndex];
-                if (unit.tenant) {
-                    const tenantIndex = tenantsData.findIndex(t => t.name === unit.tenant);
-                    if (tenantIndex !== -1) {
-                        tenantsData[tenantIndex].assigned = false;
-                        localStorage.setItem('tenants', JSON.stringify(tenantsData));
-                    }
-                }
-                
-                unitsData.splice(unitIndex, 1);
-                localStorage.setItem('units', JSON.stringify(unitsData));
-                displayUnits();
-            }
-            
-            closeModal();
-            event.target.reset();
-        }
-
-        function handleAddItem(event) {
-            event.preventDefault();
-            
-            const name = document.getElementById('itemName').value;
-            const quantity = document.getElementById('itemQuantity').value;
-            
-            const newItem = {
-                name,
-                quantity
-            };
-            
-            itemsData.push(newItem);
-            localStorage.setItem('items', JSON.stringify(itemsData));
-            
-            displayItems();
-            closeModal();
-            event.target.reset();
-        }
-
-        function handleUpdateItem(event) {
-            event.preventDefault();
-            
-            const name = document.getElementById('updateItemSelect').value;
-            const quantity = document.getElementById('updateItemQuantity').value;
-            
-            const itemIndex = itemsData.findIndex(item => item.name === name);
-            if (itemIndex !== -1) {
-                itemsData[itemIndex] = {
-                    name,
-                    quantity
-                };
-                
-                localStorage.setItem('items', JSON.stringify(itemsData));
-                displayItems();
-            }
-            
-            closeModal();
-            event.target.reset();
-        }
-
-        function handleRemoveItem(event) {
-            event.preventDefault();
-            
-            const name = document.getElementById('removeItemSelect').value;
-            const itemIndex = itemsData.findIndex(item => item.name === name);
-            
-            if (itemIndex !== -1) {
-                itemsData.splice(itemIndex, 1);
-                localStorage.setItem('items', JSON.stringify(itemsData));
-                displayItems();
-            }
-            
-            closeModal();
-            event.target.reset();
+        function showBuildingDetails(buildingId) {
+            // Store the current building ID in localStorage
+            window.api.setItem('currentBuildingId', buildingId);
+            // Navigate to the building details page
+            window.location.href = 'building-details.html';
         }
 
         // Close modal when clicking outside
         window.onclick = function(event) {
             if (event.target.classList.contains('modal')) {
-                closeModal();
+                closeModal(event.target.id);
             }
         }
 
-        // Listen for messages from tenants.html
-        window.addEventListener('message', function(event) {
-            if (event.data.type === 'unitAssigned') {
-                updateUnitStatus(event.data.unitNumber);
-            }
-        });
-
-        // Initial fetch of tenants data
-        fetchTenantsData();
+        // Display buildings when page loads
+        window.addEventListener('load', displayBuildings);
     </script>
 </body>
 </html>

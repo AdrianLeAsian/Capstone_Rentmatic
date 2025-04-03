@@ -171,6 +171,56 @@
         .close:hover {
             color: black;
         }
+
+        /* Custom Dialog Styles */
+        .custom-dialog-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .custom-dialog {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+
+        .custom-dialog h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .dialog-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .dialog-button {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+            background-color: #478778;
+            color: white;
+        }
+
+        .dialog-button:hover {
+            background-color: #3a7267;
+        }
     </style>
 </head>
 <body>
@@ -203,8 +253,12 @@
                 <input type="text" id="signupName" name="name" required>
             </div>
             <div class="form-group">
-                <label for="signupEmail">Username</label>
-                <input type="text" id="signupEmail" name="username" required>
+                <label for="signupEmail">Email</label>
+                <input type="email" id="signupEmail" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="signupUsername">Username</label>
+                <input type="text" id="signupUsername" name="username" required>
             </div>
             <div class="form-group">
                 <label for="signupPassword">Password</label>
@@ -217,7 +271,7 @@
             <button type="submit" class="signup-button">Sign Up</button>
         </form>
         <div class="switch-form">
-            Already have an account? <a onclick="toggleForms()">Log In</a>
+            <p>Already have an account? <a href="#" onclick="toggleForms(); return false;">Log In</a></p>
         </div>
     </div>
 
@@ -228,6 +282,17 @@
             <h2>Password Reset Email Sent</h2>
             <p>An email has been sent to your registered email address with instructions to reset your password.</p>
             <p>Please check your inbox and follow the instructions.</p>
+        </div>
+    </div>
+
+    <!-- Add this before the closing body tag -->
+    <div class="custom-dialog-overlay" id="successDialog">
+        <div class="custom-dialog">
+            <h3>Success!</h3>
+            <p>Account created successfully! Please log in.</p>
+            <div class="dialog-buttons">
+                <button class="dialog-button" onclick="closeSuccessDialog()">OK</button>
+            </div>
         </div>
     </div>
 
@@ -242,12 +307,28 @@
         function handleLogin(event) {
             event.preventDefault();
             
-            const email = document.getElementById('loginEmail').value;
+            const username = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
 
-            // Here you would typically validate credentials against stored user data
-            // For demo purposes, we'll just redirect to dashboard
-            window.location.href = 'dashboard.html';
+            // Get users from localStorage
+            const users = JSON.parse(window.api.getItem('users') || '[]');
+            
+            // Find user with matching credentials
+            const user = users.find(u => u.username === username && u.password === password);
+
+            if (user) {
+                // Login successful
+                showNotification('Login successful!', 'success');
+                // Store current user
+                window.api.setItem('currentUser', JSON.stringify(user));
+                // Redirect to dashboard after a short delay
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1000);
+            } else {
+                // Login failed
+                showNotification('Invalid username or password. Please create an account if you haven\'t already.', 'error');
+            }
             
             return false;
         }
@@ -257,20 +338,58 @@
             
             const name = document.getElementById('signupName').value;
             const email = document.getElementById('signupEmail').value;
+            const username = document.getElementById('signupUsername').value;
             const password = document.getElementById('signupPassword').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
 
+            // Validate passwords match
             if (password !== confirmPassword) {
-                alert("Passwords don't match!");
+                showNotification('Passwords don\'t match!', 'error');
                 return false;
             }
 
-            // Here you would typically store the user data
-            // For demo purposes, we'll just switch to login form
-            alert('Account created successfully! Please log in.');
-            toggleForms();
-            
-            return false;
+            try {
+                // Get existing users
+                const users = JSON.parse(window.api.getItem('users') || '[]');
+
+                // Check if username already exists
+                if (users.some(user => user.username === username)) {
+                    showNotification('Username already exists! Please choose another.', 'error');
+                    return false;
+                }
+
+                // Create new user
+                const newUser = {
+                    name,
+                    email,
+                    username,
+                    password,
+                    createdAt: new Date().toISOString()
+                };
+
+                // Add new user to users array
+                users.push(newUser);
+
+                // Save updated users array
+                const success = window.api.setItem('users', JSON.stringify(users));
+                
+                if (!success) {
+                    showNotification('Error creating account. Please try again.', 'error');
+                    return false;
+                }
+
+                // Show success message
+                showNotification('Account created successfully! Please log in.', 'success');
+                
+                // Show success dialog
+                showSuccessDialog();
+                
+                return false;
+            } catch (error) {
+                console.error('Error during signup:', error);
+                showNotification('An error occurred during signup. Please try again.', 'error');
+                return false;
+            }
         }
 
         function handleForgotPassword() {
@@ -289,6 +408,38 @@
             if (event.target == modal) {
                 modal.style.display = "none";
             }
+        }
+
+        function showSuccessDialog() {
+            document.getElementById('successDialog').style.display = 'flex';
+        }
+
+        function closeSuccessDialog() {
+            document.getElementById('successDialog').style.display = 'none';
+            // Clear the sign-up form
+            document.querySelector('.signup-form').reset();
+            // Switch to login form
+            toggleForms();
+        }
+
+        // Update notification function to handle different types
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.style.position = 'fixed';
+            notification.style.top = '20px';
+            notification.style.right = '20px';
+            notification.style.backgroundColor = type === 'success' ? '#478778' : '#ff4444';
+            notification.style.color = 'white';
+            notification.style.padding = '15px 25px';
+            notification.style.borderRadius = '5px';
+            notification.style.zIndex = '1000';
+            notification.textContent = message;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
         }
     </script>
 </body>

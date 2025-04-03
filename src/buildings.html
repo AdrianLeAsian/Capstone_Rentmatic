@@ -1,0 +1,22 @@
+<div class="top-bar">
+    <div class="logo">
+        <img src="assets/logo.png" alt="RentMatic">
+    </div>
+    <div class="page-title">Buildings</div>
+</div> 
+
+function handleAddBuilding(event) {
+    event.preventDefault();
+    
+    const buildingName = document.getElementById('buildingName').value;
+    const buildings = JSON.parse(window.api.getItem('buildings')) || [];
+    
+    // Check for duplicate building name
+    const duplicateExists = buildings.some(building => building.name === buildingName);
+    if (duplicateExists) {
+        alert(`There's already a building named ${buildingName}`);
+        return;
+    }
+    
+    // ... existing code ...
+} 

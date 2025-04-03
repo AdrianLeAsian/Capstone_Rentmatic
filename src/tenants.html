@@ -54,14 +54,11 @@
         .dashboard-label {
             color: white;
             font-size: 20px;
-        }
-
-        .search-bar {
-            width: 300px;
-            padding: 8px;
-            border: none;
-            border-radius: 5px;
-            background-color: rgba(255, 255, 255, 0.9);
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: capitalize;
+            margin-left: 15px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         .sidebar {
@@ -86,16 +83,16 @@
             color: inherit;
             transition: background-color 0.2s;
             gap: 10px;
-        }
-
-        .nav-item:hover {
-            background-color: var(--header-color);
             border-radius: 5px;
-            color: white;
         }
 
-        .nav-item:hover .nav-icon {
-            filter: brightness(0) invert(1);
+        .nav-item:hover, .nav-item.active {
+            background-color: #90EE90;
+            color: black;
+        }
+
+        .nav-item:hover .nav-icon, .nav-item.active .nav-icon {
+            filter: brightness(0);
         }
 
         .nav-icon {
@@ -112,16 +109,15 @@
 
         .action-buttons {
             display: flex;
-            gap: 30px;
-            justify-content: center;
-            margin-bottom: 40px;
+            gap: 10px;
+            margin-bottom: 20px;
         }
 
         .action-button {
-            width: 200px;
-            height: 200px;
+            width: 100px;
+            height: 100px;
             background-color: rgba(237, 237, 237, 0.8);
-            border-radius: 15px;
+            border-radius: 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -133,13 +129,13 @@
         }
 
         .action-button:hover {
-            transform: translateY(-5px);
+            transform: translateY(-3px);
         }
 
         .button-icon {
-            width: 80px;
-            height: 80px;
-            margin-bottom: 15px;
+            width: 40px;
+            height: 40px;
+            margin-bottom: 8px;
         }
 
         .add-icon {
@@ -154,17 +150,9 @@
             filter: invert(93%) sepia(100%) saturate(1352%) hue-rotate(360deg) brightness(109%) contrast(109%);
         }
 
-        .export-icon {
-            filter: invert(80%) sepia(11%) saturate(2000%) hue-rotate(177deg) brightness(99%) contrast(96%);
-        }
-
-        .details-icon {
-            filter: invert(60%) sepia(11%) saturate(2000%) hue-rotate(177deg) brightness(99%) contrast(96%);
-        }
-
         .button-title {
             color: #666973;
-            font-size: 18px;
+            font-size: 14px;
         }
 
         .tenants-table {
@@ -186,6 +174,35 @@
         .tenants-table td {
             padding: 12px 15px;
             border-bottom: 1px solid #eee;
+        }
+
+        .action-icon {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            margin: 0 5px;
+            display: none;
+        }
+
+        .action-icon.delete {
+            filter: invert(21%) sepia(100%) saturate(7414%) hue-rotate(359deg) brightness(94%) contrast(117%);
+        }
+
+        .action-icon.update {
+            filter: invert(48%) sepia(82%) saturate(382%) hue-rotate(127deg) brightness(90%) contrast(85%);
+        }
+
+        .show-delete .action-icon.delete {
+            display: inline-block;
+        }
+
+        .show-update .action-icon.update {
+            display: inline-block;
+        }
+
+        .actions-cell {
+            text-align: center;
+            min-width: 80px;
         }
 
         .tenants-table tr:last-child td {
@@ -337,6 +354,170 @@
             cursor: pointer;
             margin-top: 10px;
         }
+
+        /* Details Modal Styles */
+        .details-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .details-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 800px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .details-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .details-header img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin-right: 20px;
+            object-fit: cover;
+            border: 3px solid var(--header-color);
+        }
+
+        .details-header h2 {
+            color: var(--header-color);
+            margin: 0;
+        }
+
+        .details-sections {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .details-section {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .details-section h3 {
+            color: var(--header-color);
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .details-field {
+            margin-bottom: 10px;
+        }
+
+        .details-label {
+            font-weight: bold;
+            color: #666;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .details-value {
+            color: #333;
+        }
+
+        .details-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .details-close:hover {
+            color: #333;
+        }
+
+        .notification {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background-color: #f8f9fa;
+            border-left: 4px solid #2A9D8F;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 9999;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+            }
+            to {
+                transform: translateX(0);
+            }
+        }
+
+        /* Add this CSS after the notification styles */
+        .confirm-dialog {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1001;
+            text-align: center;
+        }
+
+        .confirm-dialog-buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .confirm-dialog button {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .confirm-dialog .confirm-yes {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .confirm-dialog .confirm-no {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .confirm-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
     </style>
 </head>
 <body>
@@ -344,13 +525,24 @@
         <div class="header-left">
             <img src="Rentmatic-Logo.png" alt="Rentmatic" class="logo">
             <div class="dashboard-label">Tenants</div>
-            <input type="text" class="search-bar" placeholder="Search...">
         </div>
     </div>
     <div class="sidebar">
         <a href="dashboard.html" class="nav-item">
             <img src="dashboard-icon.png" alt="" class="nav-icon">
-            <span>Dashboard</span>
+            <span>Home</span>
+        </a>
+        <a href="ai-assistant.html" class="nav-item">
+            <img src="ai-icon.png" alt="" class="nav-icon">
+            <span>AI Assistant</span>
+        </a>
+        <a href="tenants.html" class="nav-item active">
+            <img src="tenants-icon.png" alt="" class="nav-icon">
+            <span>Tenants</span>
+        </a>
+        <a href="units.html" class="nav-item">
+            <img src="units-icon.png" alt="" class="nav-icon">
+            <span>Unit Management</span>
         </a>
         <a href="messages.html" class="nav-item">
             <img src="messages-icon.png" alt="" class="nav-icon">
@@ -376,14 +568,6 @@
                 <img src="update-icon.png" alt="Update" class="button-icon update-icon">
                 <div class="button-title">Update</div>
             </a>
-            <a onclick="exportToExcel()" class="action-button">
-                <img src="export-icon.png" alt="Export" class="button-icon export-icon">
-                <div class="button-title">Export to Excel</div>
-            </a>
-            <a onclick="showDetailsModal()" class="action-button">
-                <img src="details-icon.png" alt="Details" class="button-icon details-icon">
-                <div class="button-title">Details</div>
-            </a>
         </div>
 
         <table class="tenants-table" id="tenantsTable">
@@ -394,6 +578,7 @@
                     <th>Mobile Number</th>
                     <th>Unit Number</th>
                     <th>Rent Status</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -422,8 +607,17 @@
                         <input type="email" id="newEmail">
                     </div>
                     <div class="form-group">
-                        <label>Mobile Number:</label>
-                        <input type="tel" id="newMobile">
+                        <label for="mobile">Mobile Number:</label>
+                        <input type="tel" 
+                               id="mobile" 
+                               name="mobile" 
+                               pattern="^09[0-9]{9}$"
+                               maxlength="11"
+                               placeholder="09XXXXXXXXX"
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0, 11)"
+                               onkeyup="validatePhilippineNumber(this, 'mobileError')"
+                               required>
+                        <small class="error-message" id="mobileError" style="color: red; display: none;">Mobile number must start with 09</small>
                     </div>
                     <div class="form-group">
                         <label>Birthday:</label>
@@ -459,7 +653,15 @@
                     </div>
                     <div class="form-group">
                         <label>Mobile Number:</label>
-                        <input type="tel" id="newEmergencyMobile">
+                        <input type="tel" 
+                               id="newEmergencyMobile"
+                               pattern="^09[0-9]{9}$"
+                               maxlength="11"
+                               placeholder="09XXXXXXXXX"
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0, 11)"
+                               onkeyup="validatePhilippineNumber(this, 'emergencyMobileError')"
+                               required>
+                        <small class="error-message" id="emergencyMobileError" style="color: red; display: none;">Mobile number must start with 09</small>
                     </div>
                     <div class="form-group">
                         <label>Relationship:</label>
@@ -500,8 +702,17 @@
                         <input type="email" id="updateEmail">
                     </div>
                     <div class="form-group">
-                        <label>Mobile Number:</label>
-                        <input type="tel" id="updateMobile">
+                        <label for="mobile">Mobile Number:</label>
+                        <input type="tel" 
+                               id="mobile" 
+                               name="mobile" 
+                               pattern="^09[0-9]{9}$"
+                               maxlength="11"
+                               placeholder="09XXXXXXXXX"
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0, 11)"
+                               onkeyup="validatePhilippineNumber(this, 'mobileError')"
+                               required>
+                        <small class="error-message" id="mobileError" style="color: red; display: none;">Mobile number must start with 09</small>
                     </div>
                     <div class="form-group">
                         <label>Birthday:</label>
@@ -537,7 +748,15 @@
                     </div>
                     <div class="form-group">
                         <label>Mobile Number:</label>
-                        <input type="tel" id="updateEmergencyMobile">
+                        <input type="tel" 
+                               id="updateEmergencyMobile"
+                               pattern="^09[0-9]{9}$"
+                               maxlength="11"
+                               placeholder="09XXXXXXXXX"
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0, 11)"
+                               onkeyup="validatePhilippineNumber(this, 'updateEmergencyMobileError')"
+                               required>
+                        <small class="error-message" id="updateEmergencyMobileError" style="color: red; display: none;">Mobile number must start with 09</small>
                     </div>
                     <div class="form-group">
                         <label>Relationship:</label>
@@ -555,48 +774,86 @@
             </div>
             <div class="modal-buttons">
                 <button class="modal-button cancel-button" onclick="closeModal('updateModal')">Cancel</button>
-                <button class="modal-button save-button" onclick="updateTenant()">Save</button>
+                <button class="modal-button save-button" onclick="updateTenant(); return false;">Save</button>
             </div>
         </div>
     </div>
 
-    <!-- Details Modal -->
-    <div id="detailsModal" class="modal">
-        <div class="modal-content">
-            <h2>Tenant Details</h2>
-            <div class="profile-image-container">
-                <img id="detailsProfileImage" src="tenants-icon.png" alt="Profile" class="profile-image">
+    <!-- Add Details Modal -->
+    <div id="detailsModal" class="details-modal">
+        <div class="details-content">
+            <button class="details-close" onclick="closeModal('detailsModal')">&times;</button>
+            <div class="details-header">
+                <img id="detailsProfileImage" src="tenants-icon.png" alt="Profile">
+                <h2 id="detailsName">Tenant Name</h2>
             </div>
-            <div class="details-content">
-                <div class="form-sections">
-                    <div class="form-section">
-                        <div class="section-title">Personal Information</div>
-                        <p><span class="details-label">Full Name:</span> <span id="detailsName"></span></p>
-                        <p><span class="details-label">Email:</span> <span id="detailsEmail"></span></p>
-                        <p><span class="details-label">Mobile:</span> <span id="detailsMobile"></span></p>
-                        <p><span class="details-label">Birthday:</span> <span id="detailsBirthday"></span></p>
-                        <p><span class="details-label">Marital Status:</span> <span id="detailsMaritalStatus"></span></p>
-                        <p><span class="details-label">Sex:</span> <span id="detailsSex"></span></p>
+            <div class="details-sections">
+                <div class="details-section">
+                    <h3>Personal Information</h3>
+                    <div class="details-field">
+                        <span class="details-label">Email</span>
+                        <span class="details-value" id="detailsEmail"></span>
                     </div>
-                    
-                    <div class="form-section">
-                        <div class="section-title">Emergency Contact</div>
-                        <p><span class="details-label">Contact Name:</span> <span id="detailsEmergencyName"></span></p>
-                        <p><span class="details-label">Email:</span> <span id="detailsEmergencyEmail"></span></p>
-                        <p><span class="details-label">Mobile:</span> <span id="detailsEmergencyMobile"></span></p>
-                        <p><span class="details-label">Relationship:</span> <span id="detailsEmergencyRelation"></span></p>
+                    <div class="details-field">
+                        <span class="details-label">Mobile Number</span>
+                        <span class="details-value" id="detailsMobile"></span>
                     </div>
-
-                    <div class="form-section">
-                        <div class="section-title">Unit Information</div>
-                        <p><span class="details-label">Unit Number:</span> <span id="detailsUnitNumber"></span></p>
-                        <p><span class="details-label">Rent Status:</span> <span id="detailsRentStatus"></span></p>
+                    <div class="details-field">
+                        <span class="details-label">Birthday</span>
+                        <span class="details-value" id="detailsBirthday"></span>
+                    </div>
+                    <div class="details-field">
+                        <span class="details-label">Marital Status</span>
+                        <span class="details-value" id="detailsMaritalStatus"></span>
+                    </div>
+                    <div class="details-field">
+                        <span class="details-label">Sex</span>
+                        <span class="details-value" id="detailsSex"></span>
+                    </div>
+                </div>
+                <div class="details-section">
+                    <h3>Emergency Contact</h3>
+                    <div class="details-field">
+                        <span class="details-label">Contact Name</span>
+                        <span class="details-value" id="detailsEmergencyName"></span>
+                    </div>
+                    <div class="details-field">
+                        <span class="details-label">Email</span>
+                        <span class="details-value" id="detailsEmergencyEmail"></span>
+                    </div>
+                    <div class="details-field">
+                        <span class="details-label">Mobile Number</span>
+                        <span class="details-value" id="detailsEmergencyMobile"></span>
+                    </div>
+                    <div class="details-field">
+                        <span class="details-label">Relationship</span>
+                        <span class="details-value" id="detailsEmergencyRelation"></span>
+                    </div>
+                </div>
+                <div class="details-section">
+                    <h3>Unit Information</h3>
+                    <div class="details-field">
+                        <span class="details-label">Unit Number</span>
+                        <span class="details-value" id="detailsUnitNumber"></span>
+                    </div>
+                    <div class="details-field">
+                        <span class="details-label">Rent Status</span>
+                        <span class="details-value" id="detailsRentStatus"></span>
                     </div>
                 </div>
             </div>
-            <div class="modal-buttons">
-                <button class="modal-button cancel-button" onclick="closeModal('detailsModal')">Close</button>
-            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <!-- Add this HTML before the closing body tag -->
+    <div class="confirm-overlay" id="confirmOverlay"></div>
+    <div class="confirm-dialog" id="confirmDialog">
+        <p id="confirmMessage"></p>
+        <div class="confirm-dialog-buttons">
+            <button class="confirm-no" onclick="handleConfirmResponse(false)">Cancel</button>
+            <button class="confirm-yes" onclick="handleConfirmResponse(true)">Delete</button>
         </div>
     </div>
 
@@ -604,10 +861,12 @@
     <script>
         let selectedRow = null;
         let tenantDatabase = [];
+        let showDeleteIcons = false;
+        let showUpdateIcons = false;
 
         // Load tenants from localStorage on page load
         window.onload = function() {
-            const savedTenants = localStorage.getItem('tenants');
+            const savedTenants = window.api.getItem('tenants');
             if (savedTenants) {
                 tenantDatabase = JSON.parse(savedTenants);
                 loadTenantsToTable();
@@ -633,20 +892,35 @@
         }
 
         function updateUnitAssignments() {
-            const units = JSON.parse(localStorage.getItem('units')) || [];
+            const units = JSON.parse(window.api.getItem('buildings')) || [];
+            let allUnits = [];
+            
+            // Collect all units from all buildings
+            units.forEach(building => {
+                if (building.units) {
+                    allUnits = allUnits.concat(building.units);
+                }
+            });
             
             // Update tenant database with new unit assignments
             tenantDatabase = tenantDatabase.map(tenant => {
-                const assignedUnit = units.find(unit => unit.tenant === tenant.name);
+                const assignedUnit = allUnits.find(unit => unit.tenantId === tenant.id);
+                if (assignedUnit) {
+                    return {
+                        ...tenant,
+                        unit: assignedUnit.number,
+                        status: 'Assigned'
+                    };
+                }
                 return {
                     ...tenant,
-                    unit: assignedUnit ? assignedUnit.unitNumber : null,
-                    status: assignedUnit ? assignedUnit.rentStatus : null
+                    unit: 'Not Assigned',
+                    status: 'Not Assigned'
                 };
             });
 
             // Save updated tenant database
-            localStorage.setItem('tenants', JSON.stringify(tenantDatabase));
+            window.api.setItem('tenants', JSON.stringify(tenantDatabase));
             
             // Refresh table display
             loadTenantsToTable();
@@ -666,17 +940,37 @@
             const tbody = document.getElementById('tenantsTable').getElementsByTagName('tbody')[0];
             tbody.innerHTML = '';
             
-            tenantDatabase.forEach(tenant => {
+            tenantDatabase.forEach((tenant, index) => {
                 const newRow = tbody.insertRow();
                 newRow.onclick = function() { selectRow(this); };
+
+                // Determine status class based on unit assignment
+                const statusClass = tenant.unit !== 'Not Assigned' ? 'status-paid' : 'status-overdue';
+                const statusText = tenant.unit !== 'Not Assigned' ? 'Assigned' : 'Not Assigned';
+                
                 newRow.innerHTML = `
                     <td>${tenant.name}</td>
                     <td>${tenant.email}</td>
                     <td>${tenant.mobile}</td>
-                    <td>${tenant.unit || 'Not Assigned'}</td>
-                    <td><span class="rent-status status-${tenant.status || 'pending'}">${tenant.status ? tenant.status.charAt(0).toUpperCase() + tenant.status.slice(1) : 'Not Assigned'}</span></td>
+                    <td>${tenant.unit}</td>
+                    <td><span class="rent-status ${statusClass}">${statusText}</span></td>
+                    <td class="actions-cell">
+                        <img src="remove-icon.png" alt="Delete" class="action-icon delete" onclick="event.stopPropagation(); deleteTenant(${index})">
+                        <img src="update-icon.png" alt="Update" class="action-icon update" onclick="event.stopPropagation(); updateSpecificTenant(${index})">
+                    </td>
                 `;
             });
+
+            const table = document.getElementById('tenantsTable');
+            if (showDeleteIcons) {
+                table.classList.add('show-delete');
+                table.classList.remove('show-update');
+            } else if (showUpdateIcons) {
+                table.classList.add('show-update');
+                table.classList.remove('show-delete');
+            } else {
+                table.classList.remove('show-delete', 'show-update');
+            }
         }
 
         function selectRow(row) {
@@ -685,6 +979,30 @@
             }
             row.classList.add('selected');
             selectedRow = row;
+
+            // Show tenant details
+            const index = Array.from(row.parentNode.children).indexOf(row);
+            const tenant = tenantDatabase[index];
+            
+            // Fill in details modal
+            document.getElementById('detailsProfileImage').src = tenant.profileImage || 'tenants-icon.png';
+            document.getElementById('detailsName').textContent = tenant.name;
+            document.getElementById('detailsEmail').textContent = tenant.email;
+            document.getElementById('detailsMobile').textContent = tenant.mobile;
+            document.getElementById('detailsBirthday').textContent = tenant.birthday || 'Not provided';
+            document.getElementById('detailsMaritalStatus').textContent = tenant.maritalStatus ? tenant.maritalStatus.charAt(0).toUpperCase() + tenant.maritalStatus.slice(1) : 'Not provided';
+            document.getElementById('detailsSex').textContent = tenant.sex ? tenant.sex.charAt(0).toUpperCase() + tenant.sex.slice(1) : 'Not provided';
+            
+            document.getElementById('detailsEmergencyName').textContent = tenant.emergencyName || 'Not provided';
+            document.getElementById('detailsEmergencyEmail').textContent = tenant.emergencyEmail || 'Not provided';
+            document.getElementById('detailsEmergencyMobile').textContent = tenant.emergencyMobile || 'Not provided';
+            document.getElementById('detailsEmergencyRelation').textContent = tenant.emergencyRelation || 'Not provided';
+            
+            document.getElementById('detailsUnitNumber').textContent = tenant.unit || 'Not Assigned';
+            document.getElementById('detailsRentStatus').textContent = tenant.status ? tenant.status.charAt(0).toUpperCase() + tenant.status.slice(1) : 'Not Assigned';
+
+            // Show the details modal
+            document.getElementById('detailsModal').style.display = 'block';
         }
 
         function showAddModal() {
@@ -693,111 +1011,93 @@
         }
 
         function showUpdateModal() {
-            if (!selectedRow) {
-                alert('Please select a tenant to update');
-                return;
-            }
-            const index = Array.from(selectedRow.parentNode.children).indexOf(selectedRow);
-            const tenant = tenantDatabase[index];
-            
-            // Fill in all fields
-            document.getElementById('updateProfilePreview').src = tenant.profileImage || 'tenants-icon.png';
-            document.getElementById('updateTenantName').value = tenant.name;
-            document.getElementById('updateEmail').value = tenant.email;
-            document.getElementById('updateMobile').value = tenant.mobile;
-            document.getElementById('updateBirthday').value = tenant.birthday;
-            document.getElementById('updateMaritalStatus').value = tenant.maritalStatus;
-            document.getElementById('updateSex').value = tenant.sex;
-            document.getElementById('updateEmergencyName').value = tenant.emergencyName;
-            document.getElementById('updateEmergencyEmail').value = tenant.emergencyEmail;
-            document.getElementById('updateEmergencyMobile').value = tenant.emergencyMobile;
-            document.getElementById('updateEmergencyRelation').value = tenant.emergencyRelation;
-            
-            // Display current unit information
-            document.getElementById('displayUnitNumber').textContent = tenant.unit || 'Not Assigned';
-            document.getElementById('displayRentStatus').textContent = tenant.status ? tenant.status.charAt(0).toUpperCase() + tenant.status.slice(1) : 'N/A';
-            
-            document.getElementById('updateModal').style.display = 'block';
-        }
-
-        function showDetailsModal() {
-            if (!selectedRow) {
-                alert('Please select a tenant to view details');
-                return;
-            }
-            const index = Array.from(selectedRow.parentNode.children).indexOf(selectedRow);
-            const tenant = tenantDatabase[index];
-            
-            // Fill in all details including profile image
-            document.getElementById('detailsProfileImage').src = tenant.profileImage || 'tenants-icon.png';
-            document.getElementById('detailsName').textContent = tenant.name;
-            document.getElementById('detailsEmail').textContent = tenant.email;
-            document.getElementById('detailsMobile').textContent = tenant.mobile;
-            document.getElementById('detailsBirthday').textContent = tenant.birthday;
-            document.getElementById('detailsMaritalStatus').textContent = tenant.maritalStatus;
-            document.getElementById('detailsSex').textContent = tenant.sex;
-            document.getElementById('detailsEmergencyName').textContent = tenant.emergencyName;
-            document.getElementById('detailsEmergencyEmail').textContent = tenant.emergencyEmail;
-            document.getElementById('detailsEmergencyMobile').textContent = tenant.emergencyMobile;
-            document.getElementById('detailsEmergencyRelation').textContent = tenant.emergencyRelation;
-            document.getElementById('detailsUnitNumber').textContent = tenant.unit || 'Not Assigned';
-            document.getElementById('detailsRentStatus').textContent = tenant.status ? tenant.status.charAt(0).toUpperCase() + tenant.status.slice(1) : 'N/A';
-            
-            document.getElementById('detailsModal').style.display = 'block';
+            showUpdateIcons = !showUpdateIcons;
+            showDeleteIcons = false;
+            loadTenantsToTable();
         }
 
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = 'none';
         }
 
+        function showNotification(message, duration = 3000) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, duration);
+        }
+
         function addTenant() {
             const profileImage = document.getElementById('newProfilePreview').src;
-            
+            const mobileNumber = document.getElementById('mobile').value;
+            const emergencyMobile = document.getElementById('newEmergencyMobile').value;
+
             const tenant = {
-                id: Date.now().toString(), // Add unique ID for tenant
+                id: Date.now().toString(),
                 profileImage: profileImage === 'tenants-icon.png' ? null : profileImage,
                 name: document.getElementById('newTenantName').value,
                 email: document.getElementById('newEmail').value,
-                mobile: document.getElementById('newMobile').value,
+                mobile: mobileNumber,
                 birthday: document.getElementById('newBirthday').value,
                 maritalStatus: document.getElementById('newMaritalStatus').value,
                 sex: document.getElementById('newSex').value,
                 emergencyName: document.getElementById('newEmergencyName').value,
                 emergencyEmail: document.getElementById('newEmergencyEmail').value,
-                emergencyMobile: document.getElementById('newEmergencyMobile').value,
+                emergencyMobile: emergencyMobile,
                 emergencyRelation: document.getElementById('newEmergencyRelation').value,
-                unit: null,
-                status: null
+                unit: 'Not Assigned',
+                status: 'Not Assigned'
             };
 
             if (!tenant.name || !tenant.email || !tenant.mobile) {
-                alert('Please fill in all required fields');
+                showNotification('Please fill in all required fields');
                 return;
             }
 
-            // Add to database
-            tenantDatabase.push(tenant);
-            
-            // Save to localStorage
-            localStorage.setItem('tenants', JSON.stringify(tenantDatabase));
+            try {
+                // Add to database
+                tenantDatabase.push(tenant);
+                
+                // Save to localStorage
+                window.api.setItem('tenants', JSON.stringify(tenantDatabase));
 
-            // Update table
-            loadTenantsToTable();
+                // Update table
+                loadTenantsToTable();
 
-            closeModal('addModal');
-            // Reset form
-            document.getElementById('addModal').reset();
-            document.getElementById('newProfilePreview').src = 'tenants-icon.png';
+                // Clear all input fields
+                document.getElementById('newTenantName').value = '';
+                document.getElementById('newEmail').value = '';
+                document.getElementById('mobile').value = '';
+                document.getElementById('newBirthday').value = '';
+                document.getElementById('newMaritalStatus').value = 'single';
+                document.getElementById('newSex').value = 'male';
+                document.getElementById('newEmergencyName').value = '';
+                document.getElementById('newEmergencyEmail').value = '';
+                document.getElementById('newEmergencyMobile').value = '';
+                document.getElementById('newEmergencyRelation').value = '';
+                document.getElementById('newProfilePreview').src = 'tenants-icon.png';
+
+                closeModal('addModal');
+                showNotification('Tenant added successfully');
+            } catch (error) {
+                console.error('Error adding tenant:', error);
+                showNotification('Error adding tenant. Please try again.');
+            }
         }
 
         function updateTenant() {
             if (!selectedRow) {
-                alert('Please select a tenant to update');
+                console.log('No tenant selected');
+                showNotification('Please select a tenant to update');
                 return;
             }
 
             const profileImage = document.getElementById('updateProfilePreview').src;
             const index = Array.from(selectedRow.parentNode.children).indexOf(selectedRow);
+            console.log('Updating tenant at index:', index);
             const currentTenant = tenantDatabase[index];
 
             const tenant = {
@@ -805,7 +1105,7 @@
                 profileImage: profileImage === 'tenants-icon.png' ? null : profileImage,
                 name: document.getElementById('updateTenantName').value,
                 email: document.getElementById('updateEmail').value,
-                mobile: document.getElementById('updateMobile').value,
+                mobile: document.getElementById('mobile').value,
                 birthday: document.getElementById('updateBirthday').value,
                 maritalStatus: document.getElementById('updateMaritalStatus').value,
                 sex: document.getElementById('updateSex').value,
@@ -818,52 +1118,200 @@
             };
 
             if (!tenant.name || !tenant.email || !tenant.mobile) {
-                alert('Please fill in all required fields');
+                console.log('Missing required fields');
+                showNotification('Please fill in all required fields');
                 return;
             }
 
-            // Update database
-            tenantDatabase[index] = tenant;
+            try {
+                // Update database
+                tenantDatabase[index] = tenant;
 
-            // Save to localStorage
-            localStorage.setItem('tenants', JSON.stringify(tenantDatabase));
-
-            // Update table
-            loadTenantsToTable();
-
-            closeModal('updateModal');
-        }
-
-        function removeTenant() {
-            if (!selectedRow) {
-                alert('Please select a tenant to remove');
-                return;
-            }
-
-            if (confirm('Are you sure you want to remove this tenant?')) {
-                const index = Array.from(selectedRow.parentNode.children).indexOf(selectedRow);
-                tenantDatabase.splice(index, 1);
-                
                 // Save to localStorage
-                localStorage.setItem('tenants', JSON.stringify(tenantDatabase));
+                window.api.setItem('tenants', JSON.stringify(tenantDatabase));
 
                 // Update table
                 loadTenantsToTable();
-                selectedRow = null;
+
+                closeModal('updateModal');
+                showNotification('Tenant updated successfully');
+            } catch (error) {
+                console.error('Error updating tenant:', error);
+                showNotification('An error occurred while updating the tenant. Please try again.');
             }
         }
 
-        function exportToExcel() {
-            // Create workbook and worksheet
-            const wb = XLSX.utils.book_new();
-            const ws = XLSX.utils.json_to_sheet(tenantDatabase);
-
-            // Add worksheet to workbook
-            XLSX.utils.book_append_sheet(wb, ws, "Tenants");
-
-            // Save file
-            XLSX.writeFile(wb, "tenants_database.xlsx");
+        function showConfirmDialog(message, callback) {
+            document.getElementById('confirmMessage').textContent = message;
+            document.getElementById('confirmDialog').style.display = 'block';
+            document.getElementById('confirmOverlay').style.display = 'block';
+            window.confirmCallback = callback;
         }
+
+        function handleConfirmResponse(confirmed) {
+            document.getElementById('confirmDialog').style.display = 'none';
+            document.getElementById('confirmOverlay').style.display = 'none';
+            if (window.confirmCallback) {
+                window.confirmCallback(confirmed);
+                window.confirmCallback = null;
+            }
+        }
+
+        function deleteTenant(index) {
+            showConfirmDialog('Are you sure you want to remove this tenant?', (confirmed) => {
+                if (confirmed) {
+                    try {
+                        const tenant = tenantDatabase[index];
+                        
+                        // Clear payment history for any units this tenant was assigned to
+                        let payments = JSON.parse(window.api.getItem('payments') || '[]');
+                        
+                        // Get all buildings and find units where this tenant was assigned
+                        const buildings = JSON.parse(window.api.getItem('buildings') || '[]');
+                        const tenantUnits = [];
+                        
+                        buildings.forEach(building => {
+                            if (building.units) {
+                                building.units.forEach(unit => {
+                                    if (unit.tenantId === tenant.id) {
+                                        tenantUnits.push(unit.id);
+                                        // Set unit status to available and clear tenantId
+                                        unit.status = 'available';
+                                        unit.tenantId = null;
+                                    }
+                                });
+                            }
+                        });
+                        
+                        // Save updated buildings back to localStorage
+                        window.api.setItem('buildings', JSON.stringify(buildings));
+                        
+                        // Remove all payments for units where this tenant was assigned
+                        payments = payments.filter(payment => !tenantUnits.includes(payment.unitId));
+                        window.api.setItem('payments', JSON.stringify(payments));
+                        
+                        // Remove tenant from database
+                        tenantDatabase.splice(index, 1);
+                        window.api.setItem('tenants', JSON.stringify(tenantDatabase));
+                        loadTenantsToTable();
+                        
+                        showNotification('Tenant deleted successfully');
+                    } catch (error) {
+                        console.error('Error deleting tenant:', error);
+                        showNotification('Error deleting tenant. Please try again.');
+                    }
+                }
+            });
+        }
+
+        function updateSpecificTenant(index) {
+            const tenant = tenantDatabase[index];
+            
+            // Set the selected row
+            const tbody = document.getElementById('tenantsTable').getElementsByTagName('tbody')[0];
+            selectedRow = tbody.children[index];
+            if (selectedRow) {
+                // Remove selection from other rows
+                Array.from(tbody.children).forEach(row => row.classList.remove('selected'));
+                // Add selection to current row
+                selectedRow.classList.add('selected');
+            }
+            
+            // Fill in all fields
+            document.getElementById('updateProfilePreview').src = tenant.profileImage || 'tenants-icon.png';
+            document.getElementById('updateTenantName').value = tenant.name;
+            document.getElementById('updateEmail').value = tenant.email;
+            document.getElementById('mobile').value = tenant.mobile;
+            document.getElementById('updateBirthday').value = tenant.birthday || '';
+            document.getElementById('updateMaritalStatus').value = tenant.maritalStatus || 'single';
+            document.getElementById('updateSex').value = tenant.sex || 'male';
+            document.getElementById('updateEmergencyName').value = tenant.emergencyName || '';
+            document.getElementById('updateEmergencyEmail').value = tenant.emergencyEmail || '';
+            document.getElementById('updateEmergencyMobile').value = tenant.emergencyMobile || '';
+            document.getElementById('updateEmergencyRelation').value = tenant.emergencyRelation || '';
+            
+            // Display current unit information
+            document.getElementById('displayUnitNumber').textContent = tenant.unit || 'Not Assigned';
+            document.getElementById('displayRentStatus').textContent = tenant.status ? tenant.status.charAt(0).toUpperCase() + tenant.status.slice(1) : 'N/A';
+            
+            document.getElementById('updateModal').style.display = 'block';
+            console.log('Update modal opened for tenant:', tenant.name);
+        }
+
+        function removeTenant() {
+            showDeleteIcons = !showDeleteIcons;
+            showUpdateIcons = false;
+            loadTenantsToTable();
+        }
+
+        function validatePhilippineNumber(input, errorId) {
+            const value = input.value;
+            const errorElement = document.getElementById(errorId);
+            const isValid = /^09[0-9]{9}$/.test(value);
+            
+            if (value.length > 0) {
+                if (!value.startsWith('09')) {
+                    errorElement.textContent = 'Mobile number must start with 09';
+                    errorElement.style.display = 'block';
+                    input.setCustomValidity('Mobile number must start with 09');
+                } else if (value.length !== 11) {
+                    errorElement.textContent = 'Mobile number must be 11 digits';
+                    errorElement.style.display = 'block';
+                    input.setCustomValidity('Mobile number must be 11 digits');
+                } else if (!isValid) {
+                    errorElement.textContent = 'Mobile number must start with 09';
+                    errorElement.style.display = 'block';
+                    input.setCustomValidity('Mobile number must start with 09');
+                } else {
+                    errorElement.style.display = 'none';
+                    input.setCustomValidity('');
+                }
+            } else {
+                errorElement.style.display = 'none';
+                input.setCustomValidity('');
+            }
+        }
+
+        // Add this function to clear all form fields
+        function clearTenantForm() {
+            // Clear personal information
+            document.getElementById('newTenantName').value = '';
+            document.getElementById('newEmail').value = '';
+            document.getElementById('mobile').value = '';
+            document.getElementById('newBirthday').value = '';
+            document.getElementById('newMaritalStatus').value = 'Single';
+            document.getElementById('newSex').value = 'Male';
+            
+            // Clear emergency contact
+            document.getElementById('newEmergencyName').value = '';
+            document.getElementById('newEmergencyEmail').value = '';
+            document.getElementById('newEmergencyMobile').value = '';
+            document.getElementById('newEmergencyRelation').value = '';
+            
+            // Reset profile picture to default
+            document.getElementById('newProfilePreview').src = 'tenants-icon.png';
+        }
+
+        // Update the cancel button click handler
+        document.querySelector('.cancel-button').onclick = function() {
+            clearTenantForm();
+            document.getElementById('addModal').style.display = 'none';
+        };
+
+        // Update the add tenant button click handler
+        document.querySelector('.add-tenant-button').onclick = function() {
+            clearTenantForm(); // Clear form before showing
+            document.getElementById('addModal').style.display = 'block';
+        };
+
+        // Add click handler for the modal overlay to clear form when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('addModal');
+            if (event.target == modal) {
+                clearTenantForm();
+                modal.style.display = 'none';
+            }
+        };
     </script>
 </body>
 </html>

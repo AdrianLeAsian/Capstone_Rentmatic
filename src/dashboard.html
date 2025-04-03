@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rentmatic Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary-color: #2A9D8F;
@@ -52,14 +53,11 @@
         .dashboard-label {
             color: white;
             font-size: 20px;
-        }
-
-        .search-bar {
-            width: 300px;
-            padding: 8px;
-            border: none;
-            border-radius: 5px;
-            background-color: rgba(255, 255, 255, 0.9);
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: capitalize;
+            margin-left: 15px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         .sidebar {
@@ -74,7 +72,7 @@
         }
 
         .nav-item {
-            width: 160px; /* Same as sidebar width (200px) minus padding (20px * 2) */
+            width: 160px;
             padding: 10px;
             margin: 5px 0;
             display: flex;
@@ -82,17 +80,18 @@
             cursor: pointer;
             text-decoration: none;
             color: inherit;
+            transition: background-color 0.2s;
             gap: 10px;
-        }
-
-        .nav-item:hover {
-            background-color: #478778;
             border-radius: 5px;
-            color: white;
         }
 
-        .nav-item:hover .nav-icon {
-            filter: brightness(0) invert(1);
+        .nav-item:hover, .nav-item.active {
+            background-color: #90EE90;
+            color: black;
+        }
+
+        .nav-item:hover .nav-icon, .nav-item.active .nav-icon {
+            filter: brightness(0);
         }
 
         .nav-icon {
@@ -105,58 +104,419 @@
             margin-left: 200px;
             margin-top: 60px;
             padding: 20px;
-        }
-
-        .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: 2fr 1fr;
             gap: 20px;
         }
 
-        .dashboard-card {
-            background-color: rgba(237, 237, 237, 0.8);
-            aspect-ratio: 1;
-            padding: 20px;
+        .dashboard-section {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 15px;
             border-radius: 10px;
-            text-align: center;
-            text-decoration: none;
-            transition: transform 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .sales-analysis {
+            grid-column: 1 / 2;
+        }
+
+        .right-panel {
+            grid-column: 2 / 3;
             display: flex;
             flex-direction: column;
+            gap: 20px;
+        }
+
+        .digital-clock {
+            font-family: 'DSEG7 Classic', monospace;
+            text-align: right;
+            padding: 12px 15px;
+            background-color: #F4F4F0;
+            color: #000000;
+            border-radius: 4px;
+            margin: 0;
+            box-shadow: none;
+            letter-spacing: 2px;
+            font-size: 4em;
+            width: 100%;
+            position: relative;
+            font-weight: 300;
+            border: none;
+            display: flex;
+            justify-content: flex-end;
             align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(10px);
         }
 
-        .dashboard-card:hover {
-            transform: translateY(-5px);
+        .pm-indicator {
+            font-size: 0.3em;
+            color: #000000;
+            font-weight: 300;
+            margin-left: 10px;
+            font-family: Arial, sans-serif;
         }
 
-        .card-icon {
-            width: 60px;
-            height: 60px;
+        .clock-container {
+            background: none;
+            padding: 0;
+            box-shadow: none;
+            text-align: right;
+            display: flex;
+            justify-content: flex-end;
+            width: 100%;
+            margin: 0;
+        }
+
+        @font-face {
+            font-family: 'DSEG7 Classic';
+            src: url('https://cdn.jsdelivr.net/npm/dseg@0.46.0/fonts/DSEG7-Classic/DSEG7Classic-Regular.woff2') format('woff2');
+        }
+
+        .calendar-container {
+            position: relative;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 0 10px;
+        }
+
+        .calendar-nav {
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 1.2em;
+            color: #2A9D8F;
+            padding: 5px 10px;
+        }
+
+        .calendar-nav:hover {
+            color: #1f7268;
+        }
+
+        .calendar-month {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .calendar {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .calendar th {
+            padding: 8px;
+            text-align: center;
+            font-weight: 500;
+            color: #666;
+        }
+
+        .calendar td {
+            padding: 8px;
+            text-align: center;
+            color: #333;
+            position: relative;
+        }
+
+        .calendar td.today {
+            position: relative;
+        }
+
+        .calendar td.today::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 28px;
+            height: 28px;
+            border: 2px solid #2A9D8F;
+            border-radius: 50%;
+        }
+
+        .calendar td.other-month {
+            color: #ccc;
+        }
+
+        .calendar .payment-due {
+            background-color: #ffebee;
+        }
+
+        .calendar .payment-received {
+            background-color: #e8f5e9;
+        }
+
+        .messages-section {
+            cursor: pointer;
+        }
+
+        .message-notification {
+            background-color: #fff;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .units-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .unit-box {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .unit-box h3 {
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .charts-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .total-earnings {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .total-earnings h2 {
+            color: var(--primary-color);
             margin-bottom: 10px;
         }
 
-        .tenants-icon {
-            filter: invert(48%) sepia(79%) saturate(2476%) hue-rotate(190deg) brightness(118%) contrast(119%);
+        .total-amount {
+            font-size: 1.8em;
+            font-weight: bold;
         }
 
-        .payments-icon {
-            filter: invert(42%) sepia(93%) saturate(1352%) hue-rotate(87deg) brightness(119%) contrast(119%);
+        .pie-chart-container {
+            position: relative;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
         }
 
-        .units-icon {
-            filter: invert(72%) sepia(32%) saturate(1217%) hue-rotate(6deg) brightness(127%) contrast(119%);
+        .pie-chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
         }
 
-        .reports-icon {
-            filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(92%) contrast(97%);
+        .add-entry-btn {
+            background-color: #2A9D8F;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
         }
 
-        .card-title {
-            color: #666973;
+        .add-entry-btn:hover {
+            background-color: #238177;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            right: 20px;
+            top: 10px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .submit-button {
+            background-color: #2A9D8F;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
             font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .submit-button:hover {
+            background-color: #238177;
+        }
+
+        .entries-list {
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+
+        .entry-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+
+        .entry-item:last-child {
+            border-bottom: none;
+        }
+
+        .entry-info {
+            flex-grow: 1;
+        }
+
+        .entry-type {
+            font-weight: 500;
+            color: #666;
+        }
+
+        .entry-amount {
+            margin-left: 15px;
+            font-weight: 500;
+        }
+
+        .entry-amount.expense {
+            color: #E76F51;
+        }
+
+        .entry-amount.income {
+            color: #2A9D8F;
+        }
+
+        .delete-entry {
+            background-color: #ff4444;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.2s;
+        }
+
+        .delete-entry:hover {
+            background-color: #cc0000;
+        }
+
+        .confirm-dialog {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1001;
+            text-align: center;
+        }
+
+        .confirm-dialog-buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .confirm-dialog button {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .confirm-dialog .confirm-yes {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .confirm-dialog .confirm-no {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .confirm-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .notification {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background-color: #28a745;
+            color: white;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 1000;
         }
     </style>
 </head>
@@ -164,14 +524,25 @@
     <div class="header">
         <div class="header-left">
             <img src="Rentmatic-Logo.png" alt="Rentmatic" class="logo">
-            <div class="dashboard-label">Dashboard</div>
-            <input type="text" class="search-bar" placeholder="Search...">
+            <div class="dashboard-label">Home</div>
         </div>
     </div>
     <div class="sidebar">
-        <a href="dashboard.html" class="nav-item">
+        <a href="dashboard.html" class="nav-item active">
             <img src="dashboard-icon.png" alt="" class="nav-icon">
-            <span>Dashboard</span>
+            <span>Home</span>
+        </a>
+        <a href="ai-assistant.html" class="nav-item">
+            <img src="ai-icon.png" alt="" class="nav-icon">
+            <span>AI Assistant</span>
+        </a>
+        <a href="tenants.html" class="nav-item">
+            <img src="tenants-icon.png" alt="" class="nav-icon">
+            <span>Tenants</span>
+        </a>
+        <a href="units.html" class="nav-item">
+            <img src="units-icon.png" alt="" class="nav-icon">
+            <span>Unit Management</span>
         </a>
         <a href="messages.html" class="nav-item">
             <img src="messages-icon.png" alt="" class="nav-icon">
@@ -184,24 +555,536 @@
     </div>
 
     <div class="main-content">
-        <div class="dashboard-grid">
-            <a href="tenants.html" class="dashboard-card">
-                <img src="tenants-icon.png" alt="Tenants" class="card-icon tenants-icon">
-                <div class="card-title">Tenants</div>
-            </a>
-            <a href="payments.html" class="dashboard-card">
-                <img src="payments-icon.png" alt="Payments" class="card-icon payments-icon">
-                <div class="card-title">Payments</div>
-            </a>
-            <a href="units.html" class="dashboard-card">
-                <img src="units-icon.png" alt="Unit Management" class="card-icon units-icon">
-                <div class="card-title">Unit Management</div>
-            </a>
-            <a href="reports.html" class="dashboard-card">
-                <img src="reports-icon.png" alt="Basic Reports" class="card-icon reports-icon">
-                <div class="card-title">Basic Reports</div>
-            </a>
+        <div class="dashboard-section sales-analysis">
+            <h2>Sales Analysis</h2>
+            <canvas id="salesChart"></canvas>
+        </div>
+        
+        <div class="right-panel">
+            <div class="dashboard-section">
+                <div class="clock-container">
+                    <div class="digital-clock" id="clock">00:00 AM</div>
+                </div>
+            </div>
+            
+            <div class="dashboard-section">
+                <div class="calendar-container">
+                    <div class="calendar-header">
+                        <button class="calendar-nav" id="prevMonth">&lt;</button>
+                        <span class="calendar-month" id="currentMonth">March 2024</span>
+                        <button class="calendar-nav" id="nextMonth">&gt;</button>
+                    </div>
+                    <table class="calendar" id="calendar">
+                        <thead>
+                            <tr>
+                                <th>Sun</th>
+                                <th>Mon</th>
+                                <th>Tue</th>
+                                <th>Wed</th>
+                                <th>Thu</th>
+                                <th>Fri</th>
+                                <th>Sat</th>
+                            </tr>
+                        </thead>
+                        <tbody id="calendarBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="dashboard-section messages-section" id="messages">
+                <h3>Unread Messages</h3>
+                <div id="messagesList"></div>
+            </div>
+
+            <div class="dashboard-section units-info">
+                <div class="unit-box">
+                    <h3>Available Units</h3>
+                    <div id="availableUnits">0</div>
+                </div>
+                <div class="unit-box">
+                    <h3>Renting Units</h3>
+                    <div id="rentingUnits">0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-section charts-section">
+            <div class="pie-chart-container">
+                <div class="pie-chart-header">
+                    <h2>Revenue Distribution</h2>
+                    <button class="add-entry-btn" onclick="showAddEntryModal()">+ Add Entry</button>
+                </div>
+                <canvas id="paymentsPieChart"></canvas>
+                <div class="entries-list" id="entriesList"></div>
+            </div>
+            <div class="total-earnings">
+                <h2>Total Earnings</h2>
+                <div class="total-amount" id="totalEarnings">₱0.00</div>
+            </div>
         </div>
     </div>
+
+    <!-- Add Entry Modal -->
+    <div id="addEntryModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeAddEntryModal()">&times;</span>
+            <h2>Add New Entry</h2>
+            <form id="addEntryForm" onsubmit="handleAddEntry(event)">
+                <div class="form-group">
+                    <label for="entryType">Entry Type</label>
+                    <input type="text" id="entryType" required placeholder="e.g., Income, Expense, Maintenance, Bills">
+                </div>
+                <div class="form-group">
+                    <label for="entryDescription">Description</label>
+                    <input type="text" id="entryDescription" required placeholder="e.g., Maintenance, Repairs, Extra Services">
+                </div>
+                <div class="form-group">
+                    <label for="entryAmount">Amount (₱)</label>
+                    <input type="number" id="entryAmount" required min="0" step="0.01">
+                </div>
+                <button type="submit" class="submit-button">Add Entry</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="confirm-overlay" id="confirmOverlay"></div>
+    <div class="confirm-dialog" id="confirmDialog">
+        <p id="confirmMessage"></p>
+        <div class="confirm-dialog-buttons">
+            <button class="confirm-no" onclick="handleConfirmResponse(false)">Cancel</button>
+            <button class="confirm-yes" onclick="handleConfirmResponse(true)">Delete</button>
+        </div>
+    </div>
+    <div id="notification" class="notification"></div>
+
+    <script>
+        // Clock Update
+        function updateClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            let minutes = now.getMinutes();
+            
+            // Convert to 12-hour format
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // the hour '0' should be '12'
+            
+            // Add leading zeros
+            hours = hours.toString().padStart(2, '0');
+            minutes = minutes.toString().padStart(2, '0');
+            
+            // Update clock display with separate PM indicator
+            const clockElement = document.getElementById('clock');
+            clockElement.innerHTML = `${hours}:${minutes}<span class="pm-indicator">${ampm}</span>`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Calendar Setup
+        let currentDate = new Date();
+        
+        function updateCalendar() {
+            const monthNames = [
+                'January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'
+            ];
+            
+            // Update month display
+            document.getElementById('currentMonth').textContent = 
+                `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+            
+            const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+            const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+            
+            const today = new Date();
+            const calendarBody = document.getElementById('calendarBody');
+            let date = 1;
+            let html = '';
+
+            for (let i = 0; i < 6; i++) {
+                html += '<tr>';
+                for (let j = 0; j < 7; j++) {
+                    if (i === 0 && j < firstDay.getDay()) {
+                        // Show last days of previous month
+                        const prevMonthLastDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0);
+                        const day = prevMonthLastDay.getDate() - (firstDay.getDay() - j - 1);
+                        html += `<td class="other-month">${day}</td>`;
+                    } else if (date > lastDay.getDate()) {
+                        // Show first days of next month
+                        const nextMonthDay = date - lastDay.getDate();
+                        html += `<td class="other-month">${nextMonthDay}</td>`;
+                        date++;
+                    } else {
+                        const isToday = today.getDate() === date && 
+                                      today.getMonth() === currentDate.getMonth() && 
+                                      today.getFullYear() === currentDate.getFullYear();
+                        html += `<td class="${isToday ? 'today' : ''}" id="day-${date}">${date}</td>`;
+                        date++;
+                    }
+                }
+                html += '</tr>';
+                if (date > lastDay.getDate() && i !== 0) break;
+            }
+            calendarBody.innerHTML = html;
+        }
+
+        // Month navigation handlers
+        document.getElementById('prevMonth').addEventListener('click', function() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            updateCalendar();
+        });
+
+        document.getElementById('nextMonth').addEventListener('click', function() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            updateCalendar();
+        });
+
+        // Initialize calendar
+        updateCalendar();
+
+        // Sales Chart
+        const salesCtx = document.getElementById('salesChart').getContext('2d');
+        new Chart(salesCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Monthly Sales',
+                    data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    backgroundColor: '#2A9D8F'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Initialize pie chart with empty data
+        let pieChart;
+        let chartEntries = [];
+
+        function initializePieChart() {
+            const pieCtx = document.getElementById('paymentsPieChart').getContext('2d');
+            pieChart = new Chart(pieCtx, {
+                type: 'pie',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        data: [],
+                        backgroundColor: [
+                            '#2A9D8F',
+                            '#E9C46A',
+                            '#F4A261',
+                            '#E76F51',
+                            '#264653',
+                            '#1D3557',
+                            '#457B9D',
+                            '#A8DADC'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const entry = chartEntries[context.dataIndex];
+                                    const value = context.raw;
+                                    const formattedValue = new Intl.NumberFormat('en-PH', {
+                                        style: 'currency',
+                                        currency: 'PHP'
+                                    }).format(Math.abs(value));
+                                    return `${context.label}: ${formattedValue} (${entry.type === 'expense' ? 'Expense' : 'Income'})`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function showAddEntryModal() {
+            document.getElementById('addEntryModal').style.display = 'block';
+        }
+
+        function closeAddEntryModal() {
+            document.getElementById('addEntryModal').style.display = 'none';
+            document.getElementById('addEntryForm').reset();
+        }
+
+        function handleAddEntry(event) {
+            event.preventDefault();
+            
+            const type = document.getElementById('entryType').value;
+            const description = document.getElementById('entryDescription').value;
+            const amount = parseFloat(document.getElementById('entryAmount').value);
+
+            // Create new entry
+            const entry = {
+                type: type.toLowerCase(),
+                description: description,
+                amount: type.toLowerCase().includes('expense') ? -amount : amount,
+                timestamp: new Date().toISOString()
+            };
+
+            // Get existing entries from localStorage or initialize empty array
+            const existingEntries = JSON.parse(window.api.getItem('chartEntries')) || [];
+            existingEntries.push(entry);
+            
+            // Save to localStorage
+            window.api.setItem('chartEntries', JSON.stringify(existingEntries));
+            
+            // Update chart
+            updatePieChart();
+            
+            // Close modal and reset form
+            closeAddEntryModal();
+            
+            // Update total earnings
+            calculateAndUpdateTotalEarnings();
+        }
+
+        function updatePieChart() {
+            // Get entries from localStorage
+            chartEntries = JSON.parse(window.api.getItem('chartEntries')) || [];
+            
+            // Prepare data for chart
+            const labels = chartEntries.map(entry => entry.description);
+            const data = chartEntries.map(entry => Math.abs(entry.amount));
+            
+            // Update chart
+            pieChart.data.labels = labels;
+            pieChart.data.datasets[0].data = data;
+            pieChart.update();
+
+            // Update entries list
+            updateEntriesList();
+        }
+
+        function updateEntriesList() {
+            const entriesList = document.getElementById('entriesList');
+            entriesList.innerHTML = '';
+
+            chartEntries.forEach((entry, index) => {
+                const entryItem = document.createElement('div');
+                entryItem.className = 'entry-item';
+
+                const formattedAmount = new Intl.NumberFormat('en-PH', {
+                    style: 'currency',
+                    currency: 'PHP'
+                }).format(Math.abs(entry.amount));
+
+                entryItem.innerHTML = `
+                    <div class="entry-info">
+                        <span class="entry-type">${entry.type}</span>: ${entry.description}
+                        <span class="entry-amount ${entry.amount < 0 ? 'expense' : 'income'}">
+                            ${entry.amount < 0 ? '-' : ''}${formattedAmount}
+                        </span>
+                    </div>
+                    <button class="delete-entry" onclick="deleteEntry(${index})">Delete</button>
+                `;
+
+                entriesList.appendChild(entryItem);
+            });
+        }
+
+        function deleteEntry(index) {
+            showConfirmDialog('Are you sure you want to delete this entry?', (confirmed) => {
+                if (confirmed) {
+                    try {
+                        // Get existing entries
+                        chartEntries = JSON.parse(window.api.getItem('chartEntries') || '[]');
+                        
+                        // Remove the entry at the specified index
+                        chartEntries.splice(index, 1);
+                        
+                        // Save back to localStorage
+                        window.api.setItem('chartEntries', JSON.stringify(chartEntries));
+                        
+                        // Update the pie chart and entries list
+                        updatePieChart();
+                        
+                        // Update total earnings
+                        calculateAndUpdateTotalEarnings();
+                        
+                        showNotification('Entry deleted successfully');
+                    } catch (error) {
+                        console.error('Error deleting entry:', error);
+                        showNotification('Error deleting entry. Please try again.');
+                    }
+                }
+            });
+        }
+
+        // Update calculateAndUpdateTotalEarnings to include custom entries
+        function calculateAndUpdateTotalEarnings() {
+            // Get units data from localStorage
+            const unitsData = JSON.parse(window.api.getItem('units')) || [];
+            
+            // Calculate total from unit payments
+            const paymentsTotal = unitsData.reduce((total, unit) => {
+                const unitPayments = unit.payments || [];
+                const unitTotal = unitPayments.reduce((sum, payment) => {
+                    return sum + (payment.status === 'paid' ? payment.amount : 0);
+                }, 0);
+                return total + unitTotal;
+            }, 0);
+
+            // Get custom entries
+            const chartEntries = JSON.parse(window.api.getItem('chartEntries')) || [];
+            const entriesTotal = chartEntries.reduce((total, entry) => total + entry.amount, 0);
+
+            // Calculate final total
+            const totalEarnings = paymentsTotal + entriesTotal;
+            
+            // Update the display with animation
+            const currentAmount = parseFloat(document.getElementById('totalEarnings').textContent.replace(/[^0-9.-]+/g, '')) || 0;
+            animateEarnings(currentAmount, totalEarnings);
+        }
+
+        function animateEarnings(start, end) {
+            const duration = 1000; // 1 second animation
+            const steps = 60;
+            const increment = (end - start) / steps;
+            let current = start;
+            let step = 0;
+
+            const element = document.getElementById('totalEarnings');
+            const timer = setInterval(() => {
+                step++;
+                current += increment;
+                element.textContent = new Intl.NumberFormat('en-PH', { 
+                    style: 'currency', 
+                    currency: 'PHP' 
+                }).format(current);
+
+                if (step >= steps) {
+                    clearInterval(timer);
+                    element.textContent = new Intl.NumberFormat('en-PH', { 
+                        style: 'currency', 
+                        currency: 'PHP' 
+                    }).format(end);
+                }
+            }, duration / steps);
+        }
+
+        function updateUnitCounts() {
+            const buildings = JSON.parse(window.api.getItem('buildings')) || [];
+            let totalUnits = 0;
+            let rentingUnits = 0;
+
+            // Count total units and renting units across all buildings
+            buildings.forEach(building => {
+                if (building.units) {
+                    totalUnits += building.units.length;
+                    rentingUnits += building.units.filter(unit => unit.status === 'occupied').length;
+                }
+            });
+
+            // Calculate available units
+            const availableUnits = totalUnits - rentingUnits;
+
+            // Update the display
+            document.getElementById('availableUnits').textContent = availableUnits;
+            document.getElementById('rentingUnits').textContent = rentingUnits;
+
+            console.log('Units updated:', { totalUnits, rentingUnits, availableUnits }); // Debug log
+        }
+
+        // Initialize event listeners and data fetching
+        document.addEventListener('DOMContentLoaded', function() {
+            // Messages section click handler
+            document.getElementById('messages').addEventListener('click', function() {
+                window.location.href = 'messages.html';
+            });
+
+            // Initial unit count update
+            updateUnitCounts();
+            
+            // Initialize other dashboard elements
+            initializePieChart();
+            updatePieChart();
+            calculateAndUpdateTotalEarnings();
+            updateMessages(3);
+        });
+
+        // Add storage event listener to update counts when changes occur
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'buildings') {
+                updateUnitCounts();
+            }
+        });
+
+        // Call updateUnitCounts immediately to show initial counts
+        updateUnitCounts();
+
+        function updateMessages(count) {
+            const messagesList = document.getElementById('messagesList');
+            messagesList.innerHTML = '';
+            
+            for (let i = 0; i < count; i++) {
+                const notification = document.createElement('div');
+                notification.className = 'message-notification';
+                notification.textContent = `New message from Tenant ${i + 1}`;
+                messagesList.appendChild(notification);
+            }
+        }
+
+        function showConfirmDialog(message, callback) {
+            document.getElementById('confirmMessage').textContent = message;
+            document.getElementById('confirmDialog').style.display = 'block';
+            document.getElementById('confirmOverlay').style.display = 'block';
+            window.confirmCallback = callback;
+        }
+
+        function handleConfirmResponse(confirmed) {
+            document.getElementById('confirmDialog').style.display = 'none';
+            document.getElementById('confirmOverlay').style.display = 'none';
+            if (window.confirmCallback) {
+                window.confirmCallback(confirmed);
+                window.confirmCallback = null;
+            }
+        }
+
+        function showNotification(message, duration = 3000) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, duration);
+        }
+
+        // Check if user is logged in
+        function checkAuth() {
+            const currentUser = window.api.getItem('currentUser');
+            if (!currentUser) {
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Handle logout
+        function handleLogout() {
+            // Remove current user from localStorage
+            window.api.removeItem('currentUser');
+            // Redirect to login page
+            window.location.href = 'login.html';
+        }
+
+        // Check authentication when page loads
+        window.onload = function() {
+            checkAuth();
+        }
+    </script>
 </body>
 </html>

@@ -2,29 +2,71 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
-function createWindow () {
+// Disable GPU acceleration
+app.disableHardwareAcceleration();
+
+// Handle cache errors
+app.commandLine.appendSwitch('ignore-gpu-blacklist');
+app.commandLine.appendSwitch('disable-gpu');
+app.commandLine.appendSwitch('no-sandbox');
+
+function createWindow() {
 	const win = new BrowserWindow({
-		width: 768,
-		height: 560,
+		width: 1200,
+		height: 800,
 		webPreferences: {
-			preload: path.join(__dirname, 'preload.js')
+			nodeIntegration: false,
+			contextIsolation: true,
+			preload: path.join(__dirname, 'preload.js'),
+			webSecurity: true,
+			allowRunningInsecureContent: false
 		}
 	});
 
-	ipcMain.handle('create-file', (req, data) => {
-		if (!data || !data.title || !data.content) return false;
+	// Error handling for window creation
+	win.webContents.on('crashed', () => {
+		console.log('Window crashed, reloading...');
+		win.reload();
+	});
 
-		const filePath = path.join(__dirname, 'notes', `${data.title}.txt`);
-		fs.writeFileSync(filePath, data.content);
+	win.on('unresponsive', () => {
+		console.log('Window became unresponsive, reloading...');
+		win.reload();
+	});
 
-		return { success: true, filePath };
-	})
-
-	win.loadFile('src/dashboard.html');
+	// Load the initial page
+	win.loadFile('src/login.html');
 }
 
-app.whenReady().then(createWindow);
+// Handle app ready
+app.whenReady().then(() => {
+	createWindow();
 
+	// Handle macOS activation
+	app.on('activate', () => {
+		if (BrowserWindow.getAllWindows().length === 0) {
+			createWindow();
+		}
+	});
+});
+
+// Handle window closure
 app.on('window-all-closed', () => {
-	if (process.platform !== 'darwin') app.quit();
-})
+	if (process.platform !== 'darwin') {
+		app.quit();
+	}
+});// Handle uncaught exceptions
+process.on('uncaughtException', (error) => {
+	console.error('An uncaught error occurred:', error);
+});
+
+// IPC handlers
+ipcMain.handle('create-file', (req, data) => {
+	if (!data || !data.title || !data.content) return false;
+
+	const filePath = path.join(__dirname, 'notes', `${data.title}.txt`);
+	fs.writeFileSync(filePath, data.content);
+
+	return { success: true, filePath };
+});
+

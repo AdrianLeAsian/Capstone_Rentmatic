@@ -1,0 +1,25 @@
+function handleAddBuilding(event) {
+    event.preventDefault();
+    
+    const buildingName = document.getElementById('buildingName').value.trim();
+    const buildings = JSON.parse(window.api.getItem('buildings')) || [];
+    
+    // Check for duplicate building name - case sensitive exact match
+    if (buildings.some(building => building.name === buildingName)) {
+        alert(`There's already a building named ${buildingName}`);
+        document.getElementById('buildingName').focus();
+        return false;
+    }
+    
+    const building = {
+        id: Date.now().toString(),
+        name: buildingName,
+        units: []
+    };
+    
+    buildings.push(building);
+    window.api.setItem('buildings', JSON.stringify(buildings));
+    displayBuildings();
+    closeModal();
+    return false;
+} 

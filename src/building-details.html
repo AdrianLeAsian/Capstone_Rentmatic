@@ -1,0 +1,1771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Building Details - Rentmatic</title>
+    <style>
+        /* Reuse existing styles */
+        :root {
+            --primary-color: #2A9D8F;
+            --background-color: #f5f5f5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('Dash-Background.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding-top: 60px;
+        }
+
+        .header {
+            background-color: #478778;
+            height: 60px;
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .back-button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .dashboard-label {
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: capitalize;
+            margin-left: 15px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .main-content {
+            min-height: calc(100vh - 60px);
+            padding: 20px;
+        }
+
+        .units-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .add-unit {
+            width: 200px;
+            height: 200px;
+            background: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .plus-sign {
+            color: #2A9D8F;
+            font-size: 32px;
+            font-weight: normal;
+        }
+
+        .unit-card {
+            width: 200px;
+            height: 200px;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .house-icon {
+            width: 40px;
+            height: 40px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .house-icon svg {
+            width: 100%;
+            height: 100%;
+            fill: #FF8C42;
+        }
+
+        .unit-number {
+            font-size: 16px;
+            color: #333;
+        }
+
+        .unit-status {
+            font-size: 14px;
+        }
+
+        .unit-status.occupied {
+            color: #e67e22;
+        }
+
+        .unit-status.available {
+            color: #2ecc71;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .close {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            font-size: 18px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .payment-row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .payment-row .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .payment-day-container {
+            display: none;
+        }
+
+        .payment-day-container.show {
+            display: block;
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+
+        .month-day-select {
+            display: flex;
+            gap: 10px;
+        }
+
+        .month-day-select select {
+            flex: 1;
+        }
+
+        button[type="submit"] {
+            background-color: #478778;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #3a7267;
+        }
+
+        .unit-details-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .unit-details-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            width: 90%;
+            max-width: 800px;
+            border-radius: 10px;
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .unit-details-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .unit-details-header h2 {
+            margin: 0;
+            color: #333;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .update-btn {
+            background-color: #478778;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .unit-details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .tenant-info {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .tenant-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .tenant-avatar {
+            width: 50px;
+            height: 50px;
+            background-color: #478778;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tenant-avatar img {
+            width: 30px;
+            height: 30px;
+            filter: invert(1);
+        }
+
+        .tenant-details p {
+            margin: 5px 0;
+            color: #666;
+        }
+
+        .calendar {
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            text-align: center;
+        }
+
+        .calendar-day {
+            padding: 5px;
+            font-size: 14px;
+        }
+
+        .calendar-date {
+            padding: 5px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .calendar-date:hover {
+            background-color: #e9ecef;
+        }
+
+        .calendar-date.current {
+            background-color: #478778;
+            color: white;
+        }
+
+        .unit-info {
+            margin-top: 20px;
+        }
+
+        .info-row {
+            display: flex;
+            margin: 10px 0;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .info-label {
+            width: 150px;
+            color: #666;
+        }
+
+        .info-value {
+            flex: 1;
+            color: #333;
+        }
+
+        .status-occupied {
+            color: #ff9f43;
+        }
+
+        .unit-items {
+            margin-bottom: 30px;
+        }
+
+        .item-input-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .item-input {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .items-list {
+            margin-top: 15px;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .item-row:last-child {
+            border-bottom: none;
+        }
+
+        .item-info {
+            display: flex;
+            gap: 20px;
+        }
+
+        .item-name {
+            font-weight: 500;
+        }
+
+        .item-quantity {
+            color: #666;
+        }
+
+        .delete-item {
+            color: #dc3545;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 5px;
+        }
+
+        .delete-item:hover {
+            color: #bd2130;
+        }
+
+        .add-item-btn {
+            background-color: #478778;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .update-unit-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+        }
+
+        .update-unit-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .payment-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+        }
+
+        .payment-modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .payment-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .payment-form .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .payment-form input, .payment-form select {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .payment-form button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .payment-form button:hover {
+            background-color: #45a049;
+        }
+
+        .payment-history {
+            margin: 30px auto;
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .payment-history h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .payment-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px auto;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            min-width: 600px; /* Ensure minimum width for readability */
+        }
+
+        .payment-table th,
+        .payment-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            white-space: nowrap;
+        }
+
+        .payment-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+
+        .payment-table td {
+            color: #333;
+        }
+
+        .payment-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .no-payments {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-style: italic;
+            background-color: white;
+        }
+
+        .payment-amount {
+            font-weight: 600;
+            color: #2A9D8F;
+        }
+
+        .payment-status {
+            color: #2ecc71;
+            font-weight: 500;
+        }
+
+        /* Scrollbar styling */
+        .modal-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .modal-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        .notification {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background-color: #f8f9fa;
+            border-left: 4px solid #2A9D8F;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 9999;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+            }
+            to {
+                transform: translateX(0);
+            }
+        }
+
+        /* Add this CSS after the notification styles */
+        .confirm-dialog {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1001;
+            text-align: center;
+        }
+
+        .confirm-dialog-buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .confirm-dialog button {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .confirm-dialog .confirm-yes {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .confirm-dialog .confirm-no {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .confirm-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <button class="back-button" onclick="window.location.href='units.html'">← Back to Buildings</button>
+            <div class="dashboard-label">Units</div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div id="unitsGrid" class="units-grid"></div>
+    </div>
+
+    <div id="addUnitModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addUnitModal')">&times;</span>
+            <h2>Add New Unit</h2>
+            <form id="addUnitForm" onsubmit="handleAddUnit(event)">
+                <div class="form-group">
+                    <label for="unitNumber">Unit Number</label>
+                    <input type="text" id="unitNumber" required>
+                </div>
+                <div class="form-group">
+                    <label for="bedrooms">Bedrooms</label>
+                    <input type="number" id="bedrooms" required min="0">
+                </div>
+                <div class="form-group">
+                    <label for="bathrooms">Bathrooms</label>
+                    <input type="number" id="bathrooms" required min="0">
+                </div>
+                <div class="payment-row">
+                    <div class="form-group">
+                        <label for="paymentPeriod">Payment Period</label>
+                        <select id="paymentPeriod" onchange="updatePaymentDayOptions()">
+                            <option value="Monthly">Monthly</option>
+                            <option value="Weekly">Weekly</option>
+                            <option value="Daily">Daily</option>
+                            <option value="Yearly">Yearly</option>
+                        </select>
+                    </div>
+                    
+                    <div id="paymentDateSelection" class="form-group payment-day-container">
+                        <label>Payment Date</label>
+                        <div class="month-day-select">
+                            <select id="paymentMonth">
+                                <option value="">Select month</option>
+                                <option value="1">January</option>
+                                <option value="2">February</option>
+                                <option value="3">March</option>
+                                <option value="4">April</option>
+                                <option value="5">May</option>
+                                <option value="6">June</option>
+                                <option value="7">July</option>
+                                <option value="8">August</option>
+                                <option value="9">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select>
+                            <select id="paymentDay">
+                                <option value="">Select day</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="price">Price (PHP)</label>
+                    <input type="number" id="price" required min="0" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label for="tenant">Assign Tenant</label>
+                    <select id="tenant">
+                        <option value="">No tenant assigned</option>
+                    </select>
+                </div>
+                <button type="submit">Add Unit</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="unitDetailsModal" class="unit-details-modal">
+        <div class="unit-details-content">
+            <span class="close" onclick="closeUnitDetails()">&times;</span>
+            <div class="unit-details-header">
+                <h2>Unit <span id="unitDetailNumber"></span> Details</h2>
+                <div class="action-buttons">
+                    <button class="update-btn" onclick="showUpdateUnitForm()">Update Unit</button>
+                    <button class="delete-btn" onclick="deleteUnit()">Delete Unit</button>
+                </div>
+            </div>
+            <div class="unit-details-grid">
+                <div class="tenant-info">
+                    <h3>Tenant</h3>
+                    <div id="tenantDetails">
+                        <!-- Tenant details will be populated here -->
+                    </div>
+                </div>
+                <div class="calendar">
+                    <div class="calendar-header">
+                        <button onclick="previousMonth()">&lt;</button>
+                        <h3 id="currentMonth">March 2024</h3>
+                        <button onclick="nextMonth()">&gt;</button>
+                    </div>
+                    <div class="calendar-grid" id="calendarGrid">
+                        <!-- Calendar will be populated here -->
+                    </div>
+                </div>
+            </div>
+            <div class="unit-info">
+                <div class="info-row">
+                    <div class="info-label">Unit Number</div>
+                    <div class="info-value" id="unitInfoNumber"></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Bedrooms</div>
+                    <div class="info-value" id="unitInfoBedrooms"></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Bathrooms</div>
+                    <div class="info-value" id="unitInfoBathrooms"></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Payment Schedule</div>
+                    <div class="info-value" id="unitInfoPayment"></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Price</div>
+                    <div class="info-value" id="unitInfoPrice"></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Status</div>
+                    <div class="info-value" id="unitInfoStatus"></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Actions</div>
+                    <div class="info-value">
+                        <button class="update-btn" onclick="showPaymentModal()">Payment</button>
+                    </div>
+                </div>
+            </div>
+            <div class="unit-items">
+                <h3>Unit Items</h3>
+                <div class="item-input-row">
+                    <input type="text" class="item-input" id="itemName" placeholder="Item name" required>
+                    <input type="number" class="item-input" id="itemQuantity" placeholder="Quantity" min="1" value="1">
+                    <button class="add-item-btn" onclick="addUnitItem()">Add Item</button>
+                </div>
+                <div id="itemsList" class="items-list">
+                    <!-- Items will be listed here -->
+                </div>
+            </div>
+
+            <div class="payment-history">
+                <h3>Payment History</h3>
+                <table class="payment-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th>Method</th>
+                            <th>Reference</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="paymentHistoryBody">
+                        <!-- Payment history will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="updateUnitModal" class="update-unit-modal">
+        <div class="update-unit-content">
+            <span class="close" onclick="closeUpdateUnitModal()">&times;</span>
+            <h2>Update Unit <span id="updateUnitTitle"></span></h2>
+            <form id="updateUnitForm" onsubmit="handleUpdateUnit(event)">
+                <input type="hidden" id="editUnitId">
+                <div class="form-group">
+                    <label for="updateTenant">Unit Status</label>
+                    <select id="updateTenant" onchange="updateUnitStatus()">
+                        <option value="">Available</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="updateBedrooms">Number of Rooms</label>
+                    <input type="number" id="updateBedrooms" required min="0">
+                </div>
+                <div class="form-group">
+                    <label for="updateBathrooms">Number of Bathrooms</label>
+                    <input type="number" id="updateBathrooms" required min="0">
+                </div>
+                <div class="form-group">
+                    <label for="updatePrice">Price (PHP)</label>
+                    <input type="number" id="updatePrice" required min="0" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label for="updatePaymentPeriod">Payment Period</label>
+                    <select id="updatePaymentPeriod">
+                        <option value="Monthly">Monthly</option>
+                        <option value="Weekly">Weekly</option>
+                        <option value="Daily">Daily</option>
+                        <option value="Yearly">Yearly</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="updatePaymentDate">Payment Date</label>
+                    <div class="month-day-select">
+                        <select id="updatePaymentMonth">
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                        <select id="updatePaymentDay">
+                            <!-- Days will be populated dynamically -->
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="update-btn">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="paymentModal" class="payment-modal">
+        <div class="payment-modal-content">
+            <span class="close" onclick="closePaymentModal()">&times;</span>
+            <h2>Record Payment</h2>
+            <form id="paymentForm" class="payment-form" onsubmit="handlePayment(event)">
+                <div class="form-group">
+                    <label for="paymentAmount">Amount (PHP)</label>
+                    <input type="number" id="paymentAmount" required min="0" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label for="paymentDate">Payment Date</label>
+                    <input type="date" id="paymentDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="paymentMethod">Payment Method</label>
+                    <select id="paymentMethod" required>
+                        <option value="">Select payment method</option>
+                        <option value="cash">Cash</option>
+                        <option value="bank_transfer">Bank Transfer</option>
+                        <option value="gcash">GCash</option>
+                        <option value="credit_card">Credit Card</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="paymentReference">Reference Number (Optional)</label>
+                    <input type="text" id="paymentReference" placeholder="Enter reference number">
+                </div>
+                <div class="form-group">
+                    <label for="paymentNotes">Notes (Optional)</label>
+                    <input type="text" id="paymentNotes" placeholder="Add any additional notes">
+                </div>
+                <button type="submit">Submit Payment</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <div class="confirm-overlay" id="confirmOverlay"></div>
+    <div class="confirm-dialog" id="confirmDialog">
+        <p id="confirmMessage"></p>
+        <div class="confirm-dialog-buttons">
+            <button class="confirm-no" onclick="handleConfirmResponse(false)">Cancel</button>
+            <button class="confirm-yes" onclick="handleConfirmResponse(true)">Delete</button>
+        </div>
+    </div>
+
+    <script>
+        let buildings = [];
+        let currentBuilding = null;
+        let tenants = [];
+        let currentUnit = null;
+        let currentDate = new Date();
+
+        // Load data when page loads
+        window.onload = function() {
+            const buildingId = window.api.getItem('currentBuildingId');
+            const buildingsData = window.api.getItem('buildings');
+            const tenantsData = window.api.getItem('tenants');
+            
+            if (buildingsData) {
+                buildings = JSON.parse(buildingsData);
+                currentBuilding = buildings.find(b => b.id === parseInt(buildingId));
+                
+                if (currentBuilding && !currentBuilding.units) {
+                    currentBuilding.units = [];
+                }
+            }
+
+            if (tenantsData) {
+                tenants = JSON.parse(tenantsData);
+            }
+
+            loadTenants();
+            displayUnits();
+        };
+
+        function getAssignedTenantIds() {
+            const buildings = JSON.parse(window.api.getItem('buildings')) || [];
+            const assignedTenantIds = new Set();
+            
+            buildings.forEach(building => {
+                if (building.units) {
+                    building.units.forEach(unit => {
+                        if (unit.tenantId && unit.tenantId.trim() !== '') {
+                            assignedTenantIds.add(unit.tenantId);
+                        }
+                    });
+                }
+            });
+            
+            return assignedTenantIds;
+        }
+
+        function loadTenants() {
+            const tenantSelect = document.getElementById('tenant');
+            tenantSelect.innerHTML = '<option value="">No tenant assigned</option>';
+            
+            // Get list of assigned tenant IDs
+            const assignedTenantIds = getAssignedTenantIds();
+            
+            // Get tenants from localStorage
+            const tenants = JSON.parse(window.api.getItem('tenants')) || [];
+            
+            // Only show unassigned tenants
+            tenants.forEach(tenant => {
+                if (!assignedTenantIds.has(tenant.id)) {
+                    const option = document.createElement('option');
+                    option.value = tenant.id;
+                    option.textContent = tenant.name;
+                    tenantSelect.appendChild(option);
+                }
+            });
+        }
+
+        function updatePaymentDayOptions() {
+            const paymentPeriod = document.getElementById('paymentPeriod').value;
+            const dateSelection = document.getElementById('paymentDateSelection');
+            
+            // Show the date selection for all periods
+            dateSelection.classList.add('show');
+            
+            // Update the days based on selected month
+            updateDaysInMonth();
+        }
+
+        function updateDaysInMonth() {
+            const monthSelect = document.getElementById('paymentMonth');
+            const daySelect = document.getElementById('paymentDay');
+            const selectedMonth = parseInt(monthSelect.value);
+            
+            daySelect.innerHTML = '<option value="">Select day</option>';
+            
+            if (!selectedMonth) return;
+
+            let daysInMonth;
+            if ([4, 6, 9, 11].includes(selectedMonth)) {
+                daysInMonth = 30;
+            } else if (selectedMonth === 2) {
+                daysInMonth = 29; // Including leap year day
+            } else {
+                daysInMonth = 31;
+            }
+
+            for (let i = 1; i <= daysInMonth; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                const suffix = i === 1 ? 'st' : i === 2 ? 'nd' : i === 3 ? 'rd' : 'th';
+                option.textContent = `${i}${suffix}`;
+                daySelect.appendChild(option);
+            }
+        }
+
+        function showAddUnitModal() {
+            document.getElementById('addUnitModal').style.display = 'block';
+            document.getElementById('addUnitForm').reset();
+            updatePaymentDayOptions();
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'none';
+                // Only reset form if it exists
+                const form = modal.querySelector('form');
+                if (form) {
+                    form.reset();
+                }
+            }
+        }
+
+        function showNotification(message, duration = 3000) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, duration);
+        }
+
+        function handleAddUnit(event) {
+            event.preventDefault();
+            
+            const unitNumber = document.getElementById('unitNumber').value.trim();
+            const bedrooms = document.getElementById('bedrooms').value.trim();
+            const bathrooms = document.getElementById('bathrooms').value.trim();
+            const paymentPeriod = document.getElementById('paymentPeriod').value;
+            const paymentMonth = document.getElementById('paymentMonth').value;
+            const paymentDay = document.getElementById('paymentDay').value;
+            const price = document.getElementById('price').value.trim();
+            const tenantId = document.getElementById('tenant').value;
+
+            // Check for empty unit number
+            if (!unitNumber) {
+                showNotification('Please enter a unit number');
+                return false;
+            }
+
+            // Check for duplicate unit number
+            if (currentBuilding.units && currentBuilding.units.some(unit => unit.number === unitNumber)) {
+                showNotification(`There's already a unit named ${unitNumber}`);
+                document.getElementById('unitNumber').value = '';
+                document.getElementById('unitNumber').focus();
+                return false;
+            }
+
+            // Create new unit object
+            const newUnit = {
+                id: Date.now(),
+                number: unitNumber,
+                bedrooms: bedrooms,
+                bathrooms: bathrooms,
+                paymentPeriod: paymentPeriod,
+                paymentMonth: paymentMonth,
+                paymentDay: paymentDay,
+                price: price,
+                tenantId: tenantId || null,
+                status: tenantId ? 'occupied' : 'available',
+                items: []
+            };
+
+            // Add unit to building
+            if (!currentBuilding.units) {
+                currentBuilding.units = [];
+            }
+            currentBuilding.units.push(newUnit);
+
+            // Update building in buildings array
+            const buildingIndex = buildings.findIndex(b => b.id === currentBuilding.id);
+            buildings[buildingIndex] = currentBuilding;
+
+            // Save to localStorage
+            window.api.setItem('buildings', JSON.stringify(buildings));
+
+            // Close modal and refresh display
+            closeModal('addUnitModal');
+            displayUnits();
+            
+            showNotification('Unit added successfully');
+            return false;
+        }
+
+        function displayUnits() {
+            const unitsContainer = document.getElementById('unitsGrid');
+            
+            let html = `
+                <div class="add-unit" onclick="showAddUnitModal()">
+                    <div class="plus-sign">+</div>
+                </div>
+            `;
+            
+            currentBuilding.units.forEach(unit => {
+                html += `
+                    <div class="unit-card" onclick='showUnitDetails(${JSON.stringify(unit).replace(/'/g, "&apos;")})'>
+                        <div class="house-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M21 20v-8h-3V8l-4-4-4 4-4-4-4 4v4H2v8h7v-6h4v6z"/>
+                            </svg>
+                        </div>
+                        <div class="unit-number">Unit ${unit.number}</div>
+                        <div class="unit-status ${unit.status}">${unit.status}</div>
+                    </div>
+                `;
+            });
+            
+            unitsContainer.innerHTML = html;
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                closeModal(event.target.id);
+            }
+        };
+
+        // Add event listener for month selection
+        document.getElementById('paymentMonth').addEventListener('change', updateDaysInMonth);
+
+        function showUnitDetails(unit) {
+            currentUnit = unit;
+            const modal = document.getElementById('unitDetailsModal');
+            
+            document.getElementById('unitDetailNumber').textContent = unit.number;
+            document.getElementById('unitInfoNumber').textContent = unit.number;
+            document.getElementById('unitInfoBedrooms').textContent = unit.bedrooms;
+            document.getElementById('unitInfoBathrooms').textContent = unit.bathrooms;
+            
+            // Format payment schedule based on period
+            let paymentSchedule;
+            if (unit.paymentDate) {
+                const [month, day] = unit.paymentDate.split('-');
+                const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                const monthName = months[parseInt(month) - 1];
+                
+                switch (unit.paymentPeriod) {
+                    case 'Monthly':
+                        paymentSchedule = `Monthly (Every ${day} of the month)`;
+                        break;
+                    case 'Weekly':
+                        paymentSchedule = `Weekly (Starting ${monthName} ${day})`;
+                        break;
+                    case 'Daily':
+                        paymentSchedule = `Daily (Starting ${monthName} ${day})`;
+                        break;
+                    case 'Yearly':
+                        paymentSchedule = `Yearly (Every ${monthName} ${day})`;
+                        break;
+                    default:
+                        paymentSchedule = unit.paymentPeriod || 'Not set';
+                }
+            } else {
+                paymentSchedule = unit.paymentPeriod || 'Not set';
+            }
+            document.getElementById('unitInfoPayment').textContent = paymentSchedule;
+            
+            document.getElementById('unitInfoPrice').textContent = `₱${unit.price}`;
+            document.getElementById('unitInfoStatus').textContent = unit.status;
+            
+            // Set tenant details
+            const tenantDetails = document.getElementById('tenantDetails');
+            if (unit.tenantId) {
+                const tenants = JSON.parse(window.api.getItem('tenants')) || [];
+                const tenant = tenants.find(t => t.id === unit.tenantId);
+                if (tenant) {
+                    tenantDetails.innerHTML = `
+                        <div class="tenant-header">
+                            <div class="tenant-avatar">
+                                <img src="user-icon.png" alt="Tenant">
+                            </div>
+                            <div class="tenant-details">
+                                <h4>${tenant.name}</h4>
+                                <p>Contact: ${tenant.mobile || 'N/A'}</p>
+                                <p>Email: ${tenant.email || 'N/A'}</p>
+                            </div>
+                        </div>
+                    `;
+                }
+            } else {
+                tenantDetails.innerHTML = '<p>No tenant assigned</p>';
+            }
+
+            // Initialize calendar
+            updateCalendar();
+            
+            // Display unit items
+            displayUnitItems();
+            
+            // Load payment history
+            loadPaymentHistory(unit.id);
+            
+            modal.style.display = 'block';
+        }
+
+        function closeUnitDetails() {
+            document.getElementById('unitDetailsModal').style.display = 'none';
+            currentUnit = null;
+        }
+
+        function updateCalendar() {
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                              'July', 'August', 'September', 'October', 'November', 'December'];
+            
+            document.getElementById('currentMonth').textContent = 
+                `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+
+            const calendarGrid = document.getElementById('calendarGrid');
+            calendarGrid.innerHTML = '';
+
+            // Add day headers
+            ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'calendar-day';
+                dayHeader.textContent = day;
+                calendarGrid.appendChild(dayHeader);
+            });
+
+            // Get first day of month and total days
+            const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+            const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+            
+            // Add empty cells for days before first of month
+            for (let i = 0; i < firstDay.getDay(); i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'calendar-date';
+                calendarGrid.appendChild(emptyDay);
+            }
+
+            // Add days of month
+            for (let i = 1; i <= lastDay.getDate(); i++) {
+                const dateDiv = document.createElement('div');
+                dateDiv.className = 'calendar-date';
+                if (i === currentDate.getDate()) {
+                    dateDiv.className += ' current';
+                }
+                dateDiv.textContent = i;
+                calendarGrid.appendChild(dateDiv);
+            }
+        }
+
+        function previousMonth() {
+            currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+            updateCalendar();
+        }
+
+        function nextMonth() {
+            currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
+            updateCalendar();
+        }
+
+        function showUpdateUnitForm() {
+            const modal = document.getElementById('updateUnitModal');
+            
+            // Set the unit number in the title
+            document.getElementById('updateUnitTitle').textContent = currentUnit.number;
+            
+            // Set hidden unit ID
+            document.getElementById('editUnitId').value = currentUnit.id;
+            
+            // Populate form with current unit data
+            document.getElementById('updateBedrooms').value = currentUnit.bedrooms;
+            document.getElementById('updateBathrooms').value = currentUnit.bathrooms;
+            document.getElementById('updatePrice').value = currentUnit.price;
+            document.getElementById('updatePaymentPeriod').value = currentUnit.paymentPeriod || 'Monthly';
+            
+            // Populate payment date dropdowns
+            if (currentUnit.paymentDate) {
+                const [month, day] = currentUnit.paymentDate.split('-');
+                document.getElementById('updatePaymentMonth').value = month;
+                populateUpdateDays(month, day);
+            } else {
+                // If no payment date, populate days for the selected month
+                const month = document.getElementById('updatePaymentMonth').value;
+                populateUpdateDays(month);
+            }
+            
+            // Get tenants data and populate dropdown
+            const tenants = JSON.parse(window.api.getItem('tenants')) || [];
+            
+            // Get assigned tenant IDs (excluding current unit's tenant)
+            const assignedTenantIds = getAssignedTenantIds();
+            
+            // Remove current unit's tenant from assigned list if exists
+            if (currentUnit.tenantId) {
+                assignedTenantIds.delete(currentUnit.tenantId);
+            }
+            
+            // Populate tenant dropdown
+            const tenantSelect = document.getElementById('updateTenant');
+            tenantSelect.innerHTML = '<option value="">Available</option>';
+            
+            // Add available tenants
+            tenants.forEach(tenant => {
+                if (!assignedTenantIds.has(tenant.id)) {
+                    const option = document.createElement('option');
+                    option.value = tenant.id;
+                    option.textContent = tenant.name;
+                    if (tenant.id === currentUnit.tenantId) {
+                        option.selected = true;
+                    }
+                    tenantSelect.appendChild(option);
+                }
+            });
+            
+            modal.style.display = 'block';
+        }
+
+        function closeUpdateUnitModal() {
+            document.getElementById('updateUnitModal').style.display = 'none';
+        }
+
+        function updateUnitStatus() {
+            const tenantSelect = document.getElementById('updateTenant');
+            const status = tenantSelect.value ? 'occupied' : 'available';
+            console.log('Unit status updated to:', status);
+        }
+
+        function populateUpdateDays(month, selectedDay = null) {
+            const daySelect = document.getElementById('updatePaymentDay');
+            daySelect.innerHTML = ''; // Clear existing options
+            
+            let daysInMonth;
+            if ([4, 6, 9, 11].includes(parseInt(month))) {
+                daysInMonth = 30;
+            } else if (month === '2') {
+                daysInMonth = 29; // Including leap year day
+            } else {
+                daysInMonth = 31;
+            }
+
+            // Add days
+            for (let i = 1; i <= daysInMonth; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                if (selectedDay && parseInt(selectedDay) === i) {
+                    option.selected = true;
+                }
+                daySelect.appendChild(option);
+            }
+        }
+
+        function handleUpdateUnit(event) {
+            event.preventDefault();
+            
+            const unitId = parseInt(document.getElementById('editUnitId').value);
+            const bedrooms = document.getElementById('updateBedrooms').value;
+            const bathrooms = document.getElementById('updateBathrooms').value;
+            const price = document.getElementById('updatePrice').value;
+            const paymentPeriod = document.getElementById('updatePaymentPeriod').value;
+            const month = document.getElementById('updatePaymentMonth').value;
+            const day = document.getElementById('updatePaymentDay').value;
+            const tenantId = document.getElementById('updateTenant').value;
+            
+            // Find the unit in the building
+            const unitIndex = currentBuilding.units.findIndex(u => u.id === unitId);
+            if (unitIndex !== -1) {
+                // Check if tenant is being unassigned
+                const currentTenantId = currentBuilding.units[unitIndex].tenantId;
+                const isUnassigning = currentTenantId && !tenantId;
+                
+                const updatedUnit = {
+                    ...currentBuilding.units[unitIndex],
+                    bedrooms: parseInt(bedrooms),
+                    bathrooms: parseInt(bathrooms),
+                    price: parseFloat(price),
+                    paymentPeriod: paymentPeriod,
+                    paymentMonth: month,
+                    paymentDay: day,
+                    tenantId: tenantId || null,
+                    status: tenantId ? 'occupied' : 'available'
+                };
+                
+                // If tenant is being unassigned, clear payment history
+                if (isUnassigning) {
+                    let payments = JSON.parse(window.api.getItem('payments') || '[]');
+                    payments = payments.filter(payment => payment.unitId !== unitId);
+                    window.api.setItem('payments', JSON.stringify(payments));
+                }
+                
+                // Update unit in the building
+                currentBuilding.units[unitIndex] = updatedUnit;
+                
+                // Update building in buildings array
+                const buildingIndex = buildings.findIndex(b => b.id === currentBuilding.id);
+                buildings[buildingIndex] = currentBuilding;
+                
+                // Save to localStorage
+                window.api.setItem('buildings', JSON.stringify(buildings));
+                
+                // Update current unit
+                currentUnit = updatedUnit;
+                
+                // Refresh displays
+                displayUnits();
+                showUnitDetails(updatedUnit);
+                
+                // Close modal and show success message
+                closeUpdateUnitModal();
+                showNotification('Unit updated successfully');
+            }
+        }
+
+        function deleteUnit() {
+            showConfirmDialog('Are you sure you want to delete this unit?', (confirmed) => {
+                if (confirmed) {
+                    // Find and remove the unit
+                    currentBuilding.units = currentBuilding.units.filter(unit => unit.id !== currentUnit.id);
+                    
+                    // Update building in buildings array
+                    const buildingIndex = buildings.findIndex(b => b.id === currentBuilding.id);
+                    buildings[buildingIndex] = currentBuilding;
+                    
+                    // Save to localStorage
+                    window.api.setItem('buildings', JSON.stringify(buildings));
+
+                    // Close unit details modal
+                    closeUnitDetails();
+
+                    // Refresh display
+                    displayUnits();
+                    
+                    showNotification('Unit deleted successfully');
+                }
+            });
+        }
+
+        function showPaymentModal() {
+            if (!currentUnit.tenantId) {
+                showNotification('Please assign tenant first');
+                return;
+            }
+            const modal = document.getElementById('paymentModal');
+            
+            // Set today's date as default
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('paymentDate').value = today;
+            
+            // Set the price as default amount
+            document.getElementById('paymentAmount').value = currentUnit.price || '';
+            
+            modal.style.display = 'block';
+        }
+
+        function closePaymentModal() {
+            document.getElementById('paymentModal').style.display = 'none';
+        }
+
+        function handlePayment(event) {
+            event.preventDefault();
+            
+            const payment = {
+                id: document.getElementById('paymentReference').value || generateReference(),
+                unitId: currentUnit.id,
+                amount: parseFloat(document.getElementById('paymentAmount').value),
+                date: document.getElementById('paymentDate').value,
+                method: document.getElementById('paymentMethod').value,
+                notes: document.getElementById('paymentNotes').value || '',
+                timestamp: new Date().toISOString()
+            };
+
+            // Get existing payments or initialize empty array
+            let payments = JSON.parse(window.api.getItem('payments') || '[]');
+            
+            // Add new payment
+            payments.push(payment);
+            
+            try {
+                // Save to localStorage
+                window.api.setItem('payments', JSON.stringify(payments));
+                
+                // Close modal
+                closePaymentModal();
+                
+                // Refresh payment history and unit details
+                showUnitDetails(currentUnit);
+                
+                // Show success message
+                showNotification('Payment recorded successfully!');
+            } catch (error) {
+                console.error('Error recording payment:', error);
+                showNotification('Error recording payment. Please try again.');
+            }
+        }
+
+        function generateReference() {
+            // Generate an 8-digit reference number
+            return Math.floor(10000000 + Math.random() * 90000000).toString();
+        }
+
+        function loadPaymentHistory(unitId) {
+            const payments = JSON.parse(window.api.getItem('payments') || '[]');
+            const unitPayments = payments.filter(p => p.unitId === unitId);
+            const tbody = document.getElementById('paymentHistoryBody');
+            
+            if (unitPayments.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="no-payments">No payment history available</td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = unitPayments
+                .sort((a, b) => new Date(b.date) - new Date(a.date))
+                .map(payment => {
+                    const date = new Date(payment.date).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+                    return `
+                        <tr>
+                            <td>${date}</td>
+                            <td class="payment-amount">₱${payment.amount.toFixed(2)}</td>
+                            <td>${payment.method.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</td>
+                            <td>${payment.id}</td>
+                            <td class="payment-status">Completed</td>
+                        </tr>
+                    `;
+                })
+                .join('');
+        }
+
+        function addUnitItem() {
+            const itemName = document.getElementById('itemName').value.trim();
+            const itemQuantity = parseInt(document.getElementById('itemQuantity').value);
+            
+            if (!itemName) {
+                alert('Please enter an item name');
+                return;
+            }
+            
+            if (!itemQuantity || itemQuantity < 1) {
+                alert('Please enter a valid quantity');
+                return;
+            }
+
+            const item = {
+                id: Date.now().toString(),
+                name: itemName,
+                quantity: itemQuantity
+            };
+
+            // Add item to current unit's items array
+            if (!currentUnit.items) {
+                currentUnit.items = [];
+            }
+            currentUnit.items.push(item);
+
+            // Update unit in buildings array
+            const buildingIndex = buildings.findIndex(b => b.id === currentBuilding.id);
+            const unitIndex = currentBuilding.units.findIndex(u => u.id === currentUnit.id);
+            buildings[buildingIndex].units[unitIndex] = currentUnit;
+
+            // Save to localStorage
+            window.api.setItem('buildings', JSON.stringify(buildings));
+
+            // Clear input fields
+            document.getElementById('itemName').value = '';
+            document.getElementById('itemQuantity').value = '1';
+
+            // Refresh items display
+            displayUnitItems();
+        }
+
+        function displayUnitItems() {
+            const itemsList = document.getElementById('itemsList');
+            
+            if (!currentUnit.items || currentUnit.items.length === 0) {
+                itemsList.innerHTML = '<div class="item-row">No items added yet</div>';
+                return;
+            }
+
+            itemsList.innerHTML = currentUnit.items.map(item => `
+                <div class="item-row">
+                    <div class="item-info">
+                        <span class="item-name">${item.name}</span>
+                        <span class="item-quantity">Quantity: ${item.quantity}</span>
+                    </div>
+                    <button class="delete-item" onclick="deleteUnitItem('${item.id}')">×</button>
+                </div>
+            `).join('');
+        }
+
+        function deleteUnitItem(itemId) {
+            showConfirmDialog('Are you sure you want to delete this item?', (confirmed) => {
+                if (confirmed) {
+                    // Remove item from current unit's items array
+                    currentUnit.items = currentUnit.items.filter(item => item.id !== itemId);
+
+                    // Update unit in buildings array
+                    const buildingIndex = buildings.findIndex(b => b.id === currentBuilding.id);
+                    const unitIndex = currentBuilding.units.findIndex(u => u.id === currentUnit.id);
+                    buildings[buildingIndex].units[unitIndex] = currentUnit;
+
+                    // Save to localStorage
+                    window.api.setItem('buildings', JSON.stringify(buildings));
+
+                    // Refresh items display
+                    displayUnitItems();
+                    
+                    showNotification('Item deleted successfully');
+                }
+            });
+        }
+
+        function showConfirmDialog(message, callback) {
+            document.getElementById('confirmMessage').textContent = message;
+            document.getElementById('confirmDialog').style.display = 'block';
+            document.getElementById('confirmOverlay').style.display = 'block';
+            window.confirmCallback = callback;
+        }
+
+        function handleConfirmResponse(confirmed) {
+            document.getElementById('confirmDialog').style.display = 'none';
+            document.getElementById('confirmOverlay').style.display = 'none';
+            if (window.confirmCallback) {
+                window.confirmCallback(confirmed);
+                window.confirmCallback = null;
+            }
+        }
+
+        // Add event listeners for page load and storage changes
+        window.addEventListener('load', function() {
+            loadTenants();
+        });
+
+        // Listen for changes in buildings data
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'buildings') {
+                loadTenants();
+            }
+        });
+
+        // Add event listeners when document loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add event listener for payment period change in update form
+            const updatePaymentPeriod = document.getElementById('updatePaymentPeriod');
+            if (updatePaymentPeriod) {
+                updatePaymentPeriod.addEventListener('change', function() {
+                    const month = document.getElementById('updatePaymentMonth').value;
+                    populateUpdateDays(month);
+                });
+            }
+            
+            // Add event listener for month change in update form
+            const updatePaymentMonth = document.getElementById('updatePaymentMonth');
+            if (updatePaymentMonth) {
+                updatePaymentMonth.addEventListener('change', function() {
+                    populateUpdateDays(this.value);
+                });
+            }
+        });
+    </script>
+</body>
+</html> 

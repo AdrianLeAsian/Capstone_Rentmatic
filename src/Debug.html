@@ -246,7 +246,7 @@
     </div>
 
     <script>
-        const notificationDismissed = localStorage.getItem('messageNotificationDismissed');
+        const notificationDismissed = window.api.getItem('messageNotificationDismissed');
         if (notificationDismissed === 'true') {
             document.getElementById('messageNotification').style.display = 'none';
         }
@@ -254,7 +254,7 @@
         function handleMessageClick(event) {
             const notification = document.getElementById('messageNotification');
             notification.style.display = 'none';
-            localStorage.setItem('messageNotificationDismissed', 'true');
+            window.api.setItem('messageNotificationDismissed', 'true');
         }
 
         function sendTestMessage() {
@@ -266,7 +266,7 @@
                 return;
             }
 
-            const messages = JSON.parse(localStorage.getItem('messages') || '[]');
+            const messages = JSON.parse(window.api.getItem('messages') || '[]');
             const newMessage = {
                 id: Date.now(),
                 from: {
@@ -280,13 +280,13 @@
             };
 
             messages.push(newMessage);
-            localStorage.setItem('messages', JSON.stringify(messages));
+            window.api.setItem('messages', JSON.stringify(messages));
             
             // Update notification count
             const currentCount = parseInt(document.getElementById('messageNotification').textContent);
             document.getElementById('messageNotification').textContent = currentCount + 1;
             document.getElementById('messageNotification').style.display = 'flex';
-            localStorage.setItem('messageNotificationDismissed', 'false');
+            window.api.setItem('messageNotificationDismissed', 'false');
 
             // Clear form
             document.getElementById('testMessageSubject').value = '';
@@ -334,9 +334,9 @@
 
         function loadAndCompareData() {
             const currentState = {
-                tenants: JSON.parse(localStorage.getItem('tenants') || '[]'),
-                units: JSON.parse(localStorage.getItem('units') || '[]'),
-                payments: JSON.parse(localStorage.getItem('paymentHistory') || '{}')
+                tenants: JSON.parse(window.api.getItem('tenants') || '[]'),
+                units: JSON.parse(window.api.getItem('units') || '[]'),
+                payments: JSON.parse(window.api.getItem('paymentHistory') || '{}')
             };
 
             // Compare and log changes
