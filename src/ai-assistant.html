@@ -181,6 +181,26 @@
         .send-button:hover {
             background-color: #2A9D8F;
         }
+
+        .typing-indicator {
+            display: none;
+            padding: 10px 15px;
+            background: #e9ecef;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            color: #6c757d;
+            align-self: flex-start;
+        }
+
+        .error-message {
+            display: none;
+            padding: 10px 15px;
+            background: #dc3545;
+            color: white;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            align-self: flex-start;
+        }
     </style>
 </head>
 <body>
@@ -222,45 +242,224 @@
         <div class="chat-container">
             <div class="chat-messages" id="chatMessages">
                 <div class="message ai-message">
-                    Hello! How can I assist you today?
+                    Hi! I'm your Rentmatic AI Assistant. I'm here to help you with managing your properties, tenants, payments, and more. Feel free to ask me anything about Rentmatic's features and how to use them.
                 </div>
             </div>
+            <div class="typing-indicator" id="typingIndicator">AI is typing...</div>
+            <div class="error-message" id="errorMessage"></div>
             <div class="chat-input-container">
-                <input type="text" class="chat-input" id="userInput" placeholder="Type your message..." onkeypress="if(event.key === 'Enter') sendMessage()">
+                <input type="text" class="chat-input" id="userInput" placeholder="Type your message...">
                 <button class="send-button" onclick="sendMessage()">Send</button>
             </div>
         </div>
     </div>
 
     <script>
-        // Placeholder for AI integration
-        function sendMessage() {
-            const input = document.getElementById('userInput');
-            const message = input.value.trim();
+        const API_KEY = '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';
+        const API_ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions';
+        let isProcessing = false;
+
+        // Comprehensive Rentmatic context
+        const rentmaticContext = {
+            coreFeatures: [
+                'tenant management',
+                'unit management',
+                'building management',
+                'payment processing',
+                'income tracking',
+                'report generation',
+                'calendar management',
+                'document management',
+                'maintenance tracking',
+                'lease management'
+            ],
+            specificActions: [
+                'add tenant',
+                'update tenant',
+                'delete tenant',
+                'add unit',
+                'update unit',
+                'delete unit',
+                'add building',
+                'update building',
+                'delete building',
+                'process payment',
+                'generate report',
+                'view calendar',
+                'schedule maintenance',
+                'manage lease',
+                'track income',
+                'view analytics'
+            ],
+            systemTerms: [
+                'rentmatic',
+                'tenant',
+                'unit',
+                'building',
+                'payment',
+                'lease',
+                'maintenance',
+                'report',
+                'calendar',
+                'income',
+                'analytics',
+                'dashboard'
+            ]
+        };
+
+        // System context for the AI
+        const systemContext = `You are a friendly AI assistant for Rentmatic, a property management system. 
+        Your responses should be conversational, clear, and concise. Never use XML tags or technical formatting.
+        
+        When explaining features or procedures:
+        1. Use simple, natural language
+        2. Give clear, step-by-step instructions in sentence form
+        3. Keep responses focused on Rentmatic features
+        4. Be friendly and helpful
+        
+        You help users with Rentmatic features including:
+        - Tenant Management
+        - Unit Management
+        - Building Management
+        - Payment Processing
+        - Report Generation
+        - Calendar Management
+        - Document Management
+        - Maintenance Tracking
+        - Lease Management
+        
+        Keep your responses natural and easy to read. Never use technical tags or markers.
+        If a question is not related to Rentmatic, respond with:
+        "I can only help with questions about Rentmatic features and functionality. Please ask about specific Rentmatic features like unit management, tenant tracking, or payment processing."`;
+
+        function showTypingIndicator() {
+            document.getElementById('typingIndicator').style.display = 'block';
+        }
+
+        function hideTypingIndicator() {
+            document.getElementById('typingIndicator').style.display = 'none';
+        }
+
+        function showError(message) {
+            const errorElement = document.getElementById('errorMessage');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+            setTimeout(() => {
+                errorElement.style.display = 'none';
+            }, 5000);
+        }
+
+        function addMessage(message, type) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${type}`;
+            messageElement.textContent = message;
+            chatMessages.appendChild(messageElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function isRentmaticRelated(message) {
+            const lowerMessage = message.toLowerCase();
+            return rentmaticContext.coreFeatures.some(feature => lowerMessage.includes(feature)) ||
+                   rentmaticContext.specificActions.some(action => lowerMessage.includes(action)) ||
+                   rentmaticContext.systemTerms.some(term => lowerMessage.includes(term));
+        }
+
+        async function sendMessage() {
+            if (isProcessing) return;
+
+            const userInput = document.getElementById('userInput');
+            const message = userInput.value.trim();
             
-            if (message) {
-                // Add user message
+            if (!message) return;
+
+            // Check if query is Rentmatic-related
+            if (!isRentmaticRelated(message)) {
                 addMessage(message, 'user-message');
+                addMessage("I can only help with questions about Rentmatic features and functionality. Please ask about specific Rentmatic features like unit management, tenant tracking, or payment processing.", 'ai-message');
+                userInput.value = '';
+                return;
+            }
+
+            isProcessing = true;
+            document.querySelector('.send-button').disabled = true;
+            userInput.value = '';
+
+            addMessage(message, 'user-message');
+            showTypingIndicator();
+
+            try {
+                console.log('Sending request to OpenRouter API...');
+                const response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${API_KEY}`,
+                        'HTTP-Referer': window.location.origin,
+                        'X-Title': 'Rentmatic AI Assistant'
+                    },
+                    body: JSON.stringify({
+                        model: "deepseek/deepseek-r1:free",
+                        messages: [
+                            {
+                                role: "system",
+                                content: systemContext
+                            },
+                            {
+                                role: "user",
+                                content: message
+                            }
+                        ],
+                        temperature: 0.7,
+                        max_tokens: 800
+                    })
+                });
+
+                console.log('API Response status:', response.status);
                 
-                // Clear input
-                input.value = '';
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error('API Error Response:', errorData);
+                    throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                console.log('API Response data:', data);
                 
-                // Placeholder for AI response
-                // This will be replaced with actual API call later
-                setTimeout(() => {
-                    addMessage('This is a placeholder response. The AI integration will be added soon.', 'ai-message');
-                }, 500);
+                if (data.choices && data.choices[0]) {
+                    let aiResponse = data.choices[0].message.content;
+                    
+                    // Clean up any potential tool response tags or XML-like content
+                    aiResponse = aiResponse
+                        .replace(/<tool_response>.*?<\/tool_response>/g, '')
+                        .replace(/<[^>]*>/g, '')
+                        .replace(/\s+/g, ' ')
+                        .trim();
+                    
+                    if (aiResponse) {
+                        addMessage(aiResponse, 'ai-message');
+                    } else {
+                        throw new Error('Empty or invalid response');
+                    }
+                } else {
+                    throw new Error('Invalid response structure');
+                }
+            } catch (error) {
+                console.error('Detailed error:', error);
+                addMessage("I apologize, but I'm having trouble responding right now. Please try asking your question again.", 'ai-message');
+            } finally {
+                hideTypingIndicator();
+                isProcessing = false;
+                document.querySelector('.send-button').disabled = false;
             }
         }
 
-        function addMessage(text, className) {
-            const chatMessages = document.getElementById('chatMessages');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${className}`;
-            messageDiv.textContent = text;
-            chatMessages.appendChild(messageDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
+        // Add event listener for Enter key
+        document.getElementById('userInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
     </script>
 </body>
 </html> 

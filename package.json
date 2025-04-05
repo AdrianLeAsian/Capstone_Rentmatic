@@ -16,6 +16,7 @@
   "dependencies": {
     "bcrypt": "^5.1.1",
     "firebase": "^11.5.0",
+    "openai": "^4.91.1",
     "sqlite3": "^5.1.7"
   },
   "version": "1.0.0",
