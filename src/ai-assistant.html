@@ -146,6 +146,39 @@
             align-self: flex-start;
         }
 
+        .typing-indicator {
+            display: none;
+            align-self: flex-start;
+            background-color: #f0f0f0;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin: 5px 0;
+            max-width: 70%;
+        }
+
+        .typing-indicator span {
+            height: 8px;
+            width: 8px;
+            background-color: #478778;
+            display: inline-block;
+            border-radius: 50%;
+            margin-right: 3px;
+            animation: typing 1s infinite;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
         .chat-input-container {
             padding: 20px;
             background-color: rgba(255, 255, 255, 0.9);
@@ -180,26 +213,6 @@
 
         .send-button:hover {
             background-color: #2A9D8F;
-        }
-
-        .typing-indicator {
-            display: none;
-            padding: 10px 15px;
-            background: #e9ecef;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            color: #6c757d;
-            align-self: flex-start;
-        }
-
-        .error-message {
-            display: none;
-            padding: 10px 15px;
-            background: #dc3545;
-            color: white;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            align-self: flex-start;
         }
     </style>
 </head>
@@ -242,224 +255,152 @@
         <div class="chat-container">
             <div class="chat-messages" id="chatMessages">
                 <div class="message ai-message">
-                    Hi! I'm your Rentmatic AI Assistant. I'm here to help you with managing your properties, tenants, payments, and more. Feel free to ask me anything about Rentmatic's features and how to use them.
+                    Hello! How can I assist you today?
                 </div>
             </div>
-            <div class="typing-indicator" id="typingIndicator">AI is typing...</div>
-            <div class="error-message" id="errorMessage"></div>
             <div class="chat-input-container">
-                <input type="text" class="chat-input" id="userInput" placeholder="Type your message...">
+                <input type="text" class="chat-input" id="userInput" placeholder="Type your message..." onkeypress="if(event.key === 'Enter') sendMessage()">
                 <button class="send-button" onclick="sendMessage()">Send</button>
             </div>
         </div>
     </div>
 
     <script>
-        const API_KEY = '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';
-        const API_ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions';
-        let isProcessing = false;
+        const GEMINI_API_KEY = 'AIzaSyBeAbGbuiaw13sfSNBiw8AG7mVJBPwYG1U';
+        const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
-        // Comprehensive Rentmatic context
-        const rentmaticContext = {
-            coreFeatures: [
-                'tenant management',
-                'unit management',
-                'building management',
-                'payment processing',
-                'income tracking',
-                'report generation',
-                'calendar management',
-                'document management',
-                'maintenance tracking',
-                'lease management'
-            ],
-            specificActions: [
-                'add tenant',
-                'update tenant',
-                'delete tenant',
-                'add unit',
-                'update unit',
-                'delete unit',
-                'add building',
-                'update building',
-                'delete building',
-                'process payment',
-                'generate report',
-                'view calendar',
-                'schedule maintenance',
-                'manage lease',
-                'track income',
-                'view analytics'
-            ],
-            systemTerms: [
-                'rentmatic',
-                'tenant',
-                'unit',
-                'building',
-                'payment',
-                'lease',
-                'maintenance',
-                'report',
-                'calendar',
-                'income',
-                'analytics',
-                'dashboard'
-            ]
-        };
-
-        // System context for the AI
-        const systemContext = `You are a friendly AI assistant for Rentmatic, a property management system. 
-        Your responses should be conversational, clear, and concise. Never use XML tags or technical formatting.
+        const SYSTEM_CONTEXT = `You are a Rentmatic AI assistant. Your purpose is to help users with the Rentmatic property management system. 
+        You should analyze the provided system data and respond to questions about:
+        - Property management features
+        - Tenant management
+        - Unit management
+        - Payment processing
+        - System navigation
+        - Data management
+        - System settings
+        - User account management
+        - Reports and analytics
+        - System troubleshooting
+        - System statistics and reports
         
-        When explaining features or procedures:
-        1. Use simple, natural language
-        2. Give clear, step-by-step instructions in sentence form
-        3. Keep responses focused on Rentmatic features
-        4. Be friendly and helpful
-        
-        You help users with Rentmatic features including:
-        - Tenant Management
-        - Unit Management
-        - Building Management
-        - Payment Processing
-        - Report Generation
-        - Calendar Management
-        - Document Management
-        - Maintenance Tracking
-        - Lease Management
-        
-        Keep your responses natural and easy to read. Never use technical tags or markers.
-        If a question is not related to Rentmatic, respond with:
-        "I can only help with questions about Rentmatic features and functionality. Please ask about specific Rentmatic features like unit management, tenant tracking, or payment processing."`;
+        Always analyze the current system data before responding and provide specific, accurate information based on the actual system state.
+        If a question is not related to the Rentmatic system, respond with: "I can only assist with questions about the Rentmatic system. Please ask about property management, tenants, units, or other system features."`;
 
-        function showTypingIndicator() {
-            document.getElementById('typingIndicator').style.display = 'block';
-        }
-
-        function hideTypingIndicator() {
-            document.getElementById('typingIndicator').style.display = 'none';
-        }
-
-        function showError(message) {
-            const errorElement = document.getElementById('errorMessage');
-            errorElement.textContent = message;
-            errorElement.style.display = 'block';
-            setTimeout(() => {
-                errorElement.style.display = 'none';
-            }, 5000);
-        }
-
-        function addMessage(message, type) {
-            const chatMessages = document.getElementById('chatMessages');
-            const messageElement = document.createElement('div');
-            messageElement.className = `message ${type}`;
-            messageElement.textContent = message;
-            chatMessages.appendChild(messageElement);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        function isRentmaticRelated(message) {
-            const lowerMessage = message.toLowerCase();
-            return rentmaticContext.coreFeatures.some(feature => lowerMessage.includes(feature)) ||
-                   rentmaticContext.specificActions.some(action => lowerMessage.includes(action)) ||
-                   rentmaticContext.systemTerms.some(term => lowerMessage.includes(term));
+        async function getSystemData() {
+            try {
+                const buildings = JSON.parse(window.api.getItem('buildings')) || [];
+                const tenants = JSON.parse(window.api.getItem('tenants')) || [];
+                const payments = JSON.parse(window.api.getItem('payments')) || [];
+                
+                let totalUnits = 0;
+                let occupiedUnits = 0;
+                let totalEarnings = 0;
+                
+                // Calculate building and unit statistics
+                buildings.forEach(building => {
+                    if (building.units) {
+                        totalUnits += building.units.length;
+                        occupiedUnits += building.units.filter(unit => unit.status === 'occupied').length;
+                    }
+                });
+                
+                // Calculate total earnings
+                payments.forEach(payment => {
+                    if (payment.amount) {
+                        totalEarnings += parseFloat(payment.amount);
+                    }
+                });
+                
+                return {
+                    totalBuildings: buildings.length,
+                    totalUnits: totalUnits,
+                    occupiedUnits: occupiedUnits,
+                    availableUnits: totalUnits - occupiedUnits,
+                    totalTenants: tenants.length,
+                    totalEarnings: totalEarnings,
+                    occupancyRate: totalUnits > 0 ? (occupiedUnits / totalUnits * 100).toFixed(2) : 0
+                };
+            } catch (error) {
+                console.error('Error fetching system data:', error);
+                return null;
+            }
         }
 
         async function sendMessage() {
-            if (isProcessing) return;
-
-            const userInput = document.getElementById('userInput');
-            const message = userInput.value.trim();
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
             
-            if (!message) return;
-
-            // Check if query is Rentmatic-related
-            if (!isRentmaticRelated(message)) {
+            if (message) {
+                // Add user message
                 addMessage(message, 'user-message');
-                addMessage("I can only help with questions about Rentmatic features and functionality. Please ask about specific Rentmatic features like unit management, tenant tracking, or payment processing.", 'ai-message');
-                userInput.value = '';
-                return;
-            }
-
-            isProcessing = true;
-            document.querySelector('.send-button').disabled = true;
-            userInput.value = '';
-
-            addMessage(message, 'user-message');
-            showTypingIndicator();
-
-            try {
-                console.log('Sending request to OpenRouter API...');
-                const response = await fetch(API_ENDPOINT, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${API_KEY}`,
-                        'HTTP-Referer': window.location.origin,
-                        'X-Title': 'Rentmatic AI Assistant'
-                    },
-                    body: JSON.stringify({
-                        model: "deepseek/deepseek-r1:free",
-                        messages: [
-                            {
-                                role: "system",
-                                content: systemContext
-                            },
-                            {
-                                role: "user",
-                                content: message
-                            }
-                        ],
-                        temperature: 0.7,
-                        max_tokens: 800
-                    })
-                });
-
-                console.log('API Response status:', response.status);
                 
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    console.error('API Error Response:', errorData);
-                    throw new Error(`API request failed: ${response.status} ${response.statusText}`);
-                }
-
-                const data = await response.json();
-                console.log('API Response data:', data);
+                // Clear input
+                input.value = '';
                 
-                if (data.choices && data.choices[0]) {
-                    let aiResponse = data.choices[0].message.content;
+                // Show typing indicator
+                const typingIndicator = document.createElement('div');
+                typingIndicator.className = 'typing-indicator';
+                typingIndicator.innerHTML = '<span></span><span></span><span></span>';
+                document.getElementById('chatMessages').appendChild(typingIndicator);
+                typingIndicator.style.display = 'flex';
+                
+                try {
+                    // Get current system data
+                    const systemData = await getSystemData();
                     
-                    // Clean up any potential tool response tags or XML-like content
-                    aiResponse = aiResponse
-                        .replace(/<tool_response>.*?<\/tool_response>/g, '')
-                        .replace(/<[^>]*>/g, '')
-                        .replace(/\s+/g, ' ')
-                        .trim();
+                    // Prepare context with system data
+                    const dataContext = systemData ? `
+                    Current System Statistics:
+                    - Total Buildings: ${systemData.totalBuildings}
+                    - Total Units: ${systemData.totalUnits}
+                    - Occupied Units: ${systemData.occupiedUnits}
+                    - Available Units: ${systemData.availableUnits}
+                    - Total Tenants: ${systemData.totalTenants}
+                    - Total Earnings: ₱${systemData.totalEarnings.toLocaleString()}
+                    - Occupancy Rate: ${systemData.occupancyRate}%
+                    ` : '';
+
+                    const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            contents: [{
+                                parts: [{
+                                    text: `${SYSTEM_CONTEXT}\n\n${dataContext}\n\nUser question: ${message}`
+                                }]
+                            }]
+                        })
+                    });
+
+                    const data = await response.json();
                     
-                    if (aiResponse) {
-                        addMessage(aiResponse, 'ai-message');
+                    // Remove typing indicator
+                    typingIndicator.remove();
+                    
+                    if (data.candidates && data.candidates[0].content.parts[0].text) {
+                        const responseText = data.candidates[0].content.parts[0].text;
+                        addMessage(responseText, 'ai-message');
                     } else {
-                        throw new Error('Empty or invalid response');
+                        addMessage('I apologize, but I encountered an error processing your request. Please try again.', 'ai-message');
                     }
-                } else {
-                    throw new Error('Invalid response structure');
+                } catch (error) {
+                    console.error('Error:', error);
+                    typingIndicator.remove();
+                    addMessage('I apologize, but I encountered an error processing your request. Please try again.', 'ai-message');
                 }
-            } catch (error) {
-                console.error('Detailed error:', error);
-                addMessage("I apologize, but I'm having trouble responding right now. Please try asking your question again.", 'ai-message');
-            } finally {
-                hideTypingIndicator();
-                isProcessing = false;
-                document.querySelector('.send-button').disabled = false;
             }
         }
 
-        // Add event listener for Enter key
-        document.getElementById('userInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
+        function addMessage(text, className) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${className}`;
+            messageDiv.textContent = text;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
     </script>
 </body>
 </html> 
